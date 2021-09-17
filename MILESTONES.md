@@ -32,9 +32,9 @@ them to define hours worked in terms of functions. A user could define the numbe
 so that their schedule could change as time goes on in interesting ways. Hours worked per day, h, could change 
 according to the number of days from day 0 on the schedule, t. For example, instead of defining that a user would work 
 8 hours per day (h(t) = 8) their hours worked could oscillate according to a sinusoidal function like 
-h(t) = 4sin(pi/2*t) + 8. This would correspond to 8 hours worked on day 0, 12 on day 1, 8 on day 2, 4 on day 3, and 
+h(t) = 4sin(pi/2\*t) + 8. This would correspond to 8 hours worked on day 0, 12 on day 1, 8 on day 2, 4 on day 3, and 
 so on. We envisioned a DSL that would allow users to stack additional rules on top of this function to create even more 
-interesting schedules (e.g. h(t) = 4sin(pi/2*t) + 8 unless the day is a Saturday/Sunday, in which case h(t) = 0). 
+interesting schedules (e.g. h(t) = 4sin(pi/2\*t) + 8 unless the day is a Saturday/Sunday, in which case h(t) = 0). 
 Functions like this would allow an employer to evenly assign expected overtime hours to employees or plan for high 
 volume weeks based on regular events, like product deliveries or biweekly code sprints.
 
