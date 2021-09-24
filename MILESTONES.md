@@ -7,6 +7,7 @@ can be scheduled, and restrictions on how they can interact. These restrictions 
 implemented by our DSL. We created several example programs based on our draft grammar. The team is still considering 
 potential outputs for our DSL such as plain text describing when entities are scheduled, a calendar, or a table. 
 We also prepared a roadmap to outline the remaining tasks for the project and assign responsibilities to team members.
+Based on the TA’s feedback we might add more features after our user study and initial implementation to get more richness in the language.  
 
 ### Draft Grammar
 // default mode  
