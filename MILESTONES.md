@@ -1,3 +1,127 @@
+## Milestone 2
+
+### Progress Summary
+This week, the team began drafting the grammar for our Scheduler DSL. The user inputs we defined are schedule length, 
+schedule start, operating hours, list of entities (eg. people, courses) to be scheduled, restrictions on when entities 
+can be scheduled, and restrictions on how they can interact. These restrictions form the different Rules that will be 
+implemented by our DSL. We created several example programs based on our draft grammar. The team is still considering 
+potential outputs for our DSL such as plain text describing when entities are scheduled, a calendar, or a table. 
+We also prepared a roadmap to outline the remaining tasks for the project and assign responsibilities to team members.
+
+### Draft Grammar
+// default mode  
+PROGRAM: HEADER OPERATING_HOURS RANGE ENTITY+ ENTITY_GROUP* RULES?;
+ 
+HEADER: ‘Title:’ TEXT;
+
+OPERATING_HOURS: ‘Operating hours:’ BEGINNING, END;
+
+BEGINNING: TIME;
+
+END: TIME;
+
+RANGE: ‘Schedule’ ((NUM ‘days starting’ DATE?) | (DATE ‘to’ DATE));
+
+ENTITY: ‘Entity’ NAME ENTITY_ROLE?;
+
+ENTITY_ROLE: TEXT;
+
+ENTITY_GROUP: ‘Make a group called’ NAME ‘composed of entities’ NAME+;
+ 
+NAME: TEXT;
+
+NUM: [0-9]+;
+
+DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?;
+
+TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9] ‘-’ ([01]?[0-9]|2[0-3]):[0-5][0-9];
+
+TIMEUNIT: ‘day’ | ‘week’ | ‘month’ | ‘year’;
+
+DAY: ‘Monday’ | ‘Tuesday’ | ‘Wednesday’ | ‘Thursday’ | ‘Friday’ | ‘Saturday’ | ‘Sunday’;
+
+// rules   
+RULES: 'Rules:' RULE+;
+
+RULE: SCHEDULE | AVAILABILITY | FREQUENCY | OVERLAP | RATIO;
+
+SCHEDULE: ‘Schedule’ NAME (‘at’ DATE BEGINNING ‘to’ END | ‘on’ DAY+ ‘from’ BEGINNING ‘to’ END (‘repeat:’ NUM ‘times’)?);
+
+AVAILABILITY: NAME ‘is unavailable’ DATE BEGINNING ‘to’ END;
+
+FREQUENCY: NAME ‘cannot be scheduled (more than’ (NUM ‘days in a row’ | FUNCTION)) | (‘on’ DAY+ ‘days’);
+
+NAME ‘must be scheduled’ (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? 
+(‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?;
+ 
+OVERLAP: NAME ‘cannot be scheduled with’ NAME;
+
+RATIO: NUM ENTITY_ROLE ‘to’ NUM ENTITY_ROLE;
+
+FUNCTION: VAR ‘=’, MATH_OPERATIONS;
+
+MATH_OPERATIONS: EXP ([+,-,/,*,sin,cos,tan,log,ln,^]+  MATH_OPERATIONS)?;
+
+EXP: VAR | NUM?;
+
+VAR: ‘t’;
+FUNCTION: ‘h(t)=’ MATH_OPERATIONS+;
+ 
+// text mode  
+TEXT: [a-zA-Z ]+;
+
+### Example Programs
+1. Title: MySchedule;  
+   Operating Hours: 09:00 - 17:00;  
+   Schedule: 22/09/2021 to 30/12/2021;  
+   Entity PersonA employee;  
+   Entity PersonB employee;  
+   Entity PersonC supervisor;
+     
+   Rules:  
+   PersonA is unavailable 23/09/2021 11:00 to 12:00;  
+   PersonB cannot be scheduled more than 5 days in a row;  
+   PersonA cannot be scheduled with PersonB;  
+   1 employee to 1 supervisor;  
+   PersonA hours = 4sin(pi/2*hours) + 8;  
+
+2. Title: SimplestSchedule;  
+   Operating Hours: 09:00 - 17:00;  
+   Schedule: 22/09/2021 to 23/09/2021;  
+   Entity PersonA employee;  
+   
+3. Title: EmptySchedule;  
+   Operating Hours: 09:00 - 09:00;  
+   Schedule: 22/09/2021 to 22/09/2021;  
+   Entity PersonA employee;
+   
+4. Title: CourseSchedule;  
+   Operating Hours: 09:00 - 22:00;  
+   Schedule: 08/09/2021 to 02/12/2021;  
+   Entity ClassA CPSC;  
+   Entity ClassB ECON;  
+   Entity ClassC CPSC;  
+   Make a group called CPSC composed of ClassA ClassB;
+     
+   Rules:  
+   ClassA must be scheduled a minimum of 3 hours per week, a maximum of 3 hours per week;  
+   CPSC must be scheduled an average of 3 hours per week;  
+   ALL cannot be scheduled more than 1 days in a row;  
+   ClassA cannot be scheduled with ClassB;  
+
+### Roadmap and Responsibilities
+[Spreadsheet](https://docs.google.com/spreadsheets/d/1LiARy015J-S_C487LCFtOOMhoyJ-KrihcjczxoUqaws/edit?usp=sharing)
+outlining DSL implementation timeline and team member responsibilities.
+
+### Next Steps
+* Mock up language design
+* Conduct first user study
+* Analysis user study results
+* Begin DSL implementation
+ 
+
+
+
 ## Milestone 1
 
 ### Description
