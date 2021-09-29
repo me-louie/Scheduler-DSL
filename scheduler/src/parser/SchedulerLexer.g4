@@ -5,8 +5,8 @@ HEADER_START: 'Title:' WS* -> mode(TEXT_MODE);
 HEADER_END: 'End Title'; // or just ";"?
 OPERATING_HOURS_START: 'Operating hours:' WS*;
 OPERATING_RULE_START: 'Operating rule:' WS*;
-OR1: 'All operating hours must be scheduled';
-OR2:  'Entities can only be scheduled during operating hours, but not all scheduled hours must be used';
+OPERATING_RULE_1: 'All operating hours must be scheduled';
+OPERATING_RULE_2:  'Entities can only be scheduled during operating hours, but not all scheduled hours must be used';
 ENTITY_START: 'Entity' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_START: 'Make a group called' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_MID: 'composed of entities' WS* -> mode(TEXT_MODE);
@@ -14,9 +14,6 @@ ENTITY_GROUP_MID: 'composed of entities' WS* -> mode(TEXT_MODE);
 RANGE_START: 'Range of schedule:' WS*;
 RANGE_NUM_DAYS_MID :'days starting' WS* -> mode(DATE_MODE);
 RANGE_DATE_DATE_MID: 'to' WS* -> mode(DATE_MODE);
-
-BEGINNING: 'Start Time WS*' -> mode(TIME_MODE);
-END: 'End Time WS*' -> mode(TIME_MODE);
 
 DAY: 'day';
 WEEK: 'week';
@@ -40,27 +37,20 @@ FREQUENCY_DAYS_IN_ROW: 'days in a row' WS*;
 AVAILABILITY_START: 'Unavailable' WS* -> mode(TEXT_MODE);
 OVERLAP_START: 'Cannot schedule together' WS* -> mode(TEXT_MODE);
 RATIO_START: 'Ratio' WS* -> mode(NUM_MODE);
+RATIO_OPERATOR: ':' WS* -> mode(NUM_MODE);
 MANDATORY_START: 'Mandatory to schedule' WS* -> mode(TEXT_MODE);
 MANDATORY_MAX: 'a maximum of' WS* -> mode(NUM_MODE);
 MANDATORY_AVG:'an average of' WS* -> mode(NUM_MODE);
 MANDATORY_MIN: 'a minimum of' WS* -> mode(NUM_MODE);
 
-AT: 'at' WS* -> mode(DATE_MODE);
 TO: 'to' WS* -> mode(DATE_MODE);
 ON: 'on' WS* -> mode(DATE_MODE);
 FROM: 'from' WS* -> mode(DATE_MODE);
-REPEAT_AT: 'repeat' WS*;
+REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 
 ENDLINE: ';';
-MIN_MAX_PREFIX: 'must be scheduled' WS*;
-
-TIMEUNIT_TEXT:'hours per' WS*;
-
-COMMA: ',';
-// todo: create consistency in function definition across grammar/lexer/parser
 FUNCTION_PREFIX: 'h(t)=' WS* -> mode(MATH_MODE);
-
 
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
 WS : [\r\n\t ] -> channel(HIDDEN);
@@ -79,4 +69,5 @@ mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
 
 mode MATH_MODE;
-MATH: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^'|NUM) -> mode(DEFAULT_MODE);
+MATH_OPERATOR: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^') -> mode(DEFAULT_MODE);
+VAR: ('(t)'|'t') -> mode(DEFAULT_MODE);
