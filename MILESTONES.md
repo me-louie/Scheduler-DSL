@@ -13,7 +13,7 @@ nodes for our DSL.
 #### User Study 1
 User 1 is a BCS student in her final year, so she has programming experience as well as work experience in finance.
 
-Summary:   
+**Summary**   
 Deciphering the draft grammar and how it worked was the main source of confusion. There’s a lot of information and it
 wasn’t clear what parts were important. She missed the line in the summary about single quotes as literal text that 
 can be used, so her first attempt just mimicked the language in the examples. The other big issue was entities,
@@ -26,13 +26,13 @@ formatting issues. A more thorough grammar explanation or changing the formattin
 * ‘Weekend’ used as a specific term but isn’t defined in grammar
 * ‘At most’/’at least’ used instead of ‘maximum’/’minimum’
 
-Comments from User 1:
+**Comments from User 1:**
 * Does the order of rules matter?
 * Monday - Sunday is the same as all days, should be able to say all days
 * What is OPERATING_RULE for and how is RULE related?
 * Separating rules by employee type is very helpful, would make sense if they had to be grouped together
 
-After Task:  
+**After Task:**  
 * What happens if/when I do something wrong? How are errors handled?
 * What if the rules conflict and there’s an impossible schedule?
 * Could I get multiple possible schedules to choose between?
@@ -47,7 +47,7 @@ After Task:
 User 2 is a BCS student in his final year. He has experience as a project manager overseeing a large team with multiple 
 different groups.
 
-Summary:  
+**Summary**  
 After the first user study, I adapted my tactics and spent more time explaining how the draft grammar was set up. 
 User 2 was able to figure out the grammar and use it, but as a result, found some gaps and issues with the setup.
 The draft grammar doesn’t allow users to make rules for ENTITY_ROLEs or ENTITY_GROUPs, but I believe that was our
@@ -66,7 +66,7 @@ FREQUENCY: NAME ‘cannot be scheduled (more than’ (NUM ‘days in a row’ | 
 NAME ‘must be scheduled’ (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? (‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?
 ```
 
-Comments from User 2:
+**Comments from User 2:**
 
 * Does the order of rules matter? Can you put rules before title or operating hours?
 * What’s the difference between an entity group and a role?
