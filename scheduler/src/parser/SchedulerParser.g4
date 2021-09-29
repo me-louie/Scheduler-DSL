@@ -1,1 +1,21 @@
-lexer grammar SchedulerParser;
+parser grammar SchedulerParser;
+options { tokenVocab = SchedulerLexer; }
+
+program         : header operating_hours operating_rule range entity+ entity_group* rules? ENDLINE;
+header          : HEADER_START TEXT ENDLINE;
+operating_hours : OPERATING_HOURS_START TIME TO TIME ENDLINE;
+operating_rule  : OPERATING_RULE_START (OPERATING_RULE_1 | OPERATING_RULE_2) ENDLINE;
+range           : RANGE_START ((NUM RANGE_NUM_DAYS_MID DATE) | (DATE RANGE_DATE_DATE_MID DATE)) ENDLINE;
+entity          : ENTITY_START NAME ENTITY_ROLE? ENDLINE;
+entity_group    : ENTITY_GROUP_START NAME ENTITY_GROUP_MID NAME+ ENTITY_GROUP_END ENDLINE;
+
+rules           : RULES_START rule+ ENDLINE;
+rule            : (schedule | availability | frequency | overlap | ratio | mandatory) ENDLINE;
+schedule        : SCHEDULE_START NAME ON ((DATE FROM TIME TO TIME) | (DAY+ FROM TIME TO TIME REPEAT NUM TIMES));
+availability    : AVAILABILITY_START NAME FROM DATE TIME TO DATE TIME;
+frequency       : FREQUENCY_START NAME FREQUENCY_CANNOT_BE_SCHEDULED ((FREQUENCY_MORE_THAN (FUNCTION | NUM) FREQUENCY_DAYS_IN_ROW) | (ON DAY+));
+mandatory       : MANDATORY_START NAME (MANDATORY_MIN (FUNCTION | NUM) HOURS_PER TIMEUNIT)? (MANDATORY_MAX (FUNCTION | NUM) HOURS_PER TIMEUNIT)? (MANDATORY_AVG (FUNCTION | NUM) HOURS_PER TIMEUNIT)?;
+overlap         : OVERLAP_START NAME NAME;
+ratio           : RATIO_START (FUNCTION | NUM) ENTITY_ROLE RATIO_OPERATOR ENTITY_ROLE;
+
+function        : FUNCTION_PREFIX (MATH* (NUM | VAR)+ MATH*)+ ENDLINE;
