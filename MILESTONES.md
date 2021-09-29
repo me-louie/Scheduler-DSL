@@ -1,3 +1,102 @@
+## Milestone 3
+
+### Progress Summary
+This week, the team prepared a [User Study Guide](https://docs.google.com/document/d/1YBh7u4OPTQatA1pct4yJMZs1ZBvj0DWZOhsqIVHoBBE/edit?usp=sharing)
+which introduced our DSL, grammar, presented several examples, and described the user study task and conducted several user
+studies. Based on the user study feedback, we made changes to our grammar to improve consistency, flexibility,
+readability, and to include some additional features. The team also began implementing the lexer, parser, and AST
+nodes for our DSL.
+
+
+### User Studies
+
+#### User Study 1
+User 1 is a BCS student in her final year, so she has programming experience as well as work experience in finance.
+
+Summary:   
+Deciphering the draft grammar and how it worked was the main source of confusion. There’s a lot of information and it
+wasn’t clear what parts were important. She missed the line in the summary about single quotes as literal text that 
+can be used, so her first attempt just mimicked the language in the examples. The other big issue was entities,
+entity groups, and roles. User1 treated roles and groups the same and was confused about specifying scheduling or
+availability for roles or groups. The grammar as written seems to only apply rules to names, but the examples include
+rules applying to a role. Example 4 also includes a role that is a group name and that’s confusing. There were a few 
+formatting issues. A more thorough grammar explanation or changing the formatting to match what users intuitively use 
+(if other users make similar mistakes) could help this. 
+* Range of days uses ‘to’ but a range for hours uses a ‘-’
+* ‘Weekend’ used as a specific term but isn’t defined in grammar
+* ‘At most’/’at least’ used instead of ‘maximum’/’minimum’
+
+Comments from User 1:
+* Does the order of rules matter?
+* Monday - Sunday is the same as all days, should be able to say all days
+* What is OPERATING_RULE for and how is RULE related?
+* Separating rules by employee type is very helpful, would make sense if they had to be grouped together
+
+After Task:  
+* What happens if/when I do something wrong? How are errors handled?
+* What if the rules conflict and there’s an impossible schedule?
+* Could I get multiple possible schedules to choose between?
+* Examples don’t match up with grammar that well,
+* Having a more standard input would help a lot (literally says that she would prefer a form…)
+* Separating rules by employee type is very helpful, would make sense if they had to be grouped together
+* Do rules automatically apply to all entities or have to be specific to role?
+* It would be easier to use this to sort out a schedule for employees with conflicting needs/times than doing it by hand
+
+
+#### User Study 2
+User 2 is a BCS student in his final year. He has experience as a project manager overseeing a large team with multiple 
+different groups.
+
+Summary:  
+After the first user study, I adapted my tactics and spent more time explaining how the draft grammar was set up. 
+User 2 was able to figure out the grammar and use it, but as a result, found some gaps and issues with the setup.
+The draft grammar doesn’t allow users to make rules for ENTITY_ROLEs or ENTITY_GROUPs, but I believe that was our
+plan (and it makes sense) so I told User 2 that he could use a role or group any place NAME was used. Example 4 uses
+ALL to schedule all entities but it’s not defined in the grammar. User 2 said this was definitely a concept he wanted
+to use. I also noticed that creating entities is very repetitive and we could either allow users to list names with the
+same roles or set up some sort of loop here.  
+
+The biggest issue was figuring out how to ensure there was a manager from 10-4 every day. If we can make rules specific
+to roles or groups, I think it would be reasonable for the backend to choose between managers, and so a rule
+“Managers must be scheduled from 10-4” would do this, but right now, the grammar doesn’t allow that. I’m not sure if
+there’s a different way. In general, it was difficult to figure out which of these two rules should be used for a
+specific situation and what format for time is relevant. I think (hope?) we can rewrite and possibly combine these?
+```
+FREQUENCY: NAME ‘cannot be scheduled (more than’ (NUM ‘days in a row’ | FUNCTION)) | (‘on’ DAY+ ‘days’);
+NAME ‘must be scheduled’ (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT ‘,’)? (‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?
+```
+
+Comments from User 2:
+
+* Does the order of rules matter? Can you put rules before title or operating hours?
+* What’s the difference between an entity group and a role?
+* WTF re: sin function. No manager would ever use that to schedule people.
+* Scheduling managers from 10-4
+  * Can you use an ‘at least’ for managers? This would ensure there is at least 1 manager between 10-4 but allow you to have managers working at other times  if they are available
+* Used a ‘cheat’ to ensure only one manager at a time by saying ‘M1 cannot be scheduled with M2’ but this wouldn’t work with more than two managers.
+  * Ratio rule didn’t occur to him and it’s complicated to figure out how that would work with the 10-4 restriction.
+* He wanted to use an OR operator
+* He would like to use a rule like this
+  * Cashiers | Managers hours < 40 week
+  * I think it’s partly that it’s not easy to understand what rules do generally, so finding the right rule to insert the right values is hard
+* Availability rule is confusing. It would be convenient and very useful to be able to state that a specific employee is not available on Tuesdays in July or an employee is no available on Tuesdays between 12-3 or something like that but the current grammar limits it to specific dates.
+* Generally, he thought it was pretty reasonable and straightforward, but it was missing ways to create rules for common situations.
+
+### Planned Changes After User Studies
+* Allow users to specify rules using days, eg. 'Monday', 'Tuesday' or dd/mm/yyyy. This would be closer to natural
+language and also more flexible.
+* Refactor the grammar to be more internally consistent, eg. use the same patterns and keywords.
+* Collapse unnecessary complexity, eg. ENTITY_ROLE and ENTITY_GROUP can be represented by just the GROUP concept
+* Add useful default constants such as ALL_DAYS (Monday - Sunday)
+
+### Next Steps
+* Make the grammar changes suggested by the user studies
+* Implement DSL
+  * AST nodes
+  * Scheduling algorithm
+  * Input/Output
+
+
 ## Milestone 2
 
 ### Progress Summary
