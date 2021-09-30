@@ -15,7 +15,12 @@ RANGE_START: 'Range of schedule:' WS*;
 RANGE_NUM_DAYS_MID :'days starting' WS* -> mode(DATE_MODE);
 RANGE_DATE_DATE_MID: 'to' WS* -> mode(DATE_MODE);
 
-TIMEUNIT: 'day' | 'month' | 'year';
+DAY: 'day';
+WEEK: 'week';
+MONTH: 'month';
+YEAR: 'year';
+
+HOURS_PER: 'hours per';
 
 RULES_START: 'Rules:' WS*;
 SCHEDULE_START: 'Schedule' WS* -> mode(TEXT_MODE);
@@ -52,12 +57,20 @@ TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) '-' ([01]?[0-9]|'2'[0-3])(':'[0-5][0
 
 mode DATE_MODE;
 DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9]-> mode(DEFAULT_MODE);
-DAY: ('Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday')+ -> mode(DEFAULT_MODE);
 ALL_DAYS: 'Monday Tuesday Wednesday Thursday Friday Saturday Sunday' -> mode(DEFAULT_MODE);
+MON: 'Monday';
+TUES: 'Tuesday';
+WED: 'Wednesday';
+THUR: 'Thursday';
+FRI: 'Friday';
+SAT: 'Saturday';
+SUN: 'Sunday';
+TERMINAL: 'exclusive' -> mode(DEFAULT_MODE);
 
 mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
 
 mode MATH_MODE;
+// TODO: I think we need to define these operators individually as tokens. Same for var.
 MATH_OPERATOR: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^') -> mode(DEFAULT_MODE);
 VAR: ('(t)'|'t') -> mode(DEFAULT_MODE);

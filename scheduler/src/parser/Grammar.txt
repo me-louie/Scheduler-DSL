@@ -9,7 +9,7 @@ range: ‘Range of schedule:’ ((NUM ‘days starting’ DATE) | (DATE ‘to’
 entity: ‘Entity’ TEXT ';';
 rules: 'Rules:' rule+ ';';
 rule: schedule | availability | frequency | overlap | ratio ';';
-schedule: ‘Schedule’ TEXT specific_days | min_max_avg_days;
+schedule: ‘Schedule’ TEXT (specific_days | min_max_avg_days);
 specific_days: ‘on’ (DATE 'from' TIME ‘to’ TIME | (DAY+ | ALL_DAYS) ‘from’ TIME ‘to’ TIME (‘repeat:’ NUM)?);
 min_max_avg_days: (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?;
 availability: 'Unavailable' TEXT ‘on’ (DATE 'from' TIME ‘to’ TIME | (DAY+ | ALL_DAYS) ‘from’ TIME ‘to’ TIME (‘repeat:’ NUM)?);
