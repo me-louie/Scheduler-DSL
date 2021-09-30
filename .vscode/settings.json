@@ -1,0 +1,10 @@
+{
+  "java.project.sourcePaths": [
+    "scheduler/src",
+    "gen"
+  ],
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "scheduler/lib/antlr-4.9.2-complete.jar"
+  ]
+}

@@ -2,3 +2,4 @@ gen/
 out
 .idea/
 Project1Group10.iml
+scheduler/src/parser/.antlr/

@@ -45,7 +45,7 @@ REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 
 ENDLINE: ';';
-FUNCTION_PREFIX: 'h(t)=' WS* -> mode(NUM_MODE);
+FUNCTION_PREFIX: 'h(t)=' WS*;
 
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
 WS : [\r\n\t ] -> channel(HIDDEN);
@@ -57,6 +57,7 @@ mode TIME_MODE;
 TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) '-' ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) -> mode(DEFAULT_MODE);
 
 mode DATE_MODE;
+// mm-dd-yyyy or mm/dd/yyyy
 DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9]-> mode(DEFAULT_MODE);
 ALL_DAYS: 'Monday Tuesday Wednesday Thursday Friday Saturday Sunday' -> mode(DEFAULT_MODE);
 MON: 'Monday';
@@ -72,4 +73,14 @@ mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
 // TODO: I think we need to define these operators individually as tokens. Same for var.
 MATH_OPERATOR: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^') -> mode(DEFAULT_MODE);
+
 VAR: ('(t)'|'t') -> mode(DEFAULT_MODE);
+
+// FUNCTION: VAR ‘=’, MATH_OPERATIONS;
+
+// MATH_OPERATIONS: EXP ([+,-,/,*,sin,cos,tan,log,ln,^]+  MATH_OPERATIONS)?;
+
+// EXP: VAR | NUM?;
+
+// VAR: ‘t’;
+// FUNCTION: ‘h(t)=’ MATH_OPERATIONS+;
