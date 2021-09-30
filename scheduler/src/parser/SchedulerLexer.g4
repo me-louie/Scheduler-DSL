@@ -20,6 +20,9 @@ WEEK: 'week';
 MONTH: 'month';
 YEAR: 'year';
 
+HOURS_PER: 'hours per';
+TIMEUNIT: DAY | WEEK | MONTH | YEAR;
+
 MONDAY: 'Monday';
 TUESDAY: 'Tuesday';
 WEDNESDAY: 'Wednesday';
@@ -50,7 +53,7 @@ REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 
 ENDLINE: ';';
-FUNCTION_PREFIX: 'h(t)=' WS* -> mode(MATH_MODE);
+FUNCTION_PREFIX: 'h(t)=' WS*;
 
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
 WS : [\r\n\t ] -> channel(HIDDEN);
@@ -70,4 +73,14 @@ NUM: [0-9]+ -> mode(DEFAULT_MODE);
 
 mode MATH_MODE;
 MATH_OPERATOR: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^') -> mode(DEFAULT_MODE);
+
 VAR: ('(t)'|'t') -> mode(DEFAULT_MODE);
+
+// FUNCTION: VAR ‘=’, MATH_OPERATIONS;
+
+// MATH_OPERATIONS: EXP ([+,-,/,*,sin,cos,tan,log,ln,^]+  MATH_OPERATIONS)?;
+
+// EXP: VAR | NUM?;
+
+// VAR: ‘t’;
+// FUNCTION: ‘h(t)=’ MATH_OPERATIONS+;
