@@ -26,7 +26,7 @@ RULES_START: 'Rules:' WS*;
 SCHEDULE_START: 'Schedule' WS* -> mode(TEXT_MODE);
 FREQUENCY_START: 'Frequency' WS* -> mode(TEXT_MODE);
 FREQUENCY_CANNOT_BE_SCHEDULED: 'cannot be scheduled' WS*;
-FREQUENCY_MORE_THAN: 'more than' WS* -> mode(MATH_MODE);
+FREQUENCY_MORE_THAN: 'more than' WS* -> mode(NUM_MODE);
 FREQUENCY_DAYS_IN_ROW: 'days in a row' WS*;
 AVAILABILITY_START: 'Unavailable' WS* -> mode(TEXT_MODE);
 OVERLAP_START: 'Cannot schedule together' WS* -> mode(TEXT_MODE);
@@ -45,13 +45,13 @@ REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 
 ENDLINE: ';';
-FUNCTION_PREFIX: 'h(t)=' WS* -> mode(MATH_MODE);
+FUNCTION_PREFIX: 'h(t)=' WS* -> mode(NUM_MODE);
 
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
 WS : [\r\n\t ] -> channel(HIDDEN);
 
 mode TEXT_MODE;
-TEXT: ~[[|\]\r\n;]+ -> mode(DEFAULT_MODE);
+TEXT: [a-zA-Z]+ -> mode(DEFAULT_MODE);
 
 mode TIME_MODE;
 TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) '-' ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) -> mode(DEFAULT_MODE);
@@ -70,8 +70,6 @@ TERMINAL: 'exclusive' -> mode(DEFAULT_MODE);
 
 mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
-
-mode MATH_MODE;
 // TODO: I think we need to define these operators individually as tokens. Same for var.
 MATH_OPERATOR: ('+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^') -> mode(DEFAULT_MODE);
 VAR: ('(t)'|'t') -> mode(DEFAULT_MODE);

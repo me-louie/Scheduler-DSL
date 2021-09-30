@@ -11,8 +11,8 @@ rules: 'Rules:' rule+ ';';
 rule: schedule | availability | frequency | overlap | ratio ';';
 schedule: ‘Schedule’ TEXT (specific_days | min_max_avg_days);
 specific_days: ‘on’ (DATE 'from' TIME ‘to’ TIME | (DAY+ | ALL_DAYS) ‘from’ TIME ‘to’ TIME (‘repeat:’ NUM)?);
-min_max_avg_days: (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?;
-availability: 'Unavailable' TEXT ‘on’ (DATE 'from' TIME ‘to’ TIME | (DAY+ | ALL_DAYS) ‘from’ TIME ‘to’ TIME (‘repeat:’ NUM)?);
+min_max_avg_days: ((‘a minimum of’ | 'a maximum of' | 'an average of') (FUNCTION | NUM) ‘hours per’ TIMEUNIT))+;
+availability: 'Unavailable' TEXT ‘on’ (DATE 'from' TIME ‘to’ TIME | (DAY+ | ALL_DAYS) ‘from’ TIME ‘to’ TIME ‘repeat:’ NUM);
 frequency: 'Frequency' TEXT 'cannot be scheduled' ('more than’ ((NUM | FUNCTION) ‘days in a row’)) | (‘on’ DAY+ | ALL_DAYS);
 overlap: ‘Cannot schedule together’ TEXT TEXT;
 ratio: 'Ratio' NUM 'of' TEXT ‘:’ NUM 'of' TEXT; // TODO: make this prettier
@@ -21,7 +21,7 @@ function: 'h(t)=' (MATH* (NUM | VAR)+ MATH*)+ ';';
 MATH_OPERATOR: '+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^';
 VAR: 't' | '(t)';
 
-TEXT: [a-zA-Z ]+;
+TEXT: [a-zA-Z]+;
 
 TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9] ‘-’ ([01]?[0-9]|2[0-3]):[0-5][0-9];
 
