@@ -47,7 +47,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitEntity_role(SchedulerParser.Entity_roleContext ctx) {
+    public Node visitTimeunit(SchedulerParser.TimeunitContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitDays_of_week(SchedulerParser.Days_of_weekContext ctx) {
         return null;
     }
 
@@ -67,17 +72,32 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
+    public Node visitSpecific_days(SchedulerParser.Specific_daysContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitSpecific_days_by_date(SchedulerParser.Specific_days_by_dateContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitSpecific_days_by_days_of_week(SchedulerParser.Specific_days_by_days_of_weekContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitMin_max_avg_days(SchedulerParser.Min_max_avg_daysContext ctx) {
+        return null;
+    }
+
+    @Override
     public Node visitAvailability(SchedulerParser.AvailabilityContext ctx) {
         return null;
     }
 
     @Override
     public Node visitFrequency(SchedulerParser.FrequencyContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMandatory(SchedulerParser.MandatoryContext ctx) {
         return null;
     }
 
