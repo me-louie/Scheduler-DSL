@@ -12,9 +12,10 @@ name            : TEXT;
 entity_role     : TEXT;
 
 
-rules           : RULES_START rule2+ ENDLINE;
-rule2            : (schedule | availability | frequency | overlap | ratio | mandatory) ENDLINE;
-schedule        : SCHEDULE_START name ON ((DATE FROM TIME TO TIME) | (DAY+ FROM TIME TO TIME REPEAT NUM TIMES));
+rules           : RULES_START schedule_rule+ ENDLINE;
+schedule_rule   : (schedule | availability | frequency | overlap | ratio | mandatory) ENDLINE;
+schedule        : SCHEDULE_START name ON ((DATE FROM TIME TO TIME) | schedule_option2) ;
+schedule_option2: DAY+ FROM TIME TO TIME REPEAT NUM TIMES;
 availability    : AVAILABILITY_START name FROM DATE TIME TO DATE TIME;
 frequency       : FREQUENCY_START name FREQUENCY_CANNOT_BE_SCHEDULED ((FREQUENCY_MORE_THAN (function | NUM) FREQUENCY_DAYS_IN_ROW) | (ON DAY+));
 mandatory       : MANDATORY_START name (MANDATORY_MIN (function | NUM) HOURS_PER TIMEUNIT)? (MANDATORY_MAX (function | NUM) HOURS_PER TIMEUNIT)? (MANDATORY_AVG (function | NUM) HOURS_PER TIMEUNIT)?;

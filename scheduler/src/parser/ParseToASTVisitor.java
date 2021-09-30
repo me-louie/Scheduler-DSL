@@ -1,22 +1,23 @@
 package parser;
 
 import ast.*;
-import ast.rules.*;
+import parser.SchedulerParser.Schedule_ruleContext;
+
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
-    public Program visitProgram(SchedulerParser.ProgramContext ctx) {
+    public Node visitProgram(SchedulerParser.ProgramContext ctx) {
         return null;
     }
 
     @Override
-    public Header visitHeader(SchedulerParser.HeaderContext ctx) {
+    public Node visitHeader(SchedulerParser.HeaderContext ctx) {
         return null;
     }
 
     @Override
-    public OperatingHours visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
+    public Node visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
         return null;
     }
 
@@ -31,12 +32,22 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Entity visitEntity(SchedulerParser.EntityContext ctx) {
+    public Node visitEntity(SchedulerParser.EntityContext ctx) {
         return null;
     }
 
     @Override
-    public EntityGroup visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
+    public Node visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitName(SchedulerParser.NameContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitEntity_role(SchedulerParser.Entity_roleContext ctx) {
         return null;
     }
 
@@ -46,22 +57,22 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Rule visitRule(SchedulerParser.RuleContext ctx) {
+    public Node visitSchedule_rule(Schedule_ruleContext ctx) {
         return null;
     }
 
     @Override
-    public Schedule visitSchedule(SchedulerParser.ScheduleContext ctx) {
+    public Node visitSchedule(SchedulerParser.ScheduleContext ctx) {
         return null;
     }
 
     @Override
-    public Availability visitAvailability(SchedulerParser.AvailabilityContext ctx) {
+    public Node visitAvailability(SchedulerParser.AvailabilityContext ctx) {
         return null;
     }
 
     @Override
-    public Frequency visitFrequency(SchedulerParser.FrequencyContext ctx) {
+    public Node visitFrequency(SchedulerParser.FrequencyContext ctx) {
         return null;
     }
 
@@ -76,12 +87,22 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Ratio visitRatio(SchedulerParser.RatioContext ctx) {
+    public Node visitRatio(SchedulerParser.RatioContext ctx) {
         return null;
     }
 
     @Override
     public Node visitFunction(SchedulerParser.FunctionContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitMath(SchedulerParser.MathContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitExp(SchedulerParser.ExpContext ctx) {
         return null;
     }
 }
