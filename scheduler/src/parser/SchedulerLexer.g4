@@ -40,6 +40,7 @@ MANDATORY_MIN: 'a minimum of' WS* -> mode(NUM_MODE);
 TO: 'to' WS* -> mode(DATE_MODE);
 ON: 'on' WS* -> mode(DATE_MODE);
 FROM: 'from' WS* -> mode(TIME_MODE);
+OF: 'of' WS* -> mode(TEXT_MODE);
 REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 

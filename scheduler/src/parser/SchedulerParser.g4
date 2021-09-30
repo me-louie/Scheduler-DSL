@@ -20,6 +20,6 @@ min_max_avg_days: (MANDATORY_MIN (function | NUM) HOURS_PER timeunit)? (MANDATOR
 availability    : AVAILABILITY_START TEXT ON (DATE FROM TIME TO TIME | (days_of_week+ TERMINAL | ALL_DAYS) FROM TIME TO TIME REPEAT NUM TIMES);
 frequency       : FREQUENCY_START TEXT FREQUENCY_CANNOT_BE_SCHEDULED (FREQUENCY_MORE_THAN (function | NUM) FREQUENCY_DAYS_IN_ROW) | ON (days_of_week+ | ALL_DAYS);
 overlap         : OVERLAP_START TEXT TEXT;
-ratio           : RATIO_START (function | NUM) TEXT RATIO_OPERATOR TEXT;
+ratio           : RATIO_START (function | NUM) OF TEXT RATIO_OPERATOR (function | NUM) OF TEXT;
 // TODO: fix function
 function        : FUNCTION_PREFIX (MATH_OPERATOR* (NUM | VAR)+ MATH_OPERATOR*)+ ENDLINE;
