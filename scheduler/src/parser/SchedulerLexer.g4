@@ -43,6 +43,7 @@ TO: 'to' WS* -> mode(TIME_MODE); // only using for times right now, what about d
 ON: 'on' WS* -> mode(DATE_MODE);
 FROM: 'from' WS* -> mode(TIME_MODE);
 OF: 'of' WS* -> mode(TEXT_MODE);
+COMMA: ',' WS* -> mode(TEXT_MODE);
 REPEAT: 'repeat' WS*;
 TIMES: 'times' WS*;
 

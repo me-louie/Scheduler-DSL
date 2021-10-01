@@ -3,22 +3,21 @@ package ast;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Range extends Node {
-    private final Date start, end;
+    private final LocalDate start, end;
 
-    public Range(String startDate, String endDate) throws ParseException {
+    public Range(String startDate, String endDate) {
         this.start = Helper.parseDateString(startDate);
         this.end = Helper.parseDateString(endDate);
     }
 
-    public Date getStart() {
+    public LocalDate getStart() {
       return start;
     }
 
-    public Date getEnd() {
+    public LocalDate getEnd() {
       return end;
     }
 

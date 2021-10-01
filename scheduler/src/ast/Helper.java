@@ -1,18 +1,17 @@
 package ast;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Helper {
-  public static Date parseDateString(String dateString) throws ParseException {
-    SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-    SimpleDateFormat format2 = new SimpleDateFormat("MM-dd-yyyy");
+  public static LocalDate parseDateString(String dateString) {
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("MM-dd-yyyy");
     
     try {
-      return format.parse(dateString);
-    } catch (ParseException e) {
-      return format2.parse(dateString);
+      return LocalDate.parse(dateString, formatter);
+    } catch (IllegalArgumentException e) {
+      return LocalDate.parse(dateString, formatter2);
     }
   }
 }

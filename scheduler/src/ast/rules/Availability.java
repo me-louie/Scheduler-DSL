@@ -5,14 +5,14 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 import ast.Helper;
 
 public class Availability extends Rule {
 
     private final String name;
-    private final Date dStart, dEnd;
+    private final LocalDate dStart, dEnd;
     private final LocalTime tStart, tEnd;
 
     public Availability(String name, String dStart, String dEnd, String tStart, String tEnd) throws ParseException {
@@ -27,11 +27,11 @@ public class Availability extends Rule {
         return this.name;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return this.dStart;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return this.dEnd;
     }
 

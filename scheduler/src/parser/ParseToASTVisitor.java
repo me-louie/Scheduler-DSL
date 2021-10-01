@@ -6,6 +6,8 @@ import parser.SchedulerParser.Schedule_ruleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
@@ -43,20 +45,23 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     @Override
     public Range visitRange(SchedulerParser.RangeContext ctx) {
-        try {
-            return new Range(ctx.DATE(0).getText(), ctx.DATE(1).getText());
-        } catch (ParseException e) {
-            throw new RuntimeException("Range of schedule: invalid date." + e.getMessage());
-        }
+        return new Range(ctx.DATE(0).getText(), ctx.DATE(1).getText());
     }
 
     @Override
     public Node visitEntity(SchedulerParser.EntityContext ctx) {
-        return null;
+        return new Entity(ctx.name().getText());
     }
 
     @Override
     public Node visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
+
+        List<Entity> elist = new ArrayList<Entity>();
+
+        for(int i = 1; i < ctx.name().size();i++){
+            elist.add(new Entity(ctx.name(i).getText()));
+            System.out.println(ctx.name(i));
+        }
         return null;
     }
 
