@@ -1,0 +1,5 @@
+Title: MySchedule;
+Operating hours: 09:00 to 17:00;
+Operating rule: All operating hours must be scheduled;
+Range of schedule: 09/22/2021 to date 12/30/2021;
+Entity PersonA;

@@ -1,7 +1,7 @@
 parser grammar SchedulerParser;
 options { tokenVocab = SchedulerLexer; }
 
-program         : header operating_hours operating_rule range entity+ entity_group* rules? ENDLINE;
+program         : header operating_hours operating_rule range entity+ entity_group* rules?;
 header          : HEADER_START TEXT ENDLINE;
 operating_hours : OPERATING_HOURS_START TIME TO TIME ENDLINE;
 operating_rule  : OPERATING_RULE_START (OPERATING_RULE_1 | OPERATING_RULE_2) ENDLINE;

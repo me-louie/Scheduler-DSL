@@ -5,20 +5,35 @@ import parser.SchedulerParser.Schedule_ruleContext;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
+import java.text.ParseException;
+
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
-    public Node visitProgram(SchedulerParser.ProgramContext ctx) {
-        return null;
+    public Program visitProgram(SchedulerParser.ProgramContext ctx) {
+        Header header = this.visitHeader(ctx.header());
+        OperatingHours oHours = this.visitOperating_hours(ctx.operating_hours());
+        String oRule;
+        if (ctx.operating_rule().OPERATING_RULE_1() != null) {
+            oRule = ctx.operating_rule().OPERATING_RULE_1().getText();
+        } else if (ctx.operating_rule().OPERATING_RULE_2() != null) {
+            oRule = ctx.operating_rule().OPERATING_RULE_2().getText();
+        } else {
+            throw new RuntimeException("Invalid operating rule");
+        }
+
+        Range range = this.visitRange(ctx.range());
+
+        return new Program(null, null, oHours, header, range, oRule, null);
     }
 
     @Override
-    public Node visitHeader(SchedulerParser.HeaderContext ctx) {
-        return null;
+    public Header visitHeader(SchedulerParser.HeaderContext ctx) {
+        return new Header(ctx.TEXT().getText());
     }
 
     @Override
-    public Node visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
-        return null;
+    public OperatingHours visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
+        return new OperatingHours(ctx.TIME(0).getText(), ctx.TIME(1).getText());
     }
 
     @Override
@@ -27,8 +42,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitRange(SchedulerParser.RangeContext ctx) {
-        return null;
+    public Range visitRange(SchedulerParser.RangeContext ctx) {
+        try {
+            return new Range(ctx.DATE(0).getText(), ctx.DATE(1).getText());
+        } catch (ParseException e) {
+            throw new RuntimeException("Range of schedule: invalid date." + e.getMessage());
+        }
     }
 
     @Override

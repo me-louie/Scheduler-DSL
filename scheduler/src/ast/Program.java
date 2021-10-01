@@ -9,8 +9,8 @@ import ast.rules.Rule;
 
 public class Program extends Node {
 
-    private final Entity entity;
-    private final EntityGroup entityGroup;
+    private final List<Entity> entities;
+    private final List<EntityGroup> entityGroups;
     private final OperatingHours oHours;
     private final Header header;
     private final Range range;
@@ -18,9 +18,9 @@ public class Program extends Node {
     private final boolean scheduleAllHours;
     private final List<Rule> rules;
 
-    public Program(Entity e, EntityGroup eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
-        this.entity = e;
-        this.entityGroup = eGroup;
+    public Program(List<Entity> e, List<EntityGroup> eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
+        this.entities = e;
+        this.entityGroups = eGroup;
         this.oHours = oHours;
         this.header = header;
         this.range = range;
@@ -35,12 +35,12 @@ public class Program extends Node {
         this.rules = rules;
     }
 
-    public Entity getEntity() {
-      return entity;
+    public List<Entity> getEntity() {
+      return entities;
     }
 
-    public EntityGroup getEntityGroup() {
-      return entityGroup;
+    public List<EntityGroup> getEntityGroup() {
+      return entityGroups;
     }
 
     public Header getHeader() {

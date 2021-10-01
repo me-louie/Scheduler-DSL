@@ -25,7 +25,7 @@ public class Frequency extends Rule {
     public Frequency (String name, Function func, List<DayOfWeek> days) throws NumberFormatException {
         //Note: Lists made in the ParseToAst class. 
         this.name = name;
-        // TODO: Change when we know how to handle variables
+        // TOD: Change when we know how to handle variables
         this.fMoreThan = 0;
         this.func = func;
         this.days = days;
