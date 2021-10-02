@@ -22,12 +22,8 @@ public class Main {
         lexer.reset();
         TokenStream tokens = new CommonTokenStream(lexer);
         System.out.println("Done tokenizing");
-
         SchedulerParser parser = new SchedulerParser(tokens);
-        System.out.println("test");
         ParseToASTVisitor visitor = new ParseToASTVisitor();
-        //SchedulerParser.ProgramContext a = parser.program();
-        System.out.println("test2");
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
         System.out.println(parsedProgram.shouldScheduleAllHours());

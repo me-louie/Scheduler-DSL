@@ -18,7 +18,7 @@ public class Ratio extends Rule {
     private EntityGroup group1;
     private EntityGroup group2;
 
-    public Ratio (String number1, EntityGroup group1, String number2, EntityGroup group2){
+    public Ratio(String number1, EntityGroup group1, String number2, EntityGroup group2) {
         this.ratio = Math.abs((Integer.parseInt(number1))/(Integer.parseInt(number2)));
         this.group1 = group1;
         this.group2 = group2;

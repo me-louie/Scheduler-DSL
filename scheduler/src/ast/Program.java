@@ -3,6 +3,7 @@ package ast;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 
 import ast.rules.Rule;
@@ -41,6 +42,15 @@ public class Program extends Node {
 
     public List<EntityGroup> getEntityGroup() {
       return entityGroups;
+    }
+
+    public HashMap<String, EntityGroup> getEntityGroupMap() {
+        HashMap<String, EntityGroup> eHashMap = new HashMap<>();
+        for (int i =0; i< this.getEntityGroup().size(); i++){
+            eHashMap.put(this.entityGroups.get(i).getName(),this.entityGroups.get(i));
+        }
+
+        return eHashMap;
     }
 
     public Header getHeader() {

@@ -1,11 +1,11 @@
 package parser;
 
 import ast.*;
+import ast.rules.*;
 import parser.SchedulerParser.Schedule_ruleContext;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +25,38 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
         Range range = this.visitRange(ctx.range());
 
-        return new Program(null, null, oHours, header, range, oRule, null);
+        List<EntityGroup> eGroupList = new ArrayList<>();
+
+        List<Entity> eList = new ArrayList<>();
+
+        for (SchedulerParser.EntityContext e1 : ctx.entity()) {
+            eList.add(this.visitEntity(e1));
+        }
+
+        for (SchedulerParser.Entity_groupContext e : ctx.entity_group()) {
+            eGroupList.add(this.visitEntity_group(e));
+        }
+
+        List<SchedulerParser.Schedule_ruleContext> rulesCtx = ctx.rules().schedule_rule();
+        List<Rule> rules = new ArrayList<>();
+
+        for (SchedulerParser.Schedule_ruleContext ruleCtx : rulesCtx) {
+            if (ruleCtx.schedule() != null) {
+                rules.add(this.visitSchedule(ruleCtx.schedule()));
+            } else if (ruleCtx.overlap() != null){
+                rules.add(this.visitOverlap(ruleCtx.overlap()));
+            }  else if (ruleCtx.availability() != null){
+                rules.add(this.visitAvailability(ruleCtx.availability()));
+            }  else if (ruleCtx.frequency() != null){
+                rules.add(this.visitFrequency(ruleCtx.frequency()));
+            } else if (ruleCtx.ratio() != null){
+                rules.add(this.visitRatio(ruleCtx.ratio()));
+            } else {
+                throw new RuntimeException("Invalid rule");
+            }
+        }
+
+        return new Program(eList, eGroupList, oHours, header, range, oRule, rules);
     }
 
     @Override
@@ -49,20 +80,23 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitEntity(SchedulerParser.EntityContext ctx) {
+    public Entity visitEntity(SchedulerParser.EntityContext ctx) {
         return new Entity(ctx.name().getText());
     }
 
     @Override
-    public Node visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
+    public EntityGroup visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
 
-        List<Entity> elist = new ArrayList<Entity>();
+        String name = ctx.name(0).getText();
+        List<Entity> elist = new ArrayList<>();
 
+        //System.out.println("HELLO");
+        //System.out.println(ctx.name(0).getText());
         for(int i = 1; i < ctx.name().size();i++){
             elist.add(new Entity(ctx.name(i).getText()));
-            System.out.println(ctx.name(i));
+            //System.out.println(ctx.name(i).getText());
         }
-        return null;
+        return new EntityGroup(name,elist);
     }
 
     @Override
@@ -91,7 +125,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitSchedule(SchedulerParser.ScheduleContext ctx) {
+    public Schedule visitSchedule(SchedulerParser.ScheduleContext ctx) {
         return null;
     }
 
@@ -116,22 +150,22 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitAvailability(SchedulerParser.AvailabilityContext ctx) {
+    public Availability visitAvailability(SchedulerParser.AvailabilityContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitFrequency(SchedulerParser.FrequencyContext ctx) {
+    public Frequency visitFrequency(SchedulerParser.FrequencyContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitOverlap(SchedulerParser.OverlapContext ctx) {
-        return null;
+    public Overlap visitOverlap(SchedulerParser.OverlapContext ctx) {
+        return new Overlap(ctx.name(0).getText(), ctx.name(1).getText());
     }
 
     @Override
-    public Node visitRatio(SchedulerParser.RatioContext ctx) {
+    public Ratio visitRatio(SchedulerParser.RatioContext ctx) {
         return null;
     }
 
