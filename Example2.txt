@@ -1,0 +1,18 @@
+Title: CourseSchedule;
+Operating hours: 09:00 to 22:00;
+Operating rule: All operating hours must be scheduled;
+Range of schedule: 09/08/2021 to date 12/02/2021;
+Entity ClassA;
+Entity ClassB;
+Entity ClassC;
+
+Make a group called CPSC composed of entities ClassA, ClassC;
+Make a group called ECON composed of entities ClassB;
+Make a group called ALL composed of entities ClassA, ClassB, ClassC;
+
+Rules:
+Schedule ClassA a minimum of 3 hours per week;
+Schedule ClassA a maximum of 3 hours per week;
+Schedule ClassB an average of 3 hours per week;
+Frequency ALL cannot be scheduled more than 1 days in a row;
+Cannot schedule together ClassA, ClassB;
