@@ -1,33 +1,30 @@
 Source of truth for our grammar:
 
-program: HEADER OPERATING_HOURS OPERATING_RULE RANGE ENTITY+ ENTITY_GROUP* RULES? ';';
-header: ‘Title:’ TEXT ';';
-operating_hours: ‘Operating hours:’  TIME 'to' TIME ';';
-operating_rule: ‘Operating rule:’ (‘All operating hours must be scheduled’ | ‘Entities can only be scheduled during operating hours, but not all scheduled hours must be used’) ';';
+program: HEADER ENTITY+ ENTITY_GROUP* SHIFT+ SHIFT_GROUP* TRANSFORMATION* ';';
+header: ‘Title:’ TEXT ';
+entity: ‘Entity’ NAME ';';
 entity_group: ‘Make a group called’ NAME ‘composed of entities’ NAME+ ';';
-range: ‘Range of schedule:’ ((NUM ‘days starting’ DATE) | (DATE ‘to’ DATE)) ';';
-entity: ‘Entity’ NAME ENTITY_ROLE? ';';
-rules: “Rules:” rule+ ';';
-rule: schedule | availability | frequency | overlap | ratio | mandatory ';';
-schedule: ‘Schedule’ NAME (‘on’ DATE 'from' TIME ‘to’ TIME | 'on' DAY+ ‘from’ TIME ‘to’ TIME (‘repeat:’ NUM)?);
-availability: 'Unavailable' NAME ‘from’ DATE TIME ‘to’ DATE TIME;
-frequency: 'Frequency' NAME 'cannot be scheduled' ('more than’ ((NUM | FUNCTION) ‘days in a row’)) | (‘on’ DAY+);
-mandatory: ‘Mandatory to schedule’ NAME (‘a minimum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘a maximum of’ FUNCTION ‘hours per’ TIMEUNIT)? (‘an average of’ FUNCTION ‘hours per’ TIMEUNIT)?;
-overlap: ‘Cannot schedule together’ NAME NAME;
-ratio: 'Ratio' NUM ENTITY_ROLE ‘:’ NUM ENTITY_ROLE;
-function: 'h(t)=' (MATH* (NUM | VAR)+ MATH*)+ ';';
 
-MATH_OPERATOR: '+'|'-'|'/'|'*'|'sin'|'cos'|'tan'|'log'|'ln'|'^';
-VAR: 't' | '(t)';
+shifts: 'Shifts:' shift+ ';';
+shift: ‘Shift’ SHIFT_NAME IS DATE TIME '-' TIME;
+shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';
+
+logical_operator: 'AND' | 'OR' | 'XOR' ';' ;
+bitwise_operator: >> NUM | << NUM ';' ;
+
+transformations: apply | merge | loop ';' ;
+apply: 'Apply' (SHIFT_GROUP_NAME | merge) 'to' NAME (bitwise_operator NUM)?;
+merge: 'Merge' SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | merge) ;
+loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;
+
 
 TEXT: [a-zA-Z ]+;
 NAME: TEXT;
-ENTITY_ROLE: TEXT;
+SHIFT_NAME: TEXT;
+SHIFT_GROUP_NAME: TEXT;
+COMMA: ',';
 
-TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9] ‘-’ ([01]?[0-9]|2[0-3]):[0-5][0-9];
+TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];
 
 DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?
-TIMEUNIT: ‘day’ | ‘week’ | ‘month’ | ‘year’
-DAY: ‘Monday’ | ‘Tuesday’ | ‘Wednesday’ | ‘Thursday’ | ‘Friday’ | ‘Saturday’ | ‘Sunday’;
-
 NUM: [0-9]+;
