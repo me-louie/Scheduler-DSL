@@ -1,39 +1,27 @@
 parser grammar SchedulerParser;
 options { tokenVocab = SchedulerLexer; }
 
-program         : header operating_hours operating_rule range entity+ entity_group* rules?;
+program         : header entity+ entity_group* shift+ shift_group* transformations*;
 header          : HEADER_START TEXT ENDLINE;
-operating_hours : OPERATING_HOURS_START TIME TO TIME ENDLINE;
-operating_rule  : OPERATING_RULE_START (OPERATING_RULE_1 | OPERATING_RULE_2) ENDLINE;
-range           : RANGE_START ((NUM RANGE_NUM_DAYS_MID DATE) | (DATE RANGE_DATE_DATE_MID DATE)) ENDLINE;
 entity          : ENTITY_START name ENDLINE;
 entity_group    : ENTITY_GROUP_START name ENTITY_GROUP_MID name (COMMA name)* ENDLINE;
 name            : TEXT;
 
-timeunit        : (DAY | WEEK | MONTH | YEAR);
-days_of_week    : (MON | TUES | WED | THUR | FRI | SAT | SUN);
+shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR DATE TIME ENDLINE;
+shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 
-rules           : RULES_START schedule_rule+;
-schedule_rule   : (schedule | availability | frequency | overlap | ratio) ENDLINE;
-schedule        : SCHEDULE_START name (specific_days | min_max_avg_days);
-specific_days   : ON (specific_days_by_date | specific_days_by_days_of_week);
-specific_days_by_date: DATE FROM TIME TO TIME;
-specific_days_by_days_of_week: (days_of_week+ TERMINAL | ALL_DAYS) FROM TIME TO TIME REPEAT NUM TIMES;
-min_max_avg_days: ((MANDATORY_MIN | MANDATORY_MAX | MANDATORY_AVG) (function | NUM) HOURS_PER timeunit)+;
-availability    : AVAILABILITY_START name ON (specific_days_by_date | specific_days_by_days_of_week);
-frequency       : FREQUENCY_START name FREQUENCY_CANNOT_BE_SCHEDULED (FREQUENCY_MORE_THAN (function | NUM) FREQUENCY_DAYS_IN_ROW) | ON (days_of_week+ TERMINAL | ALL_DAYS);
-overlap         : OVERLAP_START name COMMA name;
-ratio           : RATIO_START (function | NUM) OF TEXT RATIO_OPERATOR (function | NUM) OF TEXT;
+logical_operator: LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR;
+bitwise_operator: SHIFT_LEFT | SHIFT_RIGHT;
 
-function        : FUNCTION_PREFIX math+;
-math            : exp (MATH_OPERATOR+ math)?;
-exp             : VAR | NUM;
+transformations : (apply | merge | loop) ENDLINE ;
+
+// TODO: Change apply/merge to handle (name|merge) in place of name.
+// In our brainstorming session we wanted to be able to accept (name|merge) but after APPLY_START we switch to text_mode
+// so we won't match MERGE. Similarly for merge, after logical_operator we switch to text_mode so don't match MERGE.
+apply           : APPLY_START name TO name (bitwise_operator NUM)?;
+merge           : MERGE_START name logical_operator name;
+loop            : LOOP_START name LOOP_MID_1 name bitwise_operator NUM LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
 
 
 
-// MATH_OPERATIONS: EXP ([+,-,/,*,sin,cos,tan,log,ln,^]+  MATH_OPERATIONS)?;
 
-// EXP: VAR | NUM?;
-
-// VAR: ‘t’;
-// FUNCTION: ‘h(t)=’ MATH_OPERATIONS+;
