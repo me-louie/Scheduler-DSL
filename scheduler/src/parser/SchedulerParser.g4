@@ -1,13 +1,13 @@
 parser grammar SchedulerParser;
 options { tokenVocab = SchedulerLexer; }
 
-program         : header entity+ entity_group* shift+ shift_group transformations*;
+program         : header entity+ entity_group* shift+ shift_group* transformations*;
 header          : HEADER_START TEXT ENDLINE;
 entity          : ENTITY_START name ENDLINE;
 entity_group    : ENTITY_GROUP_START name ENTITY_GROUP_MID name (COMMA name)* ENDLINE;
 name            : TEXT;
 
-shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR TIME ENDLINE;
+shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR DATE TIME ENDLINE;
 shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 
 logical_operator: LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR;

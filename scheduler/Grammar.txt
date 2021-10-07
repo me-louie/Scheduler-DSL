@@ -6,7 +6,7 @@ entity: ‘Entity’ NAME ';';
 entity_group: ‘Make a group called’ NAME ‘composed of entities’ NAME+ ';';
 
 shifts: 'Shifts:' shift+ ';';
-shift: ‘Shift’ SHIFT_NAME IS DATE TIME '-' TIME;
+shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;
 shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';
 
 logical_operator: 'AND' | 'OR' | 'XOR' ';' ;

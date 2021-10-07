@@ -7,7 +7,7 @@ ENTITY_GROUP_START: 'Make a group called' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_MID: 'composed of entities' WS* -> mode(TEXT_MODE);
 
 SHIFTS: 'Shifts:' WS*;
-SHIFT_START: 'Shift' WS*;
+SHIFT_START: 'Shift:' WS*;
 SHIFT_GROUP_START: 'Shift group' WS*;
 
 LOGICAL_AND: 'AND' WS* -> mode(TEXT_MODE);
@@ -28,7 +28,7 @@ LOOP_END: 'times' WS*;
 
 TO: 'to' WS* -> mode(TEXT_MODE);
 IS: 'is' WS* -> mode(DATE_MODE);
-TIME_SEPERATOR: '-' WS* -> mode(TIME_MODE);
+TIME_SEPERATOR: '-' WS* -> mode(DATE_MODE);
 COMMA: ',' WS* -> mode(TEXT_MODE);
 COLON: ':' WS* -> mode(TEXT_MODE);
 ENDLINE: ';';
