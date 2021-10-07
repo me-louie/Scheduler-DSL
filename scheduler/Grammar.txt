@@ -13,8 +13,8 @@ logical_operator: 'AND' | 'OR' | 'XOR' ';' ;
 bitwise_operator: >> NUM | << NUM ';' ;
 
 transformations: apply | merge | loop ';' ;
-apply: 'Apply' (SHIFT_GROUP_NAME | merge) 'to' NAME (bitwise_operator NUM)?;
-merge: 'Merge' SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | merge) ;
+apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;
+merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge ')') ;
 loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;
 
 
