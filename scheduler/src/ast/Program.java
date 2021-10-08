@@ -16,7 +16,7 @@ public class Program extends Node {
     private final boolean scheduleAllHours;
     private final List<Rule> rules;
 
-    public Program(List<Entity> e, List<EntityGroup> eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
+    private Program(List<Entity> e, List<EntityGroup> eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
         this.entities = e;
         this.entityGroups = eGroup;
         this.oHours = oHours;
