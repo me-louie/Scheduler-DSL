@@ -31,6 +31,7 @@ public class Main {
         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
         parsedProgram.accept(schedulerEvaluator);
         System.out.println("Done scheduling");
+        // TODO: Uncomment when SchedulerEvaluator is complete
         // OutputGenerator og = new OutputGenerator();
         // og.generate(schedulerEvaluator.scheduleMap);
         // System.out.println("Done outputting");
