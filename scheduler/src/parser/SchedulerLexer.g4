@@ -31,7 +31,9 @@ IS: 'is' WS* -> mode(DATE_MODE);
 TIME_SEPERATOR: '-' WS* -> mode(DATE_MODE);
 COMMA: ',' WS* -> mode(TEXT_MODE);
 COLON: ':' WS* -> mode(TEXT_MODE);
-ENDLINE: ';';
+ENDLINE: ';' WS*;
+LEFT_BRACE: '(' WS*;
+RIGHT_BRACE: ')' WS*;
 
 
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
