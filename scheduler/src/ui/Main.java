@@ -33,7 +33,7 @@ public class Main {
         System.out.println("Done scheduling");
         // TODO: Uncomment when SchedulerEvaluator is complete
         // OutputGenerator og = new OutputGenerator();
-        // og.generate(schedulerEvaluator.scheduleMap);
+        // og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
         // System.out.println("Done outputting");
 
     }
