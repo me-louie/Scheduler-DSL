@@ -39,36 +39,35 @@ NUM: [0-9]+;
 ### Example Program
 Title: ExampleSchedule
 
-Entity Person1;
-Entity Person2;
-Entity Person3;
-Entity Person4;
-Entity Person5;
-Entity Person6;
-Entity Person7;
+Entity Person1;  
+Entity Person2;  
+Entity Person3;  
+Entity Person4;  
+Entity Person5;  
+Entity Person6;  
+Entity Person7;  
 
 EntityGroup Make entity group called GROUPA composed of entities Person4 Person5 Person6;
 
+Shifts:  
+Shift S1 is 10/01/2021 TIME - 10/01/2021 TIME;  
+Shift S2 is 11/01/2021 TIME - 11/01/2021 TIME;  
+Shift S3 is 12/01/2021 TIME - 2/01/2021 TIME;  
 
-Shifts:
-Shift S1 is 10/01/2021 TIME - 10/01/2021 TIME;
-Shift S2 is 11/01/2021 TIME - 11/01/2021 TIME;
-Shift S3 is 12/01/2021 TIME - 2/01/2021 TIME;
+Shift S4 is 15/02/2021 TIME - 15/02/2021 TIME;  
+Shift S5 is 16/02/2021 TIME - 16/02/2021 TIME;  
 
-Shift S4 is 15/02/2021 TIME - 15/02/2021 TIME;
-Shift S5 is 16/02/2021 TIME - 16/02/2021 TIME;
+Shift groups:  
+Shift Group SG1: S1 S2 S3;  
+Shift Group SG2: S4 S5;  
 
-Shift groups:
-Shift Group SG1: S1 S2 S3;
-Shift Group SG2: S4 S5;
+Apply SG1 to Person1;  
+Apply SG2 to Person2;  
 
-Apply SG1 to Person1;
-Apply SG2 to Person2;
+Merge SG1 AND SG2 to Person3;  
+Merge SG1 XOR SG2 to Person7;  
 
-Merge SG1 AND SG2 to Person3;
-Merge SG1 XOR SG2 to Person7;
-
-Loop SG1 over GROUPA >> 2 each person and repeat 3 times;
+Loop SG1 over GROUPA >> 2 each person and repeat 3 times;  
 
 ### Plan For Final User Study
 Meg will conduct the final two or three user studies at the beginning of next week. At this point we should have enough
