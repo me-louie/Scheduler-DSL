@@ -9,32 +9,32 @@ involved redesigning some aspects of our grammar and creating new examples. We a
 pattern implementation and backend validation.
 
 ### Updated Grammar
-program: HEADER ENTITY+ ENTITY_GROUP* SHIFT+ SHIFT_GROUP* TRANSFORMATION* ';';
-header: ‘Title:’ TEXT ';
-entity: ‘Entity’ NAME ';';
-entity_group: ‘Make a group called’ NAME ‘composed of entities’ NAME+ ';';
+program: HEADER ENTITY+ ENTITY_GROUP* SHIFT+ SHIFT_GROUP* TRANSFORMATION* ';';  
+header: ‘Title:’ TEXT ';  
+entity: ‘Entity’ NAME ';';  
+entity_group: ‘Make a group called’ NAME ‘composed of entities’ NAME+ ';';  
 
-shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;
-shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';
+shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;  
+shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';  
 
-logical_operator: 'AND' | 'OR' | 'XOR' ';' ;
-bitwise_operator: >> NUM | << NUM ';' ;
+logical_operator: 'AND' | 'OR' | 'XOR' ';' ;  
+bitwise_operator: >> NUM | << NUM ';' ;  
 
-transformations: apply | merge | loop ';' ;
-apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;
-merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge ')') ;
-loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;
+transformations: apply | merge | loop ';' ;  
+apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;  
+merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge ')') ;  
+loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;  
 
-TEXT: [a-zA-Z ]+;
-NAME: TEXT;
-SHIFT_NAME: TEXT;
-SHIFT_GROUP_NAME: TEXT;
-COMMA: ',';
+TEXT: [a-zA-Z]+;  
+NAME: TEXT;  
+SHIFT_NAME: TEXT;  
+SHIFT_GROUP_NAME: TEXT;  
+COMMA: ',';  
 
-TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];
+TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];  
 
-DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?
-NUM: [0-9]+;
+DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?  
+NUM: [0-9]+;  
 
 ### Example Program
 Title: ExampleSchedule
