@@ -1,11 +1,11 @@
 package parser;
 
 import ast.*;
-import ast.rules.*;
-import parser.SchedulerParser.Schedule_ruleContext;
 
+import ast.transformations.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,21 +13,13 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Program visitProgram(SchedulerParser.ProgramContext ctx) {
         Header header = this.visitHeader(ctx.header());
-        OperatingHours oHours = this.visitOperating_hours(ctx.operating_hours());
-        String oRule;
-        if (ctx.operating_rule().OPERATING_RULE_1() != null) {
-            oRule = ctx.operating_rule().OPERATING_RULE_1().getText();
-        } else if (ctx.operating_rule().OPERATING_RULE_2() != null) {
-            oRule = ctx.operating_rule().OPERATING_RULE_2().getText();
-        } else {
-            throw new RuntimeException("Invalid operating rule");
-        }
-
-        Range range = this.visitRange(ctx.range());
 
         List<EntityGroup> eGroupList = new ArrayList<>();
 
         List<Entity> eList = new ArrayList<>();
+        List<Shift> sList = new ArrayList<>();
+        List<Shift_group> sgList = new ArrayList<>();
+        List<Transformations> tList = new ArrayList<>();
 
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
             eList.add(this.visitEntity(e1));
@@ -37,46 +29,33 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             eGroupList.add(this.visitEntity_group(e));
         }
 
-        List<SchedulerParser.Schedule_ruleContext> rulesCtx = ctx.rules().schedule_rule();
-        List<Rule> rules = new ArrayList<>();
+        for (SchedulerParser.ShiftContext s : ctx.shift()) {
+            sList.add(this.visitShift(s));
+        }
 
-        for (SchedulerParser.Schedule_ruleContext ruleCtx : rulesCtx) {
-            if (ruleCtx.schedule() != null) {
-                rules.add(this.visitSchedule(ruleCtx.schedule()));
-            } else if (ruleCtx.overlap() != null){
-                rules.add(this.visitOverlap(ruleCtx.overlap()));
-            }  else if (ruleCtx.availability() != null){
-                rules.add(this.visitAvailability(ruleCtx.availability()));
-            }  else if (ruleCtx.frequency() != null){
-                rules.add(this.visitFrequency(ruleCtx.frequency()));
-            } else if (ruleCtx.ratio() != null){
-                rules.add(this.visitRatio(ruleCtx.ratio()));
-            } else {
-                throw new RuntimeException("Invalid rule");
+        for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
+            sgList.add(this.visitShift_group(e));
+        }
+        for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
+            sgList.add(this.visitShift_group(e));
+        }
+
+        for (SchedulerParser.TransformationsContext e : ctx.transformations()) {
+            if (e.apply() != null){
+                tList.add(this.visitApply(e.apply()));
+            } else if (e.merge() != null){
+                tList.add(this.visitMerge(e.merge()));
+            } else if (e.loop() != null){
+                tList.add(this.visitLoop(e.loop()));
             }
         }
 
-        return new Program(eList, eGroupList, oHours, header, range, oRule, rules);
+        return new Program(header, eList, eGroupList, sList, sgList, tList);
     }
 
     @Override
     public Header visitHeader(SchedulerParser.HeaderContext ctx) {
         return new Header(ctx.TEXT().getText());
-    }
-
-    @Override
-    public OperatingHours visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
-        return new OperatingHours(ctx.TIME(0).getText(), ctx.TIME(1).getText());
-    }
-
-    @Override
-    public Node visitOperating_rule(SchedulerParser.Operating_ruleContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Range visitRange(SchedulerParser.RangeContext ctx) {
-        return new Range(ctx.DATE(0).getText(), ctx.DATE(1).getText());
     }
 
     @Override
@@ -87,16 +66,14 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public EntityGroup visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
 
-        String name = ctx.name(0).getText();
-        List<Entity> elist = new ArrayList<>();
+       String name = ctx.name(0).getText();
+       List<String> eList = new ArrayList<>();
 
-        //System.out.println("HELLO");
-        //System.out.println(ctx.name(0).getText());
-        for(int i = 1; i < ctx.name().size();i++){
-            elist.add(new Entity(ctx.name(i).getText()));
-            //System.out.println(ctx.name(i).getText());
-        }
-        return new EntityGroup(name,elist);
+       for(int i = 1; i < ctx.name().size(); i++){
+           eList.add((ctx.name(i).getText()));
+       }
+
+        return new EntityGroup(name, eList);
     }
 
     @Override
@@ -105,82 +82,90 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitTimeunit(SchedulerParser.TimeunitContext ctx) {
+    public Shift visitShift(SchedulerParser.ShiftContext ctx) {
+        String name = ctx.name().getText();
+        System.out.println(ctx.TIME(0).getText());
+        System.out.println(ctx.DATE(1).getText());
+        String open = ctx.DATE(0).getText() + ctx.TIME(0).getText();
+        String close = ctx.DATE(1).getText() + ctx.TIME(1).getText();
+
+        return new Shift(name, open, close);
+    }
+
+    @Override
+    public Shift_group visitShift_group(SchedulerParser.Shift_groupContext ctx) {
+
+        String name = ctx.name(0).getText();
+        List<String> sList = new ArrayList<>();
+
+        for(int i = 1; i < ctx.name().size(); i++){
+            sList.add((ctx.name(i).getText()));
+            System.out.println(ctx.name(i).getText());
+        }
+
+
+        return new Shift_group(name, sList);
+
+
+    }
+
+    @Override
+    public Node visitLogical_operator(SchedulerParser.Logical_operatorContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitDays_of_week(SchedulerParser.Days_of_weekContext ctx) {
+    public Node visitBitwise_operator(SchedulerParser.Bitwise_operatorContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitRules(SchedulerParser.RulesContext ctx) {
+    public Node visitTransformations(SchedulerParser.TransformationsContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitSchedule_rule(Schedule_ruleContext ctx) {
-        return null;
+    public Apply visitApply(SchedulerParser.ApplyContext ctx) {
+
+        String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
+        String entityOrEntityGroupName = ctx.name(1).getText();
+        Integer num = null;
+        if (ctx.NUM() != null){
+            num = Integer.parseInt(ctx.NUM().getText());
+        }
+        BitwiseOperator bO = null;
+        if (ctx.bitwise_operator() != null){
+            bO = new BitwiseOperator(ctx.bitwise_operator().getText());
+        }
+        System.out.println(num);
+        System.out.println(bO);
+        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO);
     }
 
     @Override
-    public Schedule visitSchedule(SchedulerParser.ScheduleContext ctx) {
-        return null;
+    public Merge visitMerge(SchedulerParser.MergeContext ctx) {
+        String name = ctx.name(0).getText();
+        String shiftOrShiftGroup = ctx.name(1).getText();
+        String shiftOrShiftGroupOrMerge = ctx.name(2).getText();
+        String entityOrEntityGroupName = ctx.name(3).getText();
+        LogicalOperator lO = new LogicalOperator(ctx.logical_operator().getText());
+        System.out.println(ctx.logical_operator().getText());
+        return new Merge(name,lO, shiftOrShiftGroup,shiftOrShiftGroupOrMerge,entityOrEntityGroupName);
     }
 
     @Override
-    public Node visitSpecific_days(SchedulerParser.Specific_daysContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitSpecific_days_by_date(SchedulerParser.Specific_days_by_dateContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitSpecific_days_by_days_of_week(SchedulerParser.Specific_days_by_days_of_weekContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMin_max_avg_days(SchedulerParser.Min_max_avg_daysContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Availability visitAvailability(SchedulerParser.AvailabilityContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Frequency visitFrequency(SchedulerParser.FrequencyContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Overlap visitOverlap(SchedulerParser.OverlapContext ctx) {
-        return new Overlap(ctx.name(0).getText(), ctx.name(1).getText());
-    }
-
-    @Override
-    public Ratio visitRatio(SchedulerParser.RatioContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitFunction(SchedulerParser.FunctionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMath(SchedulerParser.MathContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitExp(SchedulerParser.ExpContext ctx) {
-        return null;
+    public Loop visitLoop(SchedulerParser.LoopContext ctx) {
+        String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
+        String entityOrEntityGroupName = ctx.name(1).getText();
+        Integer num = Integer.parseInt(ctx.NUM(0).getText());
+        Integer repNum = null;
+        if (ctx.NUM(1) !=null){
+            repNum = Integer.parseInt(ctx.NUM(1).getText());
+        }
+        BitwiseOperator bO = new BitwiseOperator(ctx.bitwise_operator().getText());
+        System.out.println(num);
+        System.out.println(repNum);
+        System.out.println(ctx.bitwise_operator().getText());
+        return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
     }
 }

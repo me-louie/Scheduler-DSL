@@ -3,12 +3,10 @@ lexer grammar SchedulerLexer;
 HEADER_START: 'Title:' WS* -> mode(TEXT_MODE);
 
 ENTITY_START: 'Entity' WS* -> mode(TEXT_MODE);
-ENTITY_GROUP_START: 'Make a group called' WS* -> mode(TEXT_MODE);
-ENTITY_GROUP_MID: 'composed of entities' WS* -> mode(TEXT_MODE);
+ENTITY_GROUP_START: 'EntityGroup' WS* -> mode(TEXT_MODE);
 
-SHIFTS: 'Shifts:' WS*;
-SHIFT_START: 'Shift:' WS*;
-SHIFT_GROUP_START: 'Shift group' WS*;
+SHIFT_START: 'Shift' WS* -> mode(TEXT_MODE);
+SHIFT_GROUP_START: 'Shift Group' WS* -> mode(TEXT_MODE);
 
 LOGICAL_AND: 'AND' WS* -> mode(TEXT_MODE);
 LOGICAL_OR: 'OR' WS* -> mode(TEXT_MODE);
@@ -40,14 +38,14 @@ RIGHT_BRACE: ')' WS*;
 WS : [\r\n\t ]+ -> channel(HIDDEN);
 
 mode TEXT_MODE;
-TEXT: [a-zA-Z]+ -> mode(DEFAULT_MODE);
+TEXT: [a-zA-Z0-9]+ -> mode(DEFAULT_MODE);
 
 mode TIME_MODE;
-TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) -> mode(DEFAULT_MODE);
+TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) WS*-> mode(DEFAULT_MODE);
 
 mode DATE_MODE;
 // mm-dd-yyyy or mm/dd/yyyy
-DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9]-> mode(TIME_MODE);
+DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9] WS*-> mode(TIME_MODE);
 
 
 mode NUM_MODE;

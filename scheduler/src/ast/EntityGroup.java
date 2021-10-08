@@ -4,19 +4,19 @@ import java.util.List;
 
 public class EntityGroup extends Node {
     private final String name;
-    private final List<Entity> members;
+    private final List<String> entities;
 
-    public EntityGroup(String name, List<Entity> members) {
+    public EntityGroup(String name, List<String> members) {
         this.name = name;
-        this.members = members;
+        this.entities = members;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<Entity> getMembers() {
-        return members;
+    public List<String> getEntities() {
+        return entities;
     }
 
     @Override
