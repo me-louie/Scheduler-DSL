@@ -1,8 +1,5 @@
 package ast;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +16,7 @@ public class Program extends Node {
     private final boolean scheduleAllHours;
     private final List<Rule> rules;
 
-    public Program(List<Entity> e, List<EntityGroup> eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
+    private Program(List<Entity> e, List<EntityGroup> eGroup, OperatingHours oHours, Header header, Range range, String oRule, List<Rule> rules) {
         this.entities = e;
         this.entityGroups = eGroup;
         this.oHours = oHours;
@@ -74,8 +71,7 @@ public class Program extends Node {
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-        //ToDo, print all the statments according to our example.
-
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return v.visit(this);
     }
 }
