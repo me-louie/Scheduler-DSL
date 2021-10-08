@@ -1,9 +1,5 @@
 package ast;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-
 public class Header extends Node{
     private final String title;
 
@@ -16,7 +12,7 @@ public class Header extends Node{
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return v.visit(this);
     }
 }
