@@ -26,6 +26,5 @@ public class Main {
         ParseToASTVisitor visitor = new ParseToASTVisitor();
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
-        System.out.println(parsedProgram.shouldScheduleAllHours());
     }
 }

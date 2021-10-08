@@ -13,19 +13,30 @@ public class Apply extends Transformations{
 
 
 
-    private Shit_group sg;
-    private Shift s;
-    private Merge m;
-    private Entity e;
-    private EntityDATEGroup eG;
+//    private Shit_group sg;
+//    private Shift s;
+//    private Merge m;
+//    private Entity e;
+//    private EntityGroup eG;
 
+    private String nameSGMG;
+    private String nameEEG;
+    private Integer num;
+    private BitwiseOperator bO;
 
-    public Apply(Shit_group sg, Shift s, Merge m, Entity e, EntityGroup eG) {
-        this.sg = sg;
-        this.s = s;
-        this.m = m;
-        this.e = e;
-        this.eG = eG;
+    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO) {
+        this.nameSGMG = nameSGMG;
+        this.nameEEG = nameEEG;
+        this.num = num;
+        this.bO = bO;
+    }
+
+    public String getNameSGMG() {
+        return nameSGMG;
+    }
+
+    public String getNameEEG() {
+        return nameEEG;
     }
 
     @Override

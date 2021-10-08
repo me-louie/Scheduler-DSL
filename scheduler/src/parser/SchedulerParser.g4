@@ -4,7 +4,7 @@ options { tokenVocab = SchedulerLexer; }
 program         : header entity+ entity_group* shift+ shift_group* transformations*;
 header          : HEADER_START TEXT ENDLINE;
 entity          : ENTITY_START name ENDLINE;
-entity_group    : ENTITY_GROUP_START name ENTITY_GROUP_MID name (COMMA name)* ENDLINE;
+entity_group    : ENTITY_GROUP_START name COLON name (COMMA name)* ENDLINE;
 name            : TEXT;
 
 shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR DATE TIME ENDLINE;
@@ -16,7 +16,10 @@ bitwise_operator: SHIFT_LEFT | SHIFT_RIGHT;
 transformations : (apply | merge | loop) ENDLINE ;
 
 apply           : APPLY_START name TO name (bitwise_operator NUM)?;
-merge           : MERGE_START name name logical_operator (name | LEFT_BRACE merge RIGHT_BRACE);
+merge           : MERGE_START name COLON name logical_operator (name) TO name;
+// SO the user can write user recursion line by line instead of writing one big line. example below:
+//Merge merge3 SG2 AND merge4 to Person 6
+//Merge merge4 SG1 AND SG2 to Person5;
 loop            : LOOP_START name LOOP_MID_1 name bitwise_operator NUM LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
 
 // todo: In order of importance:
