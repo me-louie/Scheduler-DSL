@@ -18,7 +18,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
         List<Entity> eList = new ArrayList<>();
         List<Shift> sList = new ArrayList<>();
-        List<Shit_group> sgList = new ArrayList<>();
+        List<Shift_group> sgList = new ArrayList<>();
         List<Transformations> tList = new ArrayList<>();
 
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
@@ -93,7 +93,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Shit_group visitShift_group(SchedulerParser.Shift_groupContext ctx) {
+    public Shift_group visitShift_group(SchedulerParser.Shift_groupContext ctx) {
 
         String name = ctx.name(0).getText();
         List<String> sList = new ArrayList<>();
@@ -104,7 +104,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
 
 
-        return new Shit_group(name, sList);
+        return new Shift_group(name, sList);
 
 
     }
@@ -127,7 +127,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Apply visitApply(SchedulerParser.ApplyContext ctx) {
 
-        String shitOrShiftGroupOrMergeName = ctx.name(0).getText();
+        String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = null;
         if (ctx.NUM() != null){
@@ -139,23 +139,23 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
         System.out.println(num);
         System.out.println(bO);
-        return new Apply(shitOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO);
+        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO);
     }
 
     @Override
     public Merge visitMerge(SchedulerParser.MergeContext ctx) {
         String name = ctx.name(0).getText();
-        String shitOrShiftGroup = ctx.name(1).getText();
-        String shitOrShiftGroupOrMerge = ctx.name(2).getText();
+        String shiftOrShiftGroup = ctx.name(1).getText();
+        String shiftOrShiftGroupOrMerge = ctx.name(2).getText();
         String entityOrEntityGroupName = ctx.name(3).getText();
         LogicalOperator lO = new LogicalOperator(ctx.logical_operator().getText());
         System.out.println(ctx.logical_operator().getText());
-        return new Merge(name,lO, shitOrShiftGroup,shitOrShiftGroupOrMerge,entityOrEntityGroupName);
+        return new Merge(name,lO, shiftOrShiftGroup,shiftOrShiftGroupOrMerge,entityOrEntityGroupName);
     }
 
     @Override
     public Loop visitLoop(SchedulerParser.LoopContext ctx) {
-        String shitOrShiftGroupOrMergeName = ctx.name(0).getText();
+        String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = Integer.parseInt(ctx.NUM(0).getText());
         Integer repNum = null;
@@ -166,6 +166,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(num);
         System.out.println(repNum);
         System.out.println(ctx.bitwise_operator().getText());
-        return new Loop(shitOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
+        return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
     }
 }

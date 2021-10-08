@@ -3,7 +3,7 @@ package ast.transformations;
 import ast.Entity;
 import ast.EntityGroup;
 import ast.Shift;
-import ast.Shit_group;
+import ast.Shift_group;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -12,12 +12,7 @@ import java.io.UnsupportedEncodingException;
 public class Apply extends Transformations{
 
 
-
-//    private Shit_group sg;
-//    private Shift s;
-//    private Merge m;
-//    private Entity e;
-//    private EntityGroup eG;
+    
 
     private String nameSGMG;
     private String nameEEG;
