@@ -1,24 +1,24 @@
 package evaluate;
 
-import java.util.Date;
+import java.util.Calendar;
 
 public class ScheduledEvent {
 
-    private Date startDate;
-    private Date endDate;
+    private Calendar startDate;
+    private Calendar endDate;
     private String title;
 
-    public ScheduledEvent(Date startDate, Date endDate, String title) {
+    public ScheduledEvent(Calendar startDate, Calendar endDate, String title) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;
     }
 
-    public Date getStartDate() {
+    public Calendar getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public Calendar getEndDate() {
         return endDate;
     }
 
