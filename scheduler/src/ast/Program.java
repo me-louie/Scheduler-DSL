@@ -1,5 +1,6 @@
 package ast;
 
+
 import ast.transformations.Transformations;
 
 import java.io.FileNotFoundException;
@@ -50,8 +51,7 @@ public class Program extends Node {
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-        //ToDo, print all the statments according to our example.
-
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return v.visit(this);
     }
 }

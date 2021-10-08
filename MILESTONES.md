@@ -1,3 +1,112 @@
+## Milestone 4
+
+### Progress Summary
+This week the team redefined the scope of our project in order to concentrate more on DSL aspects and less on the hard
+problem of scheduling. Rather than focusing on user defined constraints, our scheduler will provide users with a variety
+of ways to define schedules for entities and entity groups. Our language will allow users to define schedules, modify a
+schedule or group of schedules with operators, and apply the schedules entities in interesting ways. These changes
+involved redesigning some aspects of our grammar and creating new examples. We also continued with AST and Visitor
+pattern implementation and backend validation.
+
+### Updated Grammar
+program: HEADER ENTITY+ ENTITY_GROUP* SHIFT+ SHIFT_GROUP* TRANSFORMATION* ';';  
+header: ‘Title:’ TEXT ';  
+entity: ‘Entity’ NAME ';';  
+entity_group: ‘Make a group called’ NAME ‘composed of entities’ NAME+ ';';  
+
+shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;  
+shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';  
+
+logical_operator: 'AND' | 'OR' | 'XOR' ';' ;  
+bitwise_operator: >> NUM | << NUM ';' ;  
+
+transformations: apply | merge | loop ';' ;  
+apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;  
+merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge ')') ;  
+loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;  
+
+TEXT: [a-zA-Z]+;  
+NAME: TEXT;  
+SHIFT_NAME: TEXT;  
+SHIFT_GROUP_NAME: TEXT;  
+COMMA: ',';  
+
+TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];  
+
+DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?  
+NUM: [0-9]+;  
+
+### Example Program
+Title: ExampleSchedule
+
+Entity Person1;  
+Entity Person2;  
+Entity Person3;  
+Entity Person4;  
+Entity Person5;  
+Entity Person6;  
+Entity Person7;  
+
+EntityGroup Make entity group called GROUPA composed of entities Person4 Person5 Person6;
+
+Shifts:  
+Shift S1 is 10/01/2021 TIME - 10/01/2021 TIME;  
+Shift S2 is 11/01/2021 TIME - 11/01/2021 TIME;  
+Shift S3 is 12/01/2021 TIME - 2/01/2021 TIME;  
+
+Shift S4 is 15/02/2021 TIME - 15/02/2021 TIME;  
+Shift S5 is 16/02/2021 TIME - 16/02/2021 TIME;  
+
+Shift groups:  
+Shift Group SG1: S1 S2 S3;  
+Shift Group SG2: S4 S5;  
+
+Apply SG1 to Person1;  
+Apply SG2 to Person2;  
+
+Merge SG1 AND SG2 to Person3;  
+Merge SG1 XOR SG2 to Person7;  
+
+Loop SG1 over GROUPA >> 2 each person and repeat 3 times;  
+
+### Plan For Final User Study
+Meg will conduct the final two or three user studies at the beginning of next week. At this point we should have enough
+of the project implemented so that participants can try running their programs. This should leave us with 5-6 days to
+incorporate any feedback we receive.
+
+### Status of Implementation
+Our Lexer, Parser, ParseTreeToAST, and OutputGenerator classes are complete. What remains is our SchedulerEvaluator
+class. The implementation is underway and should be finished by the start of next week. At this point we’ll begin
+incorporating user study feedback and implementing our stretch goals.
+
+### Further Steps
+Mikayla  
+In the coming two weeks, I plan on continuing to implement the project and participate in code reviews. 
+Specifically, I plan to contribute to the implementation of the SchedulerEvaluator and the team's stretch goals. 
+Additionally, I will assist in creating the final video submission for the project.
+
+Ben  
+Next week I plan to implement the remainder of the evaluation logic in our SchedulerEvaluator class. Each visit method
+will run some basic validation for a given node. Transformation nodes will have an additional evaluation step and take
+up the bulk of the work. I’ll also be assisting with code review.
+
+Andre  
+For the remaining weeks, I plan to help with work on the evaluator, particularly implementing the maps for identifiers.
+I also plan on doing more testing, especially once we are able to generate some output. If time permits, I’ll also help
+with implementing any extra features to our DSL (ie. control flow).
+
+Mohammad  
+Plan for the next week till the deadline is to help out with building the evaluator, to make sure we get the desired
+output. Making maybe a map to keep track of all our shifts,shift groups, entities, entity groups. Then helping with the
+testing, user study, video and if we decide to add any extra features. Will work on those as well.
+
+Meg  
+I will design test cases for the new grammar. I will use the test cases to identify and fix bugs and user studies.
+I am planning on conducting two to three user studies with a working version of the DSL by next Tuesday and I will
+write up the results to share with the group. I will also help implement the evaluator, find and fix bugs,
+and assist with the video.
+
+
 ## Milestone 3
 
 ### Progress Summary

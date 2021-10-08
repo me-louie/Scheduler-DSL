@@ -2,6 +2,7 @@ package ui;
 
 import java.io.IOException;
 
+import ast.SchedulerEvaluator;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -26,5 +27,16 @@ public class Main {
         ParseToASTVisitor visitor = new ParseToASTVisitor();
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
+
+//         System.out.println(parsedProgram.shouldScheduleAllHours());
+//         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
+//         parsedProgram.accept(schedulerEvaluator);
+//         System.out.println("Done scheduling");
+        // TODO: Uncomment when SchedulerEvaluator is complete
+        // OutputGenerator og = new OutputGenerator();
+        // og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
+        // System.out.println("Done outputting");
+
+
     }
 }
