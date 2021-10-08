@@ -1,7 +1,7 @@
 package parser;
 
 import ast.*;
-import ast.rules.*;
+import ast.transformations.*;
 import parser.SchedulerParser.Schedule_ruleContext;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -65,21 +65,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public OperatingHours visitOperating_hours(SchedulerParser.Operating_hoursContext ctx) {
-        return new OperatingHours(ctx.TIME(0).getText(), ctx.TIME(1).getText());
-    }
-
-    @Override
-    public Node visitOperating_rule(SchedulerParser.Operating_ruleContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Range visitRange(SchedulerParser.RangeContext ctx) {
-        return new Range(ctx.DATE(0).getText(), ctx.DATE(1).getText());
-    }
-
-    @Override
     public Entity visitEntity(SchedulerParser.EntityContext ctx) {
         return new Entity(ctx.name().getText());
     }
@@ -105,82 +90,42 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitTimeunit(SchedulerParser.TimeunitContext ctx) {
+    public Node visitShift(SchedulerParser.ShiftContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitDays_of_week(SchedulerParser.Days_of_weekContext ctx) {
+    public Node visitShift_group(SchedulerParser.Shift_groupContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitRules(SchedulerParser.RulesContext ctx) {
+    public Node visitLogical_operator(SchedulerParser.Logical_operatorContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitSchedule_rule(Schedule_ruleContext ctx) {
+    public Node visitBitwise_operator(SchedulerParser.Bitwise_operatorContext ctx) {
         return null;
     }
 
     @Override
-    public Schedule visitSchedule(SchedulerParser.ScheduleContext ctx) {
+    public Node visitTransformations(SchedulerParser.TransformationsContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitSpecific_days(SchedulerParser.Specific_daysContext ctx) {
+    public Node visitApply(SchedulerParser.ApplyContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitSpecific_days_by_date(SchedulerParser.Specific_days_by_dateContext ctx) {
+    public Node visitMerge(SchedulerParser.MergeContext ctx) {
         return null;
     }
 
     @Override
-    public Node visitSpecific_days_by_days_of_week(SchedulerParser.Specific_days_by_days_of_weekContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMin_max_avg_days(SchedulerParser.Min_max_avg_daysContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Availability visitAvailability(SchedulerParser.AvailabilityContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Frequency visitFrequency(SchedulerParser.FrequencyContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Overlap visitOverlap(SchedulerParser.OverlapContext ctx) {
-        return new Overlap(ctx.name(0).getText(), ctx.name(1).getText());
-    }
-
-    @Override
-    public Ratio visitRatio(SchedulerParser.RatioContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitFunction(SchedulerParser.FunctionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMath(SchedulerParser.MathContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitExp(SchedulerParser.ExpContext ctx) {
+    public Node visitLoop(SchedulerParser.LoopContext ctx) {
         return null;
     }
 }

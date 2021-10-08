@@ -20,7 +20,7 @@ merge           : MERGE_START name name logical_operator (name | LEFT_BRACE merg
 loop            : LOOP_START name LOOP_MID_1 name bitwise_operator NUM LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
 
 // todo: In order of importance:
-//          1. ifthenelse logic (e.g. if (condition) { apply sg to e >> 4 } else { apply sg2 to e << 1 }
+//          1. ifthenelse logic (e.g. if (condition) { apply sg to e >> 4 } else { apply sg2 to e << 1 } or just check statments
 //          2. very simple functions for use in loop (e.g. h(t) = 2t, h(t) = 5/t)
 //          3. other logical operators (e.g. NAND, NOR, NXOR)
 //          4. stretch/compress shift_groups (e.g. stretch: 'Stretch' STRETCH_GROUP_NAME SHIFT_GROUP_NAME NUM would stretch

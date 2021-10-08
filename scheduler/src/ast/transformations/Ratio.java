@@ -1,4 +1,4 @@
-package ast.rules;
+package ast.transformations;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

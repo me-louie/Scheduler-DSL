@@ -6,7 +6,7 @@ ENTITY_START: 'Entity' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_START: 'Make a group called' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_MID: 'composed of entities' WS* -> mode(TEXT_MODE);
 
-SHIFTS: 'Shifts:' WS*;
+
 SHIFT_START: 'Shift:' WS*;
 SHIFT_GROUP_START: 'Shift group' WS*;
 

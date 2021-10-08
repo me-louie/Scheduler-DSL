@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
-import ast.rules.Rule;
+import ast.transformations.Rule;
 
 public class Program extends Node {
 

@@ -1,4 +1,4 @@
-package ast.rules;
+package ast.transformations;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -8,8 +8,9 @@ import java.time.LocalTime;
 import java.time.LocalDate;
 
 import ast.Helper;
+import org.antlr.v4.tool.Rule;
 
-public class Availability extends Rule {
+public class Availability extends Transformations {
 
     private final String name;
     private final LocalDate dStart, dEnd;
