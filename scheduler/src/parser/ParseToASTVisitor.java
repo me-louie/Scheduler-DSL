@@ -6,7 +6,9 @@ import ast.transformation.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
@@ -20,36 +22,66 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<ShiftGroup> sgList = new ArrayList<>();
         List<Transformation> tList = new ArrayList<>();
 
+        Map<String, Entity> entityMap = new HashMap<>();
+        Map<String, EntityGroup> entityGroupMap = new HashMap<>();
+        Map<String, Shift> shiftMap = new HashMap<>();
+        Map<String, ShiftGroup> shiftGroupMap = new HashMap<>();
+        Map<String, List<Transformation>> transformationMap = new HashMap<>();
+
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
-            eList.add(this.visitEntity(e1));
+            Entity entity = this.visitEntity(e1);
+            eList.add(entity);
+            entityMap.put(entity.getName(), entity);
         }
 
         for (SchedulerParser.Entity_groupContext e : ctx.entity_group()) {
-            eGroupList.add(this.visitEntity_group(e));
+            EntityGroup entityGroup = this.visitEntity_group(e);
+            eGroupList.add(entityGroup);
+            entityGroupMap.put(entityGroup.getName(), entityGroup);
         }
 
         for (SchedulerParser.ShiftContext s : ctx.shift()) {
-            sList.add(this.visitShift(s));
+            Shift shift = this.visitShift(s);
+            sList.add(shift);
+            shiftMap.put(shift.getName(), shift);
         }
 
         for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
-            sgList.add(this.visitShift_group(e));
+            ShiftGroup shiftGroup = this.visitShift_group(e);
+            sgList.add(shiftGroup);
+            shiftGroupMap.put(shiftGroup.getName(), shiftGroup);
         }
         for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
-            sgList.add(this.visitShift_group(e));
+            sgList.add(this.visitShift_group(e)); // should this be here twice?
         }
 
         for (SchedulerParser.TransformationsContext e : ctx.transformations()) {
-            if (e.apply() != null){
-                tList.add(this.visitApply(e.apply()));
+            if (e.apply() != null) {
+                Apply apply = this.visitApply(e.apply());
+                tList.add(apply);
+                if (!transformationMap.containsKey(Apply.class.getName())) {
+                    transformationMap.put(Apply.class.getName(), new ArrayList<>());
+                }
+                transformationMap.get(Apply.class.getName()).add(apply);
             } else if (e.merge() != null){
-                tList.add(this.visitMerge(e.merge()));
+                Merge merge = this.visitMerge(e.merge());
+                tList.add(merge);
+                if (!transformationMap.containsKey(Merge.class.getName())) {
+                    transformationMap.put(Merge.class.getName(), new ArrayList<>());
+                }
+                transformationMap.get(Merge.class.getName()).add(merge);
             } else if (e.loop() != null){
-                tList.add(this.visitLoop(e.loop()));
+                Loop loop = this.visitLoop(e.loop());
+                tList.add(loop);
+                if (!transformationMap.containsKey(Loop.class.getName())) {
+                    transformationMap.put(Loop.class.getName(), new ArrayList<>());
+                }
+                transformationMap.get(Loop.class.getName()).add(loop);
+
             }
         }
 
-        return new Program(header, eList, eGroupList, sList, sgList, tList);
+        return new Program(header, eList, eGroupList, sList, sgList, tList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap);
     }
 
     @Override

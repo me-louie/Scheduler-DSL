@@ -6,6 +6,7 @@ import validate.ProgramValidationException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Program extends Node {
 
@@ -15,17 +16,43 @@ public class Program extends Node {
     private final List<ShiftGroup> shiftGroups;
     private final List<Transformation> transformations;
 
+    final Map<String, Entity> entityMap;
+    final Map<String, EntityGroup> entityGroupMap;
+    final Map<String, Shift> shiftMap;
+    final Map<String, ShiftGroup> shiftGroupMap;
+    final Map<String, List<Transformation>> transformationMap;
+
     private final Header header;
 
-    public Program(Header header, List<Entity> entities, List<EntityGroup> entityGroups, List<Shift> shifts, List<ShiftGroup> shiftGroups, List<Transformation> transformations) {
-        this.entities = entities;
-        this.entityGroups = entityGroups;
-        this.shifts = shifts;
-        this.shiftGroups = shiftGroups;
-        this.transformations = transformations;
+    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
+        this.entities = eList;
+        this.entityGroups = eGroupList;
+        this.shifts = sList;
+        this.shiftGroups = sgList;
+        this.transformations = tList;
         this.header = header;
+        this.entityMap = entityMap;
+        this.entityGroupMap = entityGroupMap;
+        this.shiftMap = shiftMap;
+        this.shiftGroupMap = shiftGroupMap;
+        this.transformationMap = transformationMap;
     }
 
+    public Map<String, Entity> getEntityMap() {
+        return entityMap;
+    }
+
+    public Map<String, Shift> getShiftMap() {
+        return shiftMap;
+    }
+
+    public Map<String, ShiftGroup> getShiftGroupMap() {
+        return shiftGroupMap;
+    }
+
+    public Map<String, List<Transformation>> getTransformationMap() {
+        return transformationMap;
+    }
 
     public List<Entity> getEntities() {
       return entities;
