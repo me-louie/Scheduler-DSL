@@ -17,7 +17,7 @@ Shift Group SG2: S4, S5;
 Apply SG1 to Person1;
 Apply SG2 to Person2;
 Merge merge1: SG1 AND SG2 to Person3;
-Merge  merge2: SG1 XOR SG2 to Person7;
+Merge merge2: SG1 XOR SG2 to Person7;
 Merge merge3: SG2 AND merge4 to Person6;
 Merge merge4: SG1 AND SG2 to Person5;
 Merge merge3: SG2 AND merge4 to Person6;
