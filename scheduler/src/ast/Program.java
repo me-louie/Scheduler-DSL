@@ -4,7 +4,6 @@ package ast;
 import ast.transformation.Transformation;
 import validate.ProgramValidationException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,37 +38,12 @@ public class Program extends Node {
         this.transformationMap = transformationMap;
     }
 
-    public Map<String, Entity> getEntityMap() {
-        return entityMap;
-    }
-
-    public Map<String, Shift> getShiftMap() {
-        return shiftMap;
-    }
-
-    public Map<String, ShiftGroup> getShiftGroupMap() {
-        return shiftGroupMap;
-    }
-
-    public Map<String, List<Transformation>> getTransformationMap() {
-        return transformationMap;
-    }
-
     public List<Entity> getEntities() {
       return entities;
     }
 
     public List<EntityGroup> getEntityGroups() {
       return entityGroups;
-    }
-
-    public HashMap<String, EntityGroup> getEntityGroupMap() {
-        HashMap<String, EntityGroup> eHashMap = new HashMap<>();
-        for (int i =0; i< this.getEntityGroups().size(); i++){
-            eHashMap.put(this.entityGroups.get(i).getName(),this.entityGroups.get(i));
-        }
-
-        return eHashMap;
     }
 
     public List<Shift> getShifts() {

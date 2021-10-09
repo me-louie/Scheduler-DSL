@@ -11,8 +11,7 @@ public class ShiftGroup extends Node {
 
     private final String name;
     private List<String> shiftList;
-
-
+    
     public ShiftGroup(String name, List<String> shiftList) {
         this.name = name;
         this.shiftList = shiftList;
