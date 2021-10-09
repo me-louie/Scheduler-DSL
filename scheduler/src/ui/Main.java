@@ -12,9 +12,10 @@ import ast.Program;
 import parser.ParseToASTVisitor;
 import parser.SchedulerLexer;
 import parser.SchedulerParser;
+import validate.ProgramValidationException;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ProgramValidationException {
         SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("Examples.txt"));
 
         for (Token token : lexer.getAllTokens()) {
@@ -27,11 +28,9 @@ public class Main {
         ParseToASTVisitor visitor = new ParseToASTVisitor();
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
-
-//         System.out.println(parsedProgram.shouldScheduleAllHours());
-//         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
-//         parsedProgram.accept(schedulerEvaluator);
-//         System.out.println("Done scheduling");
+        SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
+        parsedProgram.accept(schedulerEvaluator);
+        System.out.println("Done scheduling");
         // TODO: Uncomment when SchedulerEvaluator is complete
         // OutputGenerator og = new OutputGenerator();
         // og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");

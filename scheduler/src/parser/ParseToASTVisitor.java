@@ -2,10 +2,9 @@ package parser;
 
 import ast.*;
 
-import ast.transformations.*;
+import ast.transformation.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +17,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
         List<Entity> eList = new ArrayList<>();
         List<Shift> sList = new ArrayList<>();
-        List<Shift_group> sgList = new ArrayList<>();
-        List<Transformations> tList = new ArrayList<>();
+        List<ShiftGroup> sgList = new ArrayList<>();
+        List<Transformation> tList = new ArrayList<>();
 
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
             eList.add(this.visitEntity(e1));
@@ -93,7 +92,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Shift_group visitShift_group(SchedulerParser.Shift_groupContext ctx) {
+    public ShiftGroup visitShift_group(SchedulerParser.Shift_groupContext ctx) {
 
         String name = ctx.name(0).getText();
         List<String> sList = new ArrayList<>();
@@ -104,7 +103,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
 
 
-        return new Shift_group(name, sList);
+        return new ShiftGroup(name, sList);
 
 
     }
@@ -145,12 +144,10 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Merge visitMerge(SchedulerParser.MergeContext ctx) {
         String name = ctx.name(0).getText();
-        String shiftOrShiftGroup = ctx.name(1).getText();
-        String shiftOrShiftGroupOrMerge = ctx.name(2).getText();
-        String entityOrEntityGroupName = ctx.name(3).getText();
+        String shiftOrShiftGroup1 = ctx.name(1).getText();
+        String shiftOrShiftGroup2 = ctx.name(2).getText();
         LogicalOperator lO = new LogicalOperator(ctx.logical_operator().getText());
-        System.out.println(ctx.logical_operator().getText());
-        return new Merge(name,lO, shiftOrShiftGroup,shiftOrShiftGroupOrMerge,entityOrEntityGroupName);
+        return new Merge(name, lO, shiftOrShiftGroup1, shiftOrShiftGroup2);
     }
 
     @Override

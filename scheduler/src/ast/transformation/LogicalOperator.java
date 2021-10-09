@@ -1,10 +1,7 @@
-package ast.transformations;
+package ast.transformation;
 
 import ast.Node;
-
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import ast.SchedulerVisitor;
 
 public class LogicalOperator extends Node {
 
@@ -18,8 +15,9 @@ public class LogicalOperator extends Node {
         return this.logicalOperator;
     }
 
-    @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
 
+    @Override
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return null;
     }
 }

@@ -1,6 +1,9 @@
 package ast;
 
+import ast.transformation.*;
 import evaluate.ScheduledEvent;
+import validate.ProgramValidationException;
+import validate.Validator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +14,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     // map of entity name to a list of all their scheduled events
     Map<String, List<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
+    Validator validator;
 
     @Override
-    public Void visit(Program p) {
+    public Void visit(Program p) throws ProgramValidationException {
         program = p;
+        validator = new Validator(p);
         p.getHeader().accept(this);
-        p.getEntity().forEach(e -> e.accept(this));
-        p.getEntityGroup().forEach(eg -> eg.accept(this));
+        p.getEntities().forEach(e -> e.accept(this));
+        p.getEntityGroups().forEach(eg -> eg.accept(this));
         p.getShifts().forEach(s -> s.accept(this));
         p.getShiftGroups().forEach(sg -> sg.accept(this));
         p.getTransformations().forEach(t -> t.accept(this));
@@ -34,62 +39,62 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     }
 
     @Override
-    public Void visit(Entity e) {
+    public Void visit(Entity e) throws ProgramValidationException {
+        validator.validate(e);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(EntityGroup eg) {
+    public Void visit(EntityGroup eg) throws ProgramValidationException {
+        validator.validate(eg);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(Shift s) {
+    public Void visit(Shift s) throws ProgramValidationException {
+        validator.validate(s);
+        // no evalution
         return null;
     }
 
     @Override
-    public Void visit(ShiftGroup sg) {
+    public Void visit(ShiftGroup sg) throws ProgramValidationException {
+        validator.validate(sg);
         return null;
     }
 
     @Override
-    public Void visit(Apply a) {
+    public Void visit(Apply a) throws ProgramValidationException {
+        validator.validate(a);
+        // add entry to scheduleMap
         return null;
     }
 
     @Override
-    public Void visit(Merge m) {
+    public Void visit(Merge m) throws ProgramValidationException {
+        validator.validate(m);
+        // create a new shift group
         return null;
     }
 
     @Override
-    public Void visit(Loop l) {
+    public Void visit(Loop l) throws ProgramValidationException {
+        validator.validate(l);
+        // add a bunch of nodes to scheduleMap
         return null;
     }
 
     @Override
-    public Void visit(LogicalOR lo) {
+    public Void visit(LogicalOperator lo) {
         return null;
     }
 
     @Override
-    public Void visit(LogicalAND la) {
+    public Void visit(BitwiseOperator la) {
         return null;
     }
 
-    @Override
-    public Void visit(LogicalXOR lx) {
-        return null;
-    }
 
-    @Override
-    public Void visit(BitwiseLeftShift bls) {
-        return null;
-    }
-
-    @Override
-    public Void visit(BitwiseRightShift brs) {
-        return null;
-    }
 }

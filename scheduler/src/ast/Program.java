@@ -1,11 +1,9 @@
 package ast;
 
 
-import ast.transformations.Transformations;
+import ast.transformation.Transformation;
+import validate.ProgramValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,12 +12,12 @@ public class Program extends Node {
     private final List<Entity> entities;
     private final List<EntityGroup> entityGroups;
     private final List<Shift> shifts;
-    private final List<Shift_group> shiftGroups;
-    private final List<Transformations> transformations;
+    private final List<ShiftGroup> shiftGroups;
+    private final List<Transformation> transformations;
 
     private final Header header;
 
-    public Program(Header header, List<Entity> entities, List<EntityGroup> entityGroups, List<Shift> shifts, List<Shift_group> shiftGroups, List<Transformations> transformations) {
+    public Program(Header header, List<Entity> entities, List<EntityGroup> entityGroups, List<Shift> shifts, List<ShiftGroup> shiftGroups, List<Transformation> transformations) {
         this.entities = entities;
         this.entityGroups = entityGroups;
         this.shifts = shifts;
@@ -29,21 +27,33 @@ public class Program extends Node {
     }
 
 
-    public List<Entity> getEntity() {
+    public List<Entity> getEntities() {
       return entities;
     }
 
-    public List<EntityGroup> getEntityGroup() {
+    public List<EntityGroup> getEntityGroups() {
       return entityGroups;
     }
 
     public HashMap<String, EntityGroup> getEntityGroupMap() {
         HashMap<String, EntityGroup> eHashMap = new HashMap<>();
-        for (int i =0; i< this.getEntityGroup().size(); i++){
+        for (int i =0; i< this.getEntityGroups().size(); i++){
             eHashMap.put(this.entityGroups.get(i).getName(),this.entityGroups.get(i));
         }
 
         return eHashMap;
+    }
+
+    public List<Shift> getShifts() {
+        return shifts;
+    }
+
+    public List<ShiftGroup> getShiftGroups() {
+        return shiftGroups;
+    }
+
+    public List<Transformation> getTransformations() {
+        return transformations;
     }
 
     public Header getHeader() {
@@ -51,7 +61,7 @@ public class Program extends Node {
     }
 
     @Override
-    public <T> T accept(SchedulerVisitor<T> v) {
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
         return v.visit(this);
     }
 }

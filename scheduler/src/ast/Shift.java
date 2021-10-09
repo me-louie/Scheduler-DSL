@@ -1,5 +1,7 @@
 package ast;
 
+import validate.ProgramValidationException;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +14,18 @@ public class Shift extends Node {
 
     private final String name;
     private final LocalDateTime open, close;
+
+    public String getName() {
+        return name;
+    }
+
+    public LocalDateTime getOpen() {
+        return open;
+    }
+
+    public LocalDateTime getClose() {
+        return close;
+    }
 
     private static final DateTimeFormatter dateFormatter =
             new DateTimeFormatterBuilder().appendPattern("[MM/dd/yyyy HH:mm]").appendPattern("[MM-dd-yyyy HH:mm]")
@@ -29,7 +43,7 @@ public class Shift extends Node {
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
+        return v.visit(this);
     }
 }

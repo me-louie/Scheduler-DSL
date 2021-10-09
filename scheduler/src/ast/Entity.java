@@ -1,5 +1,7 @@
 package ast;
 
+import validate.ProgramValidationException;
+
 public class Entity extends Node {
     private final String name;
 
@@ -12,7 +14,7 @@ public class Entity extends Node {
     }
 
     @Override
-    public <T> T accept(SchedulerVisitor<T> v) {
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
         return v.visit(this);
     }
 }
