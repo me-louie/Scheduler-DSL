@@ -1,49 +1,63 @@
 package ast;
 
 
-import ast.transformations.Transformations;
+import ast.transformation.Transformation;
+import validate.ProgramValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Program extends Node {
 
+    // Todo: Remove these lists once they're no longer in use
+    //       Note that currently the Validator relies on these to check whether an entity/entity group/shift/shift group
+    //       has been declared more than once. If we delete these that check will need to be moved to ParseToASTVisitor
     private final List<Entity> entities;
     private final List<EntityGroup> entityGroups;
     private final List<Shift> shifts;
-    private final List<Shift_group> shiftGroups;
-    private final List<Transformations> transformations;
+    private final List<ShiftGroup> shiftGroups;
+    private final List<Transformation> transformations;
+
+    public Map<String, Entity> entityMap;
+    public Map<String, EntityGroup> entityGroupMap;
+    public Map<String, Shift> shiftMap;
+    public Map<String, ShiftGroup> shiftGroupMap;
+    public Map<String, List<Transformation>> transformationMap;
 
     private final Header header;
 
-    public Program(Header header, List<Entity> entities, List<EntityGroup> entityGroups, List<Shift> shifts, List<Shift_group> shiftGroups, List<Transformations> transformations) {
-        this.entities = entities;
-        this.entityGroups = entityGroups;
-        this.shifts = shifts;
-        this.shiftGroups = shiftGroups;
-        this.transformations = transformations;
+    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
+        this.entities = eList;
+        this.entityGroups = eGroupList;
+        this.shifts = sList;
+        this.shiftGroups = sgList;
+        this.transformations = tList;
         this.header = header;
+        this.entityMap = entityMap;
+        this.entityGroupMap = entityGroupMap;
+        this.shiftMap = shiftMap;
+        this.shiftGroupMap = shiftGroupMap;
+        this.transformationMap = transformationMap;
     }
 
-
-    public List<Entity> getEntity() {
+    public List<Entity> getEntities() {
       return entities;
     }
 
-    public List<EntityGroup> getEntityGroup() {
+    public List<EntityGroup> getEntityGroups() {
       return entityGroups;
     }
 
-    public HashMap<String, EntityGroup> getEntityGroupMap() {
-        HashMap<String, EntityGroup> eHashMap = new HashMap<>();
-        for (int i =0; i< this.getEntityGroup().size(); i++){
-            eHashMap.put(this.entityGroups.get(i).getName(),this.entityGroups.get(i));
-        }
+    public List<Shift> getShifts() {
+        return shifts;
+    }
 
-        return eHashMap;
+    public List<ShiftGroup> getShiftGroups() {
+        return shiftGroups;
+    }
+
+    public List<Transformation> getTransformations() {
+        return transformations;
     }
 
     public Header getHeader() {
@@ -51,7 +65,7 @@ public class Program extends Node {
     }
 
     @Override
-    public <T> T accept(SchedulerVisitor<T> v) {
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
         return v.visit(this);
     }
 }

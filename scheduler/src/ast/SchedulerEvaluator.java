@@ -1,23 +1,27 @@
 package ast;
 
+import ast.transformation.*;
 import evaluate.ScheduledEvent;
+import validate.ProgramValidationException;
+import validate.Validator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
-    // map of entity name to a list of all their scheduled events
-    Map<String, List<ScheduledEvent>> scheduleMap = new HashMap<>();
+    // map of entity name to a set of all their scheduled events
+    // we use a set so operations are idempotent (e.g. if you call Apply s1 to e1 twice you only end up with 1 entry for it)
+    public Map<String, Set<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
+    Validator validator;
 
     @Override
-    public Void visit(Program p) {
+    public Void visit(Program p) throws ProgramValidationException {
         program = p;
+        validator = new Validator(p);
         p.getHeader().accept(this);
-        p.getEntity().forEach(e -> e.accept(this));
-        p.getEntityGroup().forEach(eg -> eg.accept(this));
+        p.getEntities().forEach(e -> e.accept(this));
+        p.getEntityGroups().forEach(eg -> eg.accept(this));
         p.getShifts().forEach(s -> s.accept(this));
         p.getShiftGroups().forEach(sg -> sg.accept(this));
         p.getTransformations().forEach(t -> t.accept(this));
@@ -26,70 +30,89 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     @Override
     public Void visit(Header h) {
-        // in each visit do
-        //  - basic validation (use global program to do necessary checks)
-        //  - add an entry to scheduleMap if is an apply or loop
-        //  - create a new ShiftGroup if is a merge
+        // we don't actually use this for anything
         return null;
     }
 
     @Override
-    public Void visit(Entity e) {
+    public Void visit(Entity e) throws ProgramValidationException {
+        validator.validate(e);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(EntityGroup eg) {
+    public Void visit(EntityGroup eg) throws ProgramValidationException {
+        validator.validate(eg);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(Shift s) {
+    public Void visit(Shift s) throws ProgramValidationException {
+        validator.validate(s);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(ShiftGroup sg) {
+    public Void visit(ShiftGroup sg) throws ProgramValidationException {
+        validator.validate(sg);
+        // no evaluation
         return null;
     }
 
     @Override
-    public Void visit(Apply a) {
+    public Void visit(Apply a) throws ProgramValidationException {
+        validator.validate(a);
+
+        String entityOrEntityGroupName = a.getNameEEG();
+        String shiftOrShiftGroupName = a.getNameSGMG();
+        boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
+        boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
+
+        if (isEntity && isShift) { // is an entity and a shift
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName);
+        } else if (isEntity && !isShift){ // is an entity and a shift group
+            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName);
+            }
+        } else if (!isEntity && isShift) { // is an entity group and a shift
+            Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                applyShiftToEntity(shift, entityName);
+            }
+        } else { // is an entity group and a shift group
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName);
+                }
+            }
+        }
         return null;
     }
 
     @Override
-    public Void visit(Merge m) {
+    public Void visit(Merge m) throws ProgramValidationException {
+        validator.validate(m);
+        // create a new shift group
         return null;
     }
 
     @Override
-    public Void visit(Loop l) {
+    public Void visit(Loop l) throws ProgramValidationException {
+        validator.validate(l);
+        // add a bunch of nodes to scheduleMap
         return null;
     }
 
-    @Override
-    public Void visit(LogicalOR lo) {
-        return null;
+    private void applyShiftToEntity(Shift shift, String entityName) {
+        ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+        if (!scheduleMap.containsKey(entityName)) {
+            scheduleMap.put(entityName, new HashSet<>());
+        }
+        scheduleMap.get(entityName).add(scheduledEvent);
     }
 
-    @Override
-    public Void visit(LogicalAND la) {
-        return null;
-    }
 
-    @Override
-    public Void visit(LogicalXOR lx) {
-        return null;
-    }
-
-    @Override
-    public Void visit(BitwiseLeftShift bls) {
-        return null;
-    }
-
-    @Override
-    public Void visit(BitwiseRightShift brs) {
-        return null;
-    }
 }

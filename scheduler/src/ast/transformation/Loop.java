@@ -1,10 +1,8 @@
-package ast.transformations;
+package ast.transformation;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import ast.SchedulerVisitor;
 
-public class Loop extends Transformations{
+public class Loop extends Transformation {
 
     private String nameSSG;
     private String nameEEG;
@@ -41,7 +39,7 @@ public class Loop extends Transformations{
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return v.visit(this);
     }
 }

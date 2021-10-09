@@ -1,5 +1,7 @@
 package ast;
 
+import validate.ProgramValidationException;
+
 public class Header extends Node{
     private final String title;
 
@@ -12,7 +14,7 @@ public class Header extends Node{
     }
 
     @Override
-    public <T> T accept(SchedulerVisitor<T> v) {
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
         return v.visit(this);
     }
 }

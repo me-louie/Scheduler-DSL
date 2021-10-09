@@ -14,14 +14,14 @@ import net.fortuna.ical4j.util.UidGenerator;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class OutputGenerator {
 
-    public void generate(Map<String, List<ScheduledEvent>> scheduleMap, String outputFileName) throws IOException {
+    public void generate(Map<String, Set<ScheduledEvent>> scheduleMap, String outputFileName) throws IOException {
         Calendar cal = createCalendar();
         cal.getComponents().addAll(createEvents(scheduleMap));
         FileOutputStream fout = new FileOutputStream(outputFileName);
@@ -29,11 +29,11 @@ public class OutputGenerator {
         outputter.output(cal, fout);
     }
 
-    private Set<VEvent> createEvents(Map<String, List<ScheduledEvent>> scheduleMap) throws SocketException {
+    private Set<VEvent> createEvents(Map<String, Set<ScheduledEvent>> scheduleMap) throws SocketException {
         Set<VEvent> events = new HashSet<>();
         UidGenerator ug = new FixedUidGenerator("uidGen");
 
-        for (Map.Entry<String, List<ScheduledEvent>> entry : scheduleMap.entrySet()) {
+        for (Map.Entry<String, Set<ScheduledEvent>> entry : scheduleMap.entrySet()) {
             String name = entry.getKey();
             for (ScheduledEvent e : entry.getValue()) {
                 VEvent meeting = new VEvent(new DateTime(e.getStartDate().getTime()),

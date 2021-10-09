@@ -1,5 +1,7 @@
 package ast;
 
+import validate.ProgramValidationException;
+
 import java.util.List;
 
 public class EntityGroup extends Node {
@@ -20,7 +22,7 @@ public class EntityGroup extends Node {
     }
 
     @Override
-    public <T> T accept(SchedulerVisitor<T> v) {
+    public <T> T accept(SchedulerVisitor<T> v) throws ProgramValidationException {
         return v.visit(this);
     }
 }

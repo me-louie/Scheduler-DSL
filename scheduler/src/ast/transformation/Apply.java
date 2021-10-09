@@ -1,18 +1,12 @@
-package ast.transformations;
+package ast.transformation;
 
-import ast.Entity;
-import ast.EntityGroup;
-import ast.Shift;
-import ast.Shift_group;
+import ast.SchedulerVisitor;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-public class Apply extends Transformations{
-
-
-    
+public class Apply extends Transformation {
 
     private String nameSGMG;
     private String nameEEG;
@@ -26,6 +20,14 @@ public class Apply extends Transformations{
         this.bO = bO;
     }
 
+    public Integer getNum() {
+        return num;
+    }
+
+    public BitwiseOperator getbO() {
+        return bO;
+    }
+
     public String getNameSGMG() {
         return nameSGMG;
     }
@@ -35,7 +37,7 @@ public class Apply extends Transformations{
     }
 
     @Override
-    public void evaluate(PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
-        
+    public <T> T accept(SchedulerVisitor<T> v) {
+        return v.visit(this);
     }
 }
