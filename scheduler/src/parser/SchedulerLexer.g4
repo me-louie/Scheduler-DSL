@@ -57,4 +57,4 @@ NUM: [0-9]+ -> mode(DEFAULT_MODE);
 mode COND_MODE;
 COND_WS: [\t ]+ -> channel(HIDDEN);
 COND_OPEN_BRACE: '{';
-COND_NEWLINE : [\r\n]+ -> mode(DEFAULT_MODE); // some number of these.. longest match means we won't go back to EXP_MODE "too early"
+COND_NEWLINE : [\r\n]+ -> mode(DEFAULT_MODE);
