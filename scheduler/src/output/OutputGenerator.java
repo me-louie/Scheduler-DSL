@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class OutputGenerator {
 
-    public void generate(Map<String, Collection<ScheduledEvent>> scheduleMap, String outputFileName) throws IOException {
+    public void generate(Map<String, Set<ScheduledEvent>> scheduleMap, String outputFileName) throws IOException {
         Calendar cal = createCalendar();
         cal.getComponents().addAll(createEvents(scheduleMap));
         FileOutputStream fout = new FileOutputStream(outputFileName);
@@ -29,11 +29,11 @@ public class OutputGenerator {
         outputter.output(cal, fout);
     }
 
-    private Set<VEvent> createEvents(Map<String, Collection<ScheduledEvent>> scheduleMap) throws SocketException {
+    private Set<VEvent> createEvents(Map<String, Set<ScheduledEvent>> scheduleMap) throws SocketException {
         Set<VEvent> events = new HashSet<>();
         UidGenerator ug = new FixedUidGenerator("uidGen");
 
-        for (Map.Entry<String, Collection<ScheduledEvent>> entry : scheduleMap.entrySet()) {
+        for (Map.Entry<String, Set<ScheduledEvent>> entry : scheduleMap.entrySet()) {
             String name = entry.getKey();
             for (ScheduledEvent e : entry.getValue()) {
                 VEvent meeting = new VEvent(new DateTime(e.getStartDate().getTime()),
