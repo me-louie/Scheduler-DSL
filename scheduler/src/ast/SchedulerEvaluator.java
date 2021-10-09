@@ -11,7 +11,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     // map of entity name to a set of all their scheduled events
     // we use a set so operations are idempotent (e.g. if you call Apply s1 to e1 twice you only end up with 1 entry for it)
-    public Map<String, Collection<ScheduledEvent>> scheduleMap = new HashMap<>();
+    public Map<String, Set<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
     Validator validator;
 

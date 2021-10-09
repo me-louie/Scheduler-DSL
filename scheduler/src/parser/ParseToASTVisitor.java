@@ -195,6 +195,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
     }
 
+    // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
         return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;

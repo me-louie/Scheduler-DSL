@@ -9,7 +9,9 @@ import java.util.Map;
 
 public class Program extends Node {
 
-    // given how we're using the Program class it probably makes sense to make these directly accessible
+    // Todo: Remove these lists once they're no longer in use
+    //       Note that currently the Validator relies on these to check whether an entity/entity group/shift/shift group
+    //       has been declared more than once. If we delete these that check will need to be moved to ParseToASTVisitor
     private final List<Entity> entities;
     private final List<EntityGroup> entityGroups;
     private final List<Shift> shifts;
