@@ -24,3 +24,13 @@ if (SG1 XOR SG2) {
 } else {
     // empty block is allowed
 }
+
+if (SG2 AND SG2) {
+    if (SG1 AND SG1) {
+        Apply S3 to Person1;
+    } else {
+        // do nothing
+    }
+} else {
+    // do nothing
+}
