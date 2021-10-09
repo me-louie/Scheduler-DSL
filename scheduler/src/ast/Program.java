@@ -10,17 +10,18 @@ import java.util.Map;
 
 public class Program extends Node {
 
+    // given how we're using the Program class it probably makes sense to make these directly accessible
     private final List<Entity> entities;
     private final List<EntityGroup> entityGroups;
     private final List<Shift> shifts;
     private final List<ShiftGroup> shiftGroups;
     private final List<Transformation> transformations;
 
-    final Map<String, Entity> entityMap;
-    final Map<String, EntityGroup> entityGroupMap;
-    final Map<String, Shift> shiftMap;
-    final Map<String, ShiftGroup> shiftGroupMap;
-    final Map<String, List<Transformation>> transformationMap;
+    public Map<String, Entity> entityMap;
+    public Map<String, EntityGroup> entityGroupMap;
+    public Map<String, Shift> shiftMap;
+    public Map<String, ShiftGroup> shiftGroupMap;
+    public Map<String, List<Transformation>> transformationMap;
 
     private final Header header;
 

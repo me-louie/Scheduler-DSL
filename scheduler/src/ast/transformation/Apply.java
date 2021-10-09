@@ -38,6 +38,6 @@ public class Apply extends Transformation {
 
     @Override
     public <T> T accept(SchedulerVisitor<T> v) {
-        return null;
+        return v.visit(this);
     }
 }

@@ -51,32 +51,29 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             sgList.add(shiftGroup);
             shiftGroupMap.put(shiftGroup.getName(), shiftGroup);
         }
-        for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
-            sgList.add(this.visitShift_group(e)); // should this be here twice?
-        }
 
         for (SchedulerParser.TransformationsContext e : ctx.transformations()) {
             if (e.apply() != null) {
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
-                if (!transformationMap.containsKey(Apply.class.getName())) {
-                    transformationMap.put(Apply.class.getName(), new ArrayList<>());
+                if (!transformationMap.containsKey(Transformation.APPLY)) {
+                    transformationMap.put(Transformation.APPLY, new ArrayList<>());
                 }
-                transformationMap.get(Apply.class.getName()).add(apply);
+                transformationMap.get(Transformation.APPLY).add(apply);
             } else if (e.merge() != null){
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
-                if (!transformationMap.containsKey(Merge.class.getName())) {
-                    transformationMap.put(Merge.class.getName(), new ArrayList<>());
+                if (!transformationMap.containsKey(Transformation.MERGE)) {
+                    transformationMap.put(Transformation.MERGE, new ArrayList<>());
                 }
-                transformationMap.get(Merge.class.getName()).add(merge);
+                transformationMap.get(Transformation.MERGE).add(merge);
             } else if (e.loop() != null){
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
-                if (!transformationMap.containsKey(Loop.class.getName())) {
-                    transformationMap.put(Loop.class.getName(), new ArrayList<>());
+                if (!transformationMap.containsKey(Transformation.LOOP)) {
+                    transformationMap.put(Transformation.LOOP, new ArrayList<>());
                 }
-                transformationMap.get(Loop.class.getName()).add(loop);
+                transformationMap.get(Transformation.LOOP).add(loop);
 
             }
         }
@@ -199,7 +196,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     private BitwiseOperator getBitwiseOperator(String operator) {
-        return switch (operator) {
+        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;
             default -> throw new RuntimeException("Unrecognized bitwise operator");
@@ -207,7 +204,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     private LogicalOperator getLogicalOperator(String operator) {
-        return switch (operator) {
+        return switch (operator.trim()) {
             case "AND" -> LogicalOperator.AND;
             case "OR" -> LogicalOperator.OR;
             case "XOR" -> LogicalOperator.XOR;

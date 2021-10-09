@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 
 import ast.Program;
+import output.OutputGenerator;
 import parser.ParseToASTVisitor;
 import parser.SchedulerLexer;
 import parser.SchedulerParser;
@@ -31,11 +32,8 @@ public class Main {
         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
         parsedProgram.accept(schedulerEvaluator);
         System.out.println("Done scheduling");
-        // TODO: Uncomment when SchedulerEvaluator is complete
-        // OutputGenerator og = new OutputGenerator();
-        // og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
-        // System.out.println("Done outputting");
-
-
+        OutputGenerator og = new OutputGenerator();
+        og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
+        System.out.println("Done outputting");
     }
 }

@@ -62,7 +62,6 @@ public class Validator {
         } else if (!isUniqueEntityEntityGroup(entityName)) {
             throw new DuplicateNameException("Error: 2 or more entity/entity groups share the name " + entityName);
         }
-        validate(apply.getbO());
     }
 
     public void validate(Merge merge) throws ProgramValidationException {
@@ -76,7 +75,6 @@ public class Validator {
         } else if (shiftGroup2Name != null && !isUniqueShiftShiftGroupMergeName(shiftGroup2Name)) {
             throw new DuplicateNameException("Error: 2 or more shift/shift group/merge groups share the name " + shiftGroup2Name);
         }
-        validate(merge.getlO());
     }
 
     public void validate(Loop loop) throws ProgramValidationException {
@@ -87,19 +85,11 @@ public class Validator {
         } else if (!isUniqueEntityEntityGroup(entityGroupName)) {
             throw new DuplicateNameException("Error: 2 or more entity/entity groups share the name " + entityGroupName);
         }
-        validate(loop.getB0());
-    }
-
-    public void validate(BitwiseOperator bitwiseOperator) {
-
-    }
-
-    public void validate(LogicalOperator logicalOperator) {
-
     }
 
     boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {
-        return (begin.isBefore(end) || begin.isEqual(end)) && (begin.isAfter(LocalDateTime.now()) || begin.isEqual(LocalDateTime.now()));
+        // currently we allow times/dates from the past
+        return begin.isBefore(end) || begin.isEqual(end);
     }
 
     boolean isUniqueShiftShiftGroupMergeName(String name) {

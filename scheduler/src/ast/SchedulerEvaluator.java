@@ -5,15 +5,12 @@ import evaluate.ScheduledEvent;
 import validate.ProgramValidationException;
 import validate.Validator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     // map of entity name to a list of all their scheduled events
-    Map<String, List<ScheduledEvent>> scheduleMap = new HashMap<>();
+    public Map<String, Collection<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
     Validator validator;
 
@@ -70,24 +67,24 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
         String entityOrEntityGroupName = a.getNameEEG();
         String shiftOrShiftGroupName = a.getNameSGMG();
-        boolean isEntity = program.getEntityMap().containsKey(entityOrEntityGroupName);
-        boolean isShift = program.getShiftMap().containsKey(shiftOrShiftGroupName);
+        boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
+        boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.getShiftMap().get(shiftOrShiftGroupName), entityOrEntityGroupName);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName);
         } else if (isEntity && !isShift){ // is an entity and a shift group
-            for (String shiftName : program.getShiftGroupMap().get(shiftOrShiftGroupName).getShiftList()) {
-                applyShiftToEntity(program.getShiftMap().get(shiftName), entityOrEntityGroupName);
+            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
-            Shift shift = program.getShiftMap().get(shiftOrShiftGroupName);
-            for (String entityName : program.getEntityGroupMap().get(entityOrEntityGroupName).getEntities()) {
+            Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
                 applyShiftToEntity(shift, entityName);
             }
         } else { // is an entity group and a shift group
-            for (String entityName : program.getEntityGroupMap().get(entityOrEntityGroupName).getEntities()) {
-                for (String shiftName : program.getShiftGroupMap().get(shiftOrShiftGroupName).getShiftList()) {
-                    applyShiftToEntity(program.getShiftMap().get(shiftName), entityName);
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName);
                 }
             }
         }
@@ -111,7 +108,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     private void applyShiftToEntity(Shift shift, String entityName) {
         ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
         if (!scheduleMap.containsKey(entityName)) {
-            scheduleMap.put(entityName, new ArrayList<>());
+            scheduleMap.put(entityName, new HashSet<>());
         }
         scheduleMap.get(entityName).add(scheduledEvent);
     }
