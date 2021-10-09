@@ -134,7 +134,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
         BitwiseOperator bO = null;
         if (ctx.bitwise_operator() != null){
-            bO = new BitwiseOperator(ctx.bitwise_operator().getText());
+            bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
         System.out.println(num);
         System.out.println(bO);
@@ -146,7 +146,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String name = ctx.name(0).getText();
         String shiftOrShiftGroup1 = ctx.name(1).getText();
         String shiftOrShiftGroup2 = ctx.name(2).getText();
-        LogicalOperator lO = new LogicalOperator(ctx.logical_operator().getText());
+        LogicalOperator lO = getLogicalOperator(ctx.logical_operator().getText());
         return new Merge(name, lO, shiftOrShiftGroup1, shiftOrShiftGroup2);
     }
 
@@ -159,10 +159,27 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         if (ctx.NUM(1) !=null){
             repNum = Integer.parseInt(ctx.NUM(1).getText());
         }
-        BitwiseOperator bO = new BitwiseOperator(ctx.bitwise_operator().getText());
+        BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         System.out.println(num);
         System.out.println(repNum);
         System.out.println(ctx.bitwise_operator().getText());
         return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
+    }
+
+    private BitwiseOperator getBitwiseOperator(String operator) {
+        return switch (operator) {
+            case "<<" -> BitwiseOperator.LEFTSHIFT;
+            case ">>" -> BitwiseOperator.RIGHTSHIFT;
+            default -> throw new RuntimeException("Unrecognized bitwise operator");
+        };
+    }
+
+    private LogicalOperator getLogicalOperator(String operator) {
+        return switch (operator) {
+            case "AND" -> LogicalOperator.AND;
+            case "OR" -> LogicalOperator.OR;
+            case "XOR" -> LogicalOperator.XOR;
+            default -> throw new RuntimeException("Unrecognized logical operator");
+        };
     }
 }

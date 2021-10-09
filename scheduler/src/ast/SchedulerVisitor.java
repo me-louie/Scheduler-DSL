@@ -1,7 +1,6 @@
 package ast;
 
 import ast.transformation.*;
-import validate.DuplicateNameException;
 import validate.ProgramValidationException;
 
 public interface SchedulerVisitor<T> {
@@ -15,7 +14,5 @@ public interface SchedulerVisitor<T> {
     T visit(Apply a) throws ProgramValidationException;
     T visit(Merge m) throws ProgramValidationException;
     T visit(Loop l) throws ProgramValidationException;
-    T visit(LogicalOperator lo) throws ProgramValidationException; // might not actually need these
-    T visit(BitwiseOperator bo) throws ProgramValidationException;
 
 }
