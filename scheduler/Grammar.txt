@@ -13,7 +13,7 @@ bitwise_operator: >> NUM | << NUM ';' ;
 
 transformations: apply | merge | loop ';' ;
 apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;
-merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge ')') ;
+merge: 'Merge' MERGE_GROUP_NAME SHIFT_GROUP_NAME logical_operator (SHIFT_GROUP_NAME | '(' merge_group_name ')') ;
 loop: 'Loop' SHIFT_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;
 
 

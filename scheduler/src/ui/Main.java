@@ -36,12 +36,12 @@ public class Main {
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
 
-//        SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
-//        parsedProgram.accept(schedulerEvaluator);
-//        System.out.println("Done scheduling");
-//        OutputGenerator og = new OutputGenerator();
-//        og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
-//        System.out.println("Done outputting");
+        SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
+        parsedProgram.accept(schedulerEvaluator);
+        System.out.println("Done scheduling");
+        OutputGenerator og = new OutputGenerator();
+        og.generate(schedulerEvaluator.scheduleMap, "mycalendar.ics");
+        System.out.println("Done outputting");
 
     }
 
