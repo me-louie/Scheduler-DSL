@@ -66,27 +66,27 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     @Override
     public Void visit(Apply a) throws ProgramValidationException {
         validator.validate(a);
+
         String entityOrEntityGroupName = a.getNameEEG();
         String shiftOrShiftGroupName = a.getNameSGMG();
         boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
+
         if (isEntity && isShift) { // is an entity and a shift
             applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName);
         } else if (isEntity && !isShift){ // is an entity and a shift group
-            // get the shift group
-            // for each shift in group apply shifttoentity(shift, entityName);
-            for (Shift shift : program.getShiftGroups().get(shiftOrShiftGroupName)) {
-                applyShiftToEntity(shift, entityOrEntityGroupName);
+            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
-            for (Entity entity : program.entityMap.get(entityOrEntityGroupName)) {
-                applyShiftToEntity(shift, entity.getName());
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                applyShiftToEntity(shift, entityName);
             }
-        } else { // is an entity group and a shift
-            for (Entity entity : program.entityGroupMap.get(entityOrEntityGroupName)) {
-                for (Shift shift : program.shiftMap.get(shiftOrShiftGroupName)) {
-                    applyShiftToEntity(shift, entity.getName());
+        } else { // is an entity group and a shift group
+            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName);
                 }
             }
         }
