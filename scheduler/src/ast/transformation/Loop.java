@@ -42,4 +42,9 @@ public class Loop extends Transformation {
     public <T> T accept(SchedulerVisitor<T> v) {
         return v.visit(this);
     }
+
+    @Override
+    public String getName() {
+        return null;
+    }
 }
