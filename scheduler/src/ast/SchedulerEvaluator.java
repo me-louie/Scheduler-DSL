@@ -12,7 +12,7 @@ import java.util.*;
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     // map of entity name to a list of all their scheduled events
-    Map<String, List<ScheduledEvent>> scheduleMap = new HashMap<>();
+    public Map<String, Set<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
     Validator validator;
 
@@ -97,47 +97,46 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Merge m) throws ProgramValidationException {
         validator.validate(m);
         ShiftGroup sgResult = mergeHelper(m);
-
+        program.shiftGroupMap.put(sgResult.getName(),sgResult);
+        program.getShiftGroups().add(sgResult);
         return null;
     }
 
     private ShiftGroup mergeHelper(Merge m) {
         // create a new shift group
         List<String> result = null;
-        String name = m.getName() + "ShiftGroup";
-        String shiftOrshiftGroupName1 = m.getNameSGS1();
+        String name = m.getName();
+        String shiftOrShiftGroupName1 = m.getNameSGS1();
         String shiftOrShiftGroupNameOrMergeName = m.getNameSGS2();
         LogicalOperator lo = m.getlO();
         //Checking if the second name was a merge name
         boolean isMergeName = false;
         Merge mergeObject = null;
         for (Merge x: program.getMergeList()){
-            if(x.getName().equals(shiftOrShiftGroupNameOrMergeName)){
+            if((x.getName()).equals(shiftOrShiftGroupNameOrMergeName)){
                 isMergeName = true;
                 mergeObject =x;
             }
         }
         if(program.shiftGroupMap.containsKey(shiftOrShiftGroupNameOrMergeName)){
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList();
+            List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
                 System.out.println(shiftNamesSG1);
-                if (shiftNamesSG1.retainAll(shiftNamesSG2)) {
+                shiftNamesSG1.retainAll(shiftNamesSG2);
+                if (!shiftNamesSG1.isEmpty()) {
                     result = shiftNamesSG1;
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
+                //Collections.sort(result); Maybe want to sort results
             }else if (lo.equals(LogicalOperator.XOR)){
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -149,28 +148,26 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             }
         }
         else if (isMergeName){
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList();
+            ShiftGroup sg2 = mergeHelper(mergeObject);
             if(lo.equals(LogicalOperator.AND)){
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                ShiftGroup sg2 = mergeHelper(mergeObject);
+
                 List<String> shiftNamesSG2 = sg2.getShiftList();
                 System.out.println(shiftNamesSG1);
-                if (shiftNamesSG1.retainAll(shiftNamesSG2)) {
+                shiftNamesSG1.retainAll(shiftNamesSG2);
+                if (!shiftNamesSG1.isEmpty()) {
                     result = shiftNamesSG1;
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                ShiftGroup sg2 = mergeHelper(mergeObject);
                 List<String> shiftNamesSG2 = sg2.getShiftList();
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
             }else if (lo.equals(LogicalOperator.XOR)){
-                List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrshiftGroupName1).getShiftList();
-                ShiftGroup sg2 = mergeHelper(mergeObject);
                 List<String> shiftNamesSG2 = sg2.getShiftList();
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
@@ -183,7 +180,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             }
         }
         else{
-            throw new NameNotFoundException("Shift Group Name not found");
+            throw new NameNotFoundException("Shift Group or Merge Name not found");
         }
         return new ShiftGroup(name, result);
     }
@@ -199,10 +196,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         // todo: change LocalDateTime to Calendar from the get go so this works
         ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
         if (!scheduleMap.containsKey(entityName)) {
-            scheduleMap.put(entityName, new ArrayList<>());
+            scheduleMap.put(entityName, new HashSet<>());
         }
         scheduleMap.get(entityName).add(scheduledEvent);
     }
-
-
 }
