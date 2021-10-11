@@ -5,6 +5,7 @@ import ast.transformation.Merge;
 import ast.transformation.Transformation;
 import validate.ProgramValidationException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class Program extends Node {
     private  List<EntityGroup> entityGroups;
     private  List<Shift> shifts;
     private  List<ShiftGroup> shiftGroups;
+    private final List<ShiftGroup> shiftGroupsWithoutMergeGroups;
     private  List<Transformation> transformations;
     private  List<Merge> mergeList;
 
@@ -33,6 +35,7 @@ public class Program extends Node {
         this.entityGroups = eGroupList;
         this.shifts = sList;
         this.shiftGroups = sgList;
+        this.shiftGroupsWithoutMergeGroups = new ArrayList<>(sgList);
         this.transformations = tList;
         this.header = header;
         this.mergeList = mergeList;
@@ -61,6 +64,10 @@ public class Program extends Node {
 
     public List<ShiftGroup> getShiftGroups() {
         return shiftGroups;
+    }
+
+    public List<ShiftGroup> getShiftGroupsWithoutMergeGroups() {
+        return shiftGroupsWithoutMergeGroups;
     }
 
     public List<Transformation> getTransformations() {
