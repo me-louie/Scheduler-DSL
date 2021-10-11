@@ -192,6 +192,18 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(IfThenElse ifThenElse) throws ProgramValidationException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Void visit(Cond cond) throws ProgramValidationException {
+        // TODO
+        return null;
+    }
+
     void applyShiftToEntity(Shift shift, String entityName) {
         // todo: change LocalDateTime to Calendar from the get go so this works
         ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());

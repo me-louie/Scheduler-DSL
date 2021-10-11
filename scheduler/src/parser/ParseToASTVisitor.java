@@ -24,6 +24,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<Apply> applyList = new ArrayList<>();
         List<Merge> mergeList = new ArrayList<>();
         List<Loop> loopList = new ArrayList<>();
+        List<IfThenElse> ifThenElseList = new ArrayList<>();
 
         Map<String, Entity> entityMap = new HashMap<>();
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
@@ -197,6 +198,16 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(repNum);
         System.out.println(ctx.bitwise_operator().getText());
         return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
+    }
+
+    @Override
+    public Node visitIfthenelse(SchedulerParser.IfthenelseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitCond(SchedulerParser.CondContext ctx) {
+        return null;
     }
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
