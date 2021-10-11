@@ -106,16 +106,16 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         // create a new shift group
         List<String> result = null;
         String name = m.getName();
-        String shiftOrShiftGroupNameOrM1 = m.getNameSGS1();
-        String shiftOrShiftGroupNameOrMergeName = m.getNameSGS2();
+        String ShiftGroupNameOrM1 = m.getNameSGS1();
+        String ShiftGroupNameOrMergeName = m.getNameSGS2();
         LogicalOperator lo = m.getlO();
         //Checking if the second name was a merge name
         boolean isSG1 = false;
         boolean isSG2 = false;
-        if (program.shiftGroupMap.containsKey(shiftOrShiftGroupNameOrM1)){
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrM1)){
             isSG1 = true;
         }
-        if (program.shiftGroupMap.containsKey(shiftOrShiftGroupNameOrMergeName)){
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrMergeName)){
             isSG2 = true;
         }
         boolean isMergeName1 = false;
@@ -123,19 +123,19 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Merge mergeObject1 = null;
         Merge mergeObject2 = null;
         for (Merge x: program.getMergeList()){
-            if((x.getName()).equals(shiftOrShiftGroupNameOrM1)){
+            if((x.getName()).equals(ShiftGroupNameOrM1)){
                 isMergeName1 = true;
                 mergeObject1 =x;
             }
-            if((x.getName()).equals(shiftOrShiftGroupNameOrMergeName)){
+            if((x.getName()).equals(ShiftGroupNameOrMergeName)){
                 isMergeName2 = true;
                 mergeObject2 =x;
             }
 
         }
         if(isSG1 && isSG2){
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrM1).getShiftList();
-            List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
+            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
                 System.out.println(shiftNamesSG1);
                 shiftNamesSG1.retainAll(shiftNamesSG2);
@@ -163,7 +163,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             }
         }
         else if (isMergeName2 && !isMergeName1 && isSG1){
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrM1).getShiftList();
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
             ShiftGroup sg2 = mergeHelper(mergeObject2);
             List<String> shiftNamesSG2 = sg2.getShiftList();
             if(lo.equals(LogicalOperator.AND)){
@@ -196,7 +196,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         }  else if (isMergeName1 && !isMergeName2 && isSG2){
             ShiftGroup sg1 = mergeHelper(mergeObject1);
             List<String> shiftNamesSG1 = sg1.getShiftList();
-            List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
+            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
                 System.out.println(shiftNamesSG1);
                 shiftNamesSG1.retainAll(shiftNamesSG2);
