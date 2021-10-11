@@ -8,6 +8,7 @@ import validate.ResultNotFound;
 import validate.Validator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
@@ -261,7 +262,44 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     @Override
     public Void visit(Loop l) throws ProgramValidationException {
         validator.validate(l);
-        // add a bunch of nodes to scheduleMap
+
+
+        List<String> entityList = program.entityGroupMap.get(l.getNameEEG()).getEntities();
+        List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
+        List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        Integer days = 0;
+        Integer repeat = 0;
+        while (repeat < l.getRepNum()) {
+
+            for (Entity e : entities) {
+
+                for (Shift s : shifts) {
+                    ScheduledEvent event = new ScheduledEvent(s.getOpen().plusDays(days),
+                            s.getClose().plusDays(days),
+                            s.getName());
+                    if (scheduleMap.containsKey(e.getName())) {
+                        scheduleMap.get(e.getName()).add(event);
+                    } else {
+                        scheduleMap.put(e.getName(), Set.of(event));
+                    }
+                }
+
+                if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
+                    days += l.getNum();
+                } else {
+                    days -= l.getNum();
+                }
+            }
+            repeat++;
+        }
+
         return null;
     }
 
