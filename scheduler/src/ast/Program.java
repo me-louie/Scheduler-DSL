@@ -1,20 +1,26 @@
 package ast;
 
 
+import ast.transformation.Merge;
 import ast.transformation.Transformation;
 import validate.ProgramValidationException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Program extends Node {
 
-    // given how we're using the Program class it probably makes sense to make these directly accessible
-    private final List<Entity> entities;
-    private final List<EntityGroup> entityGroups;
-    private final List<Shift> shifts;
-    private final List<ShiftGroup> shiftGroups;
-    private final List<Transformation> transformations;
+    // Todo: Remove these lists once they're no longer in use
+    //       Note that currently the Validator relies on these to check whether an entity/entity group/shift/shift group
+    //       has been declared more than once. If we delete these that check will need to be moved to ParseToASTVisitor
+    private  List<Entity> entities;
+    private  List<EntityGroup> entityGroups;
+    private  List<Shift> shifts;
+    private  List<ShiftGroup> shiftGroups;
+    private final List<ShiftGroup> shiftGroupsWithoutMergeGroups;
+    private  List<Transformation> transformations;
+    private  List<Merge> mergeList;
 
     public Map<String, Entity> entityMap;
     public Map<String, EntityGroup> entityGroupMap;
@@ -24,18 +30,24 @@ public class Program extends Node {
 
     private final Header header;
 
-    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
+    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, List<Merge> mergeList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
         this.entities = eList;
         this.entityGroups = eGroupList;
         this.shifts = sList;
         this.shiftGroups = sgList;
+        this.shiftGroupsWithoutMergeGroups = new ArrayList<>(sgList);
         this.transformations = tList;
         this.header = header;
+        this.mergeList = mergeList;
         this.entityMap = entityMap;
         this.entityGroupMap = entityGroupMap;
         this.shiftMap = shiftMap;
         this.shiftGroupMap = shiftGroupMap;
         this.transformationMap = transformationMap;
+    }
+
+    public List<Merge> getMergeList() {
+        return mergeList;
     }
 
     public List<Entity> getEntities() {
@@ -52,6 +64,10 @@ public class Program extends Node {
 
     public List<ShiftGroup> getShiftGroups() {
         return shiftGroups;
+    }
+
+    public List<ShiftGroup> getShiftGroupsWithoutMergeGroups() {
+        return shiftGroupsWithoutMergeGroups;
     }
 
     public List<Transformation> getTransformations() {

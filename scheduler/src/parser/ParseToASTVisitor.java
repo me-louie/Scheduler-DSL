@@ -21,6 +21,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<Shift> sList = new ArrayList<>();
         List<ShiftGroup> sgList = new ArrayList<>();
         List<Transformation> tList = new ArrayList<>();
+        List<Apply> applyList = new ArrayList<>();
+        List<Merge> mergeList = new ArrayList<>();
+        List<Loop> loopList = new ArrayList<>();
 
         Map<String, Entity> entityMap = new HashMap<>();
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
@@ -63,6 +66,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             } else if (e.merge() != null){
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
+                mergeList.add(merge);
                 if (!transformationMap.containsKey(Transformation.MERGE)) {
                     transformationMap.put(Transformation.MERGE, new ArrayList<>());
                 }
@@ -78,7 +82,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             }
         }
 
-        return new Program(header, eList, eGroupList, sList, sgList, tList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap);
+        return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap);
     }
 
     @Override
@@ -174,9 +178,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     public Merge visitMerge(SchedulerParser.MergeContext ctx) {
         String name = ctx.name(0).getText();
         String shiftOrShiftGroup1 = ctx.name(1).getText();
-        String shiftOrShiftGroup2 = ctx.name(2).getText();
+        String shiftOrShiftGroupOrMerge = ctx.name(2).getText();
         LogicalOperator lO = getLogicalOperator(ctx.logical_operator().getText());
-        return new Merge(name, lO, shiftOrShiftGroup1, shiftOrShiftGroup2);
+        return new Merge(name, lO, shiftOrShiftGroup1, shiftOrShiftGroupOrMerge);
     }
 
     @Override
@@ -195,6 +199,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
     }
 
+    // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
         return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;

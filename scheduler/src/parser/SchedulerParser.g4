@@ -16,7 +16,7 @@ bitwise_operator: SHIFT_LEFT | SHIFT_RIGHT;
 transformations : ((apply | merge | loop | ifthenelse) ENDLINE)* ;
 
 apply           : APPLY_START name TO name (bitwise_operator NUM)?;
-merge           : MERGE_START name COLON name logical_operator name TO name;
+merge           : MERGE_START name COLON name logical_operator name;
 // SO the user can write user recursion line by line instead of writing one big line. example below:
 //Merge merge3 SG2 AND merge4 to Person 6
 //Merge merge4 SG1 AND SG2 to Person5;
