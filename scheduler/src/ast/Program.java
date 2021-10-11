@@ -1,6 +1,7 @@
 package ast;
 
 
+import ast.transformation.Merge;
 import ast.transformation.Transformation;
 import validate.ProgramValidationException;
 
@@ -12,11 +13,12 @@ public class Program extends Node {
     // Todo: Remove these lists once they're no longer in use
     //       Note that currently the Validator relies on these to check whether an entity/entity group/shift/shift group
     //       has been declared more than once. If we delete these that check will need to be moved to ParseToASTVisitor
-    private final List<Entity> entities;
-    private final List<EntityGroup> entityGroups;
-    private final List<Shift> shifts;
-    private final List<ShiftGroup> shiftGroups;
-    private final List<Transformation> transformations;
+    private  List<Entity> entities;
+    private  List<EntityGroup> entityGroups;
+    private  List<Shift> shifts;
+    private  List<ShiftGroup> shiftGroups;
+    private  List<Transformation> transformations;
+    private  List<Merge> mergeList;
 
     public Map<String, Entity> entityMap;
     public Map<String, EntityGroup> entityGroupMap;
@@ -26,18 +28,23 @@ public class Program extends Node {
 
     private final Header header;
 
-    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
+    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, List<Merge> mergeList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
         this.entities = eList;
         this.entityGroups = eGroupList;
         this.shifts = sList;
         this.shiftGroups = sgList;
         this.transformations = tList;
         this.header = header;
+        this.mergeList = mergeList;
         this.entityMap = entityMap;
         this.entityGroupMap = entityGroupMap;
         this.shiftMap = shiftMap;
         this.shiftGroupMap = shiftGroupMap;
         this.transformationMap = transformationMap;
+    }
+
+    public List<Merge> getMergeList() {
+        return mergeList;
     }
 
     public List<Entity> getEntities() {
