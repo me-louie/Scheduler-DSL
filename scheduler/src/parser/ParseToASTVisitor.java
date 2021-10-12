@@ -28,7 +28,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
         Map<String, Shift> shiftMap = new HashMap<>();
         Map<String, ShiftGroup> shiftGroupMap = new HashMap<>();
-        Map<String, List<Transformation>> transformationMap = new HashMap<>(){{
+        Map<String, List<Transformation>> transformationMap = new HashMap<>() {{
             put(Transformation.APPLY, new ArrayList<>());
             put(Transformation.MERGE, new ArrayList<>());
             put(Transformation.LOOP, new ArrayList<>());
@@ -64,12 +64,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
                 transformationMap.get(Transformation.APPLY).add(apply);
-            } else if (e.merge() != null){
+            } else if (e.merge() != null) {
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
                 mergeList.add(merge);
                 transformationMap.get(Transformation.MERGE).add(merge);
-            } else if (e.loop() != null){
+            } else if (e.loop() != null) {
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
                 transformationMap.get(Transformation.LOOP).add(loop);
@@ -211,29 +211,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<Transformation> thenTransformations = new ArrayList<>();
         List<Transformation> elseTransformations = new ArrayList<>();
 
-        for (SchedulerParser.TransformationContext e : ctx.thenblock.transformation()) {
-            if (e.apply() != null) {
-                thenTransformations.add(visitApply(e.apply()));
-            } else if (e.merge() != null) {
-                thenTransformations.add(visitMerge(e.merge()));
-            } else if (e.loop() != null) {
-                thenTransformations.add(visitLoop(e.loop()));
-            } else if (e.ifthenelse() != null) {
-                thenTransformations.add(visitIfthenelse(e.ifthenelse()));
-            }
-        }
+        visitNestedTransformations(ctx.thenblock.transformation(), thenTransformations);
+        visitNestedTransformations(ctx.elseblock.transformation(), elseTransformations);
 
-        for (SchedulerParser.TransformationContext e : ctx.elseblock.transformation()) {
-            if (e.apply() != null) {
-                elseTransformations.add(visitApply(e.apply()));
-            } else if (e.merge() != null) {
-                elseTransformations.add(visitMerge(e.merge()));
-            } else if (e.loop() != null) {
-                elseTransformations.add(visitLoop(e.loop()));
-            } else if (e.ifthenelse() != null) {
-                elseTransformations.add(visitIfthenelse(e.ifthenelse()));
-            }
-        }
         return new IfThenElse(cond, thenTransformations, elseTransformations);
     }
 
@@ -247,7 +227,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
-        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
+        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out
+            // with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;
             default -> throw new RuntimeException("Unrecognized bitwise operator");
@@ -266,14 +247,29 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     private void addNestedTransformations(Map<String, List<Transformation>> transformationMap,
                                           List<Transformation> transformations) {
         for (Transformation t : transformations) {
-            if (t.getClass().equals(Merge.class)){
+            if (t.getClass().equals(Merge.class)) {
                 transformationMap.get(Transformation.MERGE).add(t);
-            } else if (t.getClass().equals(Apply.class)){
+            } else if (t.getClass().equals(Apply.class)) {
                 transformationMap.get(Transformation.APPLY).add(t);
             } else if (t.getClass().equals(Loop.class)) {
                 transformationMap.get(Transformation.LOOP).add(t);
             } else if (t.getClass().equals(IfThenElse.class)) {
                 transformationMap.get(Transformation.IF_THEN_ELSE).add(t);
+            }
+        }
+    }
+
+    private void visitNestedTransformations(List<SchedulerParser.TransformationContext> ctxTransformations,
+                                            List<Transformation> transformations) {
+        for (SchedulerParser.TransformationContext e : ctxTransformations) {
+            if (e.apply() != null) {
+                transformations.add(visitApply(e.apply()));
+            } else if (e.merge() != null) {
+                transformations.add(visitMerge(e.merge()));
+            } else if (e.loop() != null) {
+                transformations.add(visitLoop(e.loop()));
+            } else if (e.ifthenelse() != null) {
+                transformations.add(visitIfthenelse(e.ifthenelse()));
             }
         }
     }

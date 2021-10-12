@@ -127,10 +127,7 @@ public class Validator {
 
         long shiftCount = shifts.stream().filter(shift -> shift.getName().equals(name)).count();
         long shiftGroupCount = shiftGroups.stream().filter(shiftGroup -> shiftGroup.getName().equals(name)).count();
-        long mergeCount = 0;
-        if (merges != null) {
-            mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
-        }
+        long mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
 
         return shiftCount + shiftGroupCount + mergeCount == 1;
     }
