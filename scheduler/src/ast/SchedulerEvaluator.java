@@ -303,7 +303,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Loop l) throws ProgramValidationException {
         validator.validate(l);
 
-
         List<String> entityList = program.entityGroupMap.get(l.getNameEEG()).getEntities();
         List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
                 .map(Map.Entry::getValue)
@@ -321,14 +320,14 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             for (Entity e : entities) {
 
                 for (Shift s : shifts) {
-                    ScheduledEvent event = new ScheduledEvent(s.getOpen().plusDays(days),
-                            s.getClose().plusDays(days),
-                            s.getName());
-                    if (scheduleMap.containsKey(e.getName())) {
-                        scheduleMap.get(e.getName()).add(event);
-                    } else {
-                        scheduleMap.put(e.getName(), Set.of(event));
+
+                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(days),
+                                                                        s.getClose().plusDays(days),
+                                                                        s.getName());
+                    if (!scheduleMap.containsKey(e.getName())) {
+                        scheduleMap.put(e.getName(), new HashSet<>());
                     }
+                    scheduleMap.get(e.getName()).add(scheduledEvent);
                 }
 
                 if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
