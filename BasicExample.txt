@@ -23,5 +23,5 @@ Apply SG2 to Person2;
 Merge merge1: SG1 OR SG2;
 Apply merge1 to Person3;
 
-Merge merge2: SG1 AND SG2;
+Merge merge2: SG1 XOR SG2;
 Apply merge2 to Person4;
