@@ -1,0 +1,60 @@
+Title: IfElseExampleSchedule;
+
+Entity BasicIfElse;
+Entity FAIL;
+Entity NestedSuccess;
+Entity MultipleApplys;
+Entity IfElseAndMerge;
+Entity ScheduleElse;
+
+
+Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
+Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
+Shift S3 is 10/13/2021 12:00 - 10/13/2021 13:00;
+Shift S4 is 10/14/2021 12:00 - 10/14/2021 13:00;
+Shift S5 is 10/15/2021 12:00 - 10/15/2021 13:00;
+
+Shift Group SG1: S1, S2, S3;
+Shift Group SG2: S3, S4, S5;
+
+if (SG1 OR SG2) {
+    Apply SG1 to BasicIfElse;
+} else {
+    Apply SG1 to FAIL;
+}
+
+if (SG1 XOR SG2) {
+
+} else  {
+
+}
+
+if (SG1 AND SG1) {
+    if (SG1 AND SG1) {
+        Apply SG2 to NestedSuccess;
+    } else {
+        Apply SG2 to FAIL;
+    }
+} else {
+    Apply SG2 to FAIL;
+}
+
+if (SG1 AND SG1) {
+    Apply SG1 to MultipleApplys;
+    Apply SG2 to MultipleApplys;
+} else {
+}
+
+if (SG1 XOR SG1) {
+   Apply SG1 to FAIL;
+} else {
+   Apply SG1 to ScheduleElse;
+}
+
+if (SG1 XOR SG2) {
+    Merge merge1: SG1 XOR SG2;
+    Apply merge1 to IfElseAndMerge;
+} else {
+    Apply SG1 to FAIL;
+}
+

@@ -72,13 +72,13 @@ public class Validator {
         String mergeGroupName = merge.getName();
         String shiftGroup1Name = merge.getNameSGS1();
         String shiftGroup2Name = merge.getNameSGS2();
-         if (!isUniqueShiftShiftGroupMergeName(mergeGroupName)) {
+        if (!isUniqueShiftShiftGroupMergeName(mergeGroupName)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + mergeGroupName);
         } else if (!shiftGroupExists(shiftGroup1Name) && !mergeGroupExists(shiftGroup1Name)) {
-             throw new NameNotFoundException("There is no merge/shift group named " + shiftGroup1Name);
-         } else if (!shiftGroupExists(shiftGroup2Name) && !mergeGroupExists(shiftGroup2Name)) {
-             throw new NameNotFoundException("There is no merge/shift group named " + shiftGroup2Name);
-         } else if (!isUniqueShiftShiftGroupMergeName(shiftGroup1Name)) {
+            throw new NameNotFoundException("There is no merge/shift group named " + shiftGroup1Name);
+        } else if (!shiftGroupExists(shiftGroup2Name) && !mergeGroupExists(shiftGroup2Name)) {
+            throw new NameNotFoundException("There is no merge/shift group named " + shiftGroup2Name);
+        } else if (!isUniqueShiftShiftGroupMergeName(shiftGroup1Name)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + shiftGroup1Name);
         } else if (!isUniqueShiftShiftGroupMergeName(shiftGroup2Name)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + shiftGroup2Name);
@@ -96,6 +96,20 @@ public class Validator {
             throw new NameNotFoundException("There is no entity group named " + entityGroupName);
         } else if (!isUniqueEntityEntityGroup(entityGroupName)) {
             throw new DuplicateNameException("2 or more entity/entity groups share the name " + entityGroupName);
+        }
+    }
+
+    public void validate(IfThenElse ifThenElse) throws ProgramValidationException {
+        validate(ifThenElse.getCond());
+    }
+
+    private void validate(Cond cond) throws ProgramValidationException {
+        String shiftOrShiftGroupName1 = cond.getNameSSG1();
+        String shiftOrShiftGroupName2 = cond.getNameSSG2();
+        if (!shiftExists(shiftOrShiftGroupName1) && !shiftGroupExists(shiftOrShiftGroupName1)) {
+            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName1);
+        } else if (!shiftExists(shiftOrShiftGroupName2) && !shiftGroupExists(shiftOrShiftGroupName2)) {
+            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName2);
         }
     }
 
@@ -146,6 +160,6 @@ public class Validator {
 
     private boolean mergeGroupExists(String name) {
         return program.transformationMap.get(Transformation.MERGE)
-                                            .stream().anyMatch(merge -> merge.getName().equals(name));
+                .stream().anyMatch(merge -> merge.getName().equals(name));
     }
 }
