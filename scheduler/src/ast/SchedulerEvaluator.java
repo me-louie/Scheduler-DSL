@@ -136,12 +136,18 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         }
         if(isSG1 && isSG2){
             List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
+            System.out.println(shiftNamesSG1);
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result = shiftNamesSG1;
+                    result =  new ArrayList<>(set1);
+                    System.out.println(result);
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
@@ -151,14 +157,24 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
+                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
+                System.out.println(shiftNamesSG2);
+                System.out.println(result);
                 //Collections.sort(result); Maybe want to sort results
             }else if (lo.equals(LogicalOperator.XOR)){
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
+                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
+                System.out.println(shiftNamesSG1);
+                System.out.println(result + " Result");
             }else{
                 //TODO: Maybe throw operator not found exception.
             }
@@ -168,12 +184,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             ShiftGroup sg2 = mergeHelper(mergeObject2);
             List<String> shiftNamesSG2 = sg2.getShiftList();
             if(lo.equals(LogicalOperator.AND)){
-
-
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result = shiftNamesSG1;
+                    result =  new ArrayList<>(set1);
+                    System.out.println(result);
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
@@ -188,8 +207,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
             }else{
                 //TODO: Maybe throw operator not found exception.
@@ -199,10 +222,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             List<String> shiftNamesSG1 = sg1.getShiftList();
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result = shiftNamesSG1;
+                    result =  new ArrayList<>(set1);
+                    System.out.println(result);
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
@@ -216,8 +244,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
             }else{
                 //TODO: Maybe throw operator not found exception.
@@ -228,16 +260,20 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             ShiftGroup sg2 = mergeHelper(mergeObject2);
             List<String> shiftNamesSG2 = sg2.getShiftList();
             if(lo.equals(LogicalOperator.AND)){
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result = shiftNamesSG1;
+                    result =  new ArrayList<>(set1);
+                    System.out.println(result);
                     System.out.println(shiftNamesSG1+" Changed?");//Union of results.
                 }else{
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
-
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -246,8 +282,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
             }else{
                 //TODO: Maybe throw operator not found exception.

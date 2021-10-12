@@ -1,18 +1,27 @@
-Title: CourseSchedule;
-Operating hours: 09:00 to 22:00;
-Operating rule: All operating hours must be scheduled;
-Range of schedule: 09/08/2021 to date 12/02/2021;
-Entity ClassA;
-Entity ClassB;
-Entity ClassC;
+Title: ExampleSchedule;
+Entity Person1;
+Entity Person2;
+Entity Person3;
+Entity Person4;
+Entity Person5;
+Entity Person6;
+Entity Person7;
+EntityGroup GROUPA: Person4, Person5, Person6;
 
-Make a group called CPSC composed of entities ClassA, ClassC;
-Make a group called ECON composed of entities ClassB;
-Make a group called ALL composed of entities ClassA, ClassB, ClassC;
+Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
+Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
+Shift S3 is 10/13/2021 12:00 - 10/13/2021 13:00;
+Shift S4 is 10/14/2021 12:00 - 10/14/2021 13:00;
+Shift S5 is 10/15/2021 12:00 - 10/15/2021 13:00;
 
-Rules:
-Schedule ClassA a minimum of 3 hours per week;
-Schedule ClassA a maximum of 3 hours per week;
-Schedule ClassB an average of 3 hours per week;
-Frequency ALL cannot be scheduled more than 1 days in a row;
-Cannot schedule together ClassA, ClassB;
+Shift Group SG1: S1, S2, S3;
+Shift Group SG2: S2, S4, S5;
+
+Apply SG1 to Person1;
+Apply SG2 to Person2;
+
+Merge merge1: SG1 OR SG2;
+Apply merge1 to Person3;
+
+Merge merge2: SG1 XOR SG2;
+Apply merge2 to Person4;
