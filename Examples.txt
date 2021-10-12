@@ -15,7 +15,7 @@ Shift S5 is 10/02/2021 12:00 - 11/01/2021 13:00;
 Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S4, S5, S2, S3;
 Shift Group SG3: S1, S3, S5;
-Apply SG1 to Person1;
+Apply SG1 to Person1 >> 2;
 Apply SG2 to Person2;
 Merge merge1: SG1 OR SG2;
 Merge  merge2: SG1 XOR SG2;

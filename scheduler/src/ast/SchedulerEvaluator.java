@@ -7,6 +7,7 @@ import validate.ProgramValidationException;
 import validate.ResultNotFound;
 import validate.Validator;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
@@ -71,22 +72,25 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         String shiftOrShiftGroupName = a.getNameSGMG();
         boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
+        BitwiseOperator b0 = a.getbO();
+        Integer num = a.getNum();
+        TimeUnit tU = a.getTimeUnit();
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, b0, num, tU);
         } else if (isEntity && !isShift){ // is an entity and a shift group
             for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName);
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, b0, num, tU);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                applyShiftToEntity(shift, entityName);
+                applyShiftToEntity(shift, entityName, b0, num, tU);
             }
         } else { // is an entity group and a shift group
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
                 for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName);
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, b0, num, tU);
                 }
             }
         }
@@ -158,7 +162,16 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
-            }else{
+
+
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+
+            } else{
                 //TODO: Maybe throw operator not found exception.
             }
         }
@@ -190,6 +203,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+
             }else{
                 //TODO: Maybe throw operator not found exception.
             }
@@ -218,6 +238,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+
             }else{
                 //TODO: Maybe throw operator not found exception.
             }
@@ -248,6 +275,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+
             }else{
                 //TODO: Maybe throw operator not found exception.
             }
@@ -265,12 +299,33 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
-    void applyShiftToEntity(Shift shift, String entityName) {
-        // todo: change LocalDateTime to Calendar from the get go so this works
-        ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+    void applyShiftToEntity(Shift shift, String entityName, BitwiseOperator bO, Integer num, TimeUnit tU) {
+        ScheduledEvent scheduledEvent;
+
+        if (bO != null){
+            scheduledEvent = getShiftedScheduledEvent(shift, bO, num, tU);
+        } else {
+            scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+        }
+
+            // todo: change LocalDateTime to Calendar from the get go so this works
         if (!scheduleMap.containsKey(entityName)) {
             scheduleMap.put(entityName, new HashSet<>());
         }
         scheduleMap.get(entityName).add(scheduledEvent);
+    }
+
+    private ScheduledEvent getShiftedScheduledEvent(Shift shift, BitwiseOperator b0, Integer num, TimeUnit tU) {
+        LocalDateTime start = shift.getOpen();
+        LocalDateTime end = shift.getClose();
+        String name = shift.getName();
+        return switch (tU) {
+            case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num), end.minusHours(num), name) : new ScheduledEvent(start.plusHours(num), end.plusHours(num), name);
+            case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num), end.minusDays(num), name) : new ScheduledEvent(start.plusDays(num), end.plusDays(num), name);
+            case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num), end.minusWeeks(num), name) : new ScheduledEvent(start.plusWeeks(num), end.plusWeeks(num), name);
+            case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num), end.minusMonths(num), name) : new ScheduledEvent(start.plusMonths(num), end.plusMonths(num), name);
+            case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num), end.minusYears(num), name) : new ScheduledEvent(start.plusYears(num), end.plusYears(num), name);
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
     }
 }

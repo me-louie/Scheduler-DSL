@@ -12,12 +12,14 @@ public class Apply extends Transformation {
     private String nameEEG;
     private Integer num;
     private BitwiseOperator bO;
+    private TimeUnit timeUnit;
 
-    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO) {
+    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit) {
         this.nameSGMG = nameSGMG;
         this.nameEEG = nameEEG;
         this.num = num;
         this.bO = bO;
+        this.timeUnit = timeUnit;
     }
 
     public Integer getNum() {
@@ -26,6 +28,10 @@ public class Apply extends Transformation {
 
     public BitwiseOperator getbO() {
         return bO;
+    }
+
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
     }
 
     public String getNameSGMG() {

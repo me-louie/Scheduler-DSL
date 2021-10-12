@@ -154,6 +154,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Node visitTransformations(SchedulerParser.TransformationsContext ctx) {
         return null;
+    }@Override
+    public Node visitTimeShiftUnits(SchedulerParser.TimeShiftUnitsContext ctx) {
+        return null;
     }
 
     @Override
@@ -162,6 +165,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = null;
+        TimeUnit tU = null;
         if (ctx.NUM() != null){
             num = Integer.parseInt(ctx.NUM().getText());
         }
@@ -169,9 +173,24 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         if (ctx.bitwise_operator() != null){
             bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
+        if (ctx.timeShiftUnits() != null){
+            tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
+        }
         System.out.println(num);
         System.out.println(bO);
-        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO);
+        System.out.println(tU);
+        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO, tU);
+    }
+
+    private TimeUnit getTimeShiftUnit(String tU) {
+        return switch (tU.trim()) {
+            case "HOURS" -> TimeUnit.HOURS;
+            case "DAYS" -> TimeUnit.DAYS;
+            case "WEEKS" -> TimeUnit.WEEKS;
+            case "MONTHS" -> TimeUnit.MONTHS;
+            case "YEARS" -> TimeUnit.YEARS;
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
     }
 
     @Override
@@ -201,6 +220,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
+        System.out.println(operator + "OP");
         return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;

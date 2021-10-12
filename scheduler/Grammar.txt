@@ -9,7 +9,7 @@ shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;
 shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';
 
 logical_operator: 'AND' | 'OR' | 'XOR' ';' ;
-bitwise_operator: >> NUM | << NUM ';' ;
+bitwise_operator: >> | <<  ';' ;
 
 transformations: apply | merge | loop ';' ;
 apply: 'Apply' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' NAME (bitwise_operator NUM)?;
