@@ -29,7 +29,11 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
         Map<String, Shift> shiftMap = new HashMap<>();
         Map<String, ShiftGroup> shiftGroupMap = new HashMap<>();
-        Map<String, List<Transformation>> transformationMap = new HashMap<>();
+        Map<String, List<Transformation>> transformationMap = new HashMap<>(){{
+            put(Transformation.APPLY, new ArrayList<>());
+            put(Transformation.MERGE, new ArrayList<>());
+            put(Transformation.LOOP, new ArrayList<>());
+        }};
 
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
             Entity entity = this.visitEntity(e1);
@@ -59,26 +63,16 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             if (e.apply() != null) {
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
-                if (!transformationMap.containsKey(Transformation.APPLY)) {
-                    transformationMap.put(Transformation.APPLY, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.APPLY).add(apply);
             } else if (e.merge() != null){
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
                 mergeList.add(merge);
-                if (!transformationMap.containsKey(Transformation.MERGE)) {
-                    transformationMap.put(Transformation.MERGE, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.MERGE).add(merge);
             } else if (e.loop() != null){
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
-                if (!transformationMap.containsKey(Transformation.LOOP)) {
-                    transformationMap.put(Transformation.LOOP, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.LOOP).add(loop);
-
             }
         }
 
