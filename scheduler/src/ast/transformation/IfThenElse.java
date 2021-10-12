@@ -10,7 +10,8 @@ public class IfThenElse extends Transformation {
     private final List<Transformation> thenTransformations;
     private final List<Transformation> elseTransformations;
 
-    public IfThenElse(Cond cond, List<Transformation> thenTransformations, List<Transformation> elseTransformations) {
+    public IfThenElse(Cond cond, List<Transformation> thenTransformations,
+                      List<Transformation> elseTransformations) {
         this.cond = cond;
         this.thenTransformations = thenTransformations;
         this.elseTransformations = elseTransformations;

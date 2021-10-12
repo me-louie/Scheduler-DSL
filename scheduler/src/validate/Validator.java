@@ -99,6 +99,11 @@ public class Validator {
         }
     }
 
+    public void validate(IfThenElse ifThenElse) throws ProgramValidationException {
+        // TODO implement
+        System.out.println("If then else validation");
+    }
+
     private boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {
         // currently we allow times/dates from the past
         return begin.isBefore(end) || begin.isEqual(end);
@@ -113,7 +118,10 @@ public class Validator {
 
         long shiftCount = shifts.stream().filter(shift -> shift.getName().equals(name)).count();
         long shiftGroupCount = shiftGroups.stream().filter(shiftGroup -> shiftGroup.getName().equals(name)).count();
-        long mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
+        long mergeCount = 0;
+        if (merges != null) {
+            mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
+        }
 
         return shiftCount + shiftGroupCount + mergeCount == 1;
     }

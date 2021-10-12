@@ -1,14 +1,11 @@
 package parser;
 
 import ast.*;
-
 import ast.transformation.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
@@ -24,7 +21,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<Apply> applyList = new ArrayList<>();
         List<Merge> mergeList = new ArrayList<>();
         List<Loop> loopList = new ArrayList<>();
-        List<IfThenElse> ifThenElseList = new ArrayList<>();
 
         Map<String, Entity> entityMap = new HashMap<>();
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
@@ -56,7 +52,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             shiftGroupMap.put(shiftGroup.getName(), shiftGroup);
         }
 
-        for (SchedulerParser.TransformationsContext e : ctx.transformations()) {
+        for (SchedulerParser.TransformationContext e : ctx.transformation()) {
             if (e.apply() != null) {
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
@@ -64,7 +60,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                     transformationMap.put(Transformation.APPLY, new ArrayList<>());
                 }
                 transformationMap.get(Transformation.APPLY).add(apply);
-            } else if (e.merge() != null){
+            } else if (e.merge() != null) {
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
                 mergeList.add(merge);
@@ -72,18 +68,29 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                     transformationMap.put(Transformation.MERGE, new ArrayList<>());
                 }
                 transformationMap.get(Transformation.MERGE).add(merge);
-            } else if (e.loop() != null){
+            } else if (e.loop() != null) {
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
                 if (!transformationMap.containsKey(Transformation.LOOP)) {
                     transformationMap.put(Transformation.LOOP, new ArrayList<>());
                 }
                 transformationMap.get(Transformation.LOOP).add(loop);
-
+            } else if (e.ifthenelse() != null) {
+                IfThenElse ifThenElse = this.visitIfthenelse(e.ifthenelse());
+                tList.add(ifThenElse);
+                if (!transformationMap.containsKey(Transformation.IF_THEN_ELSE)){
+                    transformationMap.put(Transformation.IF_THEN_ELSE, new ArrayList<>());
+                }
+                transformationMap.get(Transformation.IF_THEN_ELSE).add(ifThenElse);
+                tList.add(ifThenElse.getThenTransformations().get(0));
+                transformationMap.put(Transformation.MERGE,ifThenElse.getThenTransformations());
+                // TODO: I think we need to populate the mergeList/transformation map with the nested objects for
+                //  validation
             }
         }
 
-        return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap);
+        return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList, entityMap, entityGroupMap,
+                shiftMap, shiftGroupMap, transformationMap);
     }
 
     @Override
@@ -99,12 +106,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public EntityGroup visitEntity_group(SchedulerParser.Entity_groupContext ctx) {
 
-       String name = ctx.name(0).getText();
-       List<String> eList = new ArrayList<>();
+        String name = ctx.name(0).getText();
+        List<String> eList = new ArrayList<>();
 
-       for(int i = 1; i < ctx.name().size(); i++){
-           eList.add((ctx.name(i).getText()));
-       }
+        for (int i = 1; i < ctx.name().size(); i++) {
+            eList.add((ctx.name(i).getText()));
+        }
 
         return new EntityGroup(name, eList);
     }
@@ -131,7 +138,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String name = ctx.name(0).getText();
         List<String> sList = new ArrayList<>();
 
-        for(int i = 1; i < ctx.name().size(); i++){
+        for (int i = 1; i < ctx.name().size(); i++) {
             sList.add((ctx.name(i).getText()));
             System.out.println(ctx.name(i).getText());
         }
@@ -153,26 +160,30 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
-    public Node visitTransformations(SchedulerParser.TransformationsContext ctx) {
+    public Node visitTransformation(SchedulerParser.TransformationContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Node visitCond_transformations(SchedulerParser.Cond_transformationsContext ctx) {
         return null;
     }
 
     @Override
     public Apply visitApply(SchedulerParser.ApplyContext ctx) {
-
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = null;
-        if (ctx.NUM() != null){
+        if (ctx.NUM() != null) {
             num = Integer.parseInt(ctx.NUM().getText());
         }
         BitwiseOperator bO = null;
-        if (ctx.bitwise_operator() != null){
+        if (ctx.bitwise_operator() != null) {
             bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
         System.out.println(num);
         System.out.println(bO);
-        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO);
+        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, num, bO);
     }
 
     @Override
@@ -190,29 +201,60 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = Integer.parseInt(ctx.NUM(0).getText());
         Integer repNum = null;
-        if (ctx.NUM(1) !=null){
+        if (ctx.NUM(1) != null) {
             repNum = Integer.parseInt(ctx.NUM(1).getText());
         }
         BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         System.out.println(num);
         System.out.println(repNum);
         System.out.println(ctx.bitwise_operator().getText());
-        return new Loop(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,bO,num,repNum);
+        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum);
     }
 
     @Override
-    public Node visitIfthenelse(SchedulerParser.IfthenelseContext ctx) {
-        return null;
+    public IfThenElse visitIfthenelse(SchedulerParser.IfthenelseContext ctx) {
+        Cond cond = visitCond(ctx.cond());
+        List<Transformation> thenTransformations = new ArrayList<>();
+        List<Transformation> elseTransformations = new ArrayList<>();
+
+        for (SchedulerParser.TransformationContext e : ctx.thenblock.transformation()) {
+            if (e.apply() != null) {
+                thenTransformations.add(visitApply(e.apply()));
+            } else if (e.merge() != null) {
+                thenTransformations.add(visitMerge(e.merge()));
+            } else if (e.loop() != null) {
+                thenTransformations.add(visitLoop(e.loop()));
+            } else if (e.ifthenelse() != null) {
+                thenTransformations.add(visitIfthenelse(e.ifthenelse()));
+            }
+        }
+
+        for (SchedulerParser.TransformationContext e : ctx.elseblock.transformation()) {
+            if (e.apply() != null) {
+                elseTransformations.add(visitApply(e.apply()));
+            } else if (e.merge() != null) {
+                elseTransformations.add(visitMerge(e.merge()));
+            } else if (e.loop() != null) {
+                elseTransformations.add(visitLoop(e.loop()));
+            } else if (e.ifthenelse() != null) {
+                elseTransformations.add(visitIfthenelse(e.ifthenelse()));
+            }
+        }
+        return new IfThenElse(cond, thenTransformations, elseTransformations);
     }
 
     @Override
-    public Node visitCond(SchedulerParser.CondContext ctx) {
-        return null;
+    public Cond visitCond(SchedulerParser.CondContext ctx) {
+        LogicalOperator logicalOperator = getLogicalOperator(ctx.logical_operator().getText());
+        String shiftOrShiftGroupName1 = ctx.name(0).getText();
+        String shiftOrShiftGroupName2 = ctx.name(1).getText();
+        return new Cond(logicalOperator, shiftOrShiftGroupName1, shiftOrShiftGroupName2);
     }
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
-        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
+        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out
+            // with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;
             default -> throw new RuntimeException("Unrecognized bitwise operator");

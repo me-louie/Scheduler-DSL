@@ -4,3 +4,4 @@ out
 .vscode/
 Project1Group10.iml
 scheduler/src/parser/.antlr/
+mycalendar.ics
