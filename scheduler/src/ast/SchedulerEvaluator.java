@@ -150,28 +150,43 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         // create a new shift group
         List<String> result = null;
         String name = m.getName();
-        String shiftOrShiftGroupName1 = m.getNameSGS1();
-        String shiftOrShiftGroupNameOrMergeName = m.getNameSGS2();
+        String ShiftGroupNameOrM1 = m.getNameSGS1();
+        String ShiftGroupNameOrMergeName = m.getNameSGS2();
         LogicalOperator lo = m.getlO();
         //Checking if the second name was a merge name
-        boolean isMergeName = false;
-        Merge mergeObject = null;
-        for (Merge x : program.getMergeList()) {
-            if ((x.getName()).equals(shiftOrShiftGroupNameOrMergeName)) {
-                isMergeName = true;
-                mergeObject = x;
-            }
+        boolean isSG1 = false;
+        boolean isSG2 = false;
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrM1)){
+            isSG1 = true;
         }
-        if (program.shiftGroupMap.containsKey(shiftOrShiftGroupNameOrMergeName)) {
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList();
-            List<String> shiftNamesSG2 = program.shiftGroupMap.get(shiftOrShiftGroupNameOrMergeName).getShiftList();
-            if (lo.equals(LogicalOperator.AND)) {
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrMergeName)){
+            isSG2 = true;
+        }
+        boolean isMergeName1 = false;
+        boolean isMergeName2 = false;
+        Merge mergeObject1 = null;
+        Merge mergeObject2 = null;
+        for (Merge x: program.getMergeList()){
+            if((x.getName()).equals(ShiftGroupNameOrM1)){
+                isMergeName1 = true;
+                mergeObject1 =x;
+            }
+            if((x.getName()).equals(ShiftGroupNameOrMergeName)){
+                isMergeName2 = true;
+                mergeObject2 =x;
+            }
+
+        }
+        if(isSG1 && isSG2){
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
+            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
+            if(lo.equals(LogicalOperator.AND)){
                 System.out.println(shiftNamesSG1);
                 shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
                     result = shiftNamesSG1;
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
+                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
+                }else{
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
@@ -180,48 +195,108 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
                 //Collections.sort(result); Maybe want to sort results
-            } else if (lo.equals(LogicalOperator.XOR)) {
+            }else if (lo.equals(LogicalOperator.XOR)){
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
-            } else {
+            }else{
                 //TODO: Maybe throw operator not found exception.
             }
-        } else if (isMergeName) {
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList();
-            ShiftGroup sg2 = mergeHelper(mergeObject);
-            if (lo.equals(LogicalOperator.AND)) {
+        }
+        else if (isMergeName2 && !isMergeName1 && isSG1){
+            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
+            ShiftGroup sg2 = mergeHelper(mergeObject2);
+            List<String> shiftNamesSG2 = sg2.getShiftList();
+            if(lo.equals(LogicalOperator.AND)){
 
-                List<String> shiftNamesSG2 = sg2.getShiftList();
+
                 System.out.println(shiftNamesSG1);
                 shiftNamesSG1.retainAll(shiftNamesSG2);
                 if (!shiftNamesSG1.isEmpty()) {
                     result = shiftNamesSG1;
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
+                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
+                }else{
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
-                List<String> shiftNamesSG2 = sg2.getShiftList();
+
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.XOR)) {
-                List<String> shiftNamesSG2 = sg2.getShiftList();
+            }else if (lo.equals(LogicalOperator.XOR)){
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
                 set.removeAll(shiftNamesSG1);
                 result = new ArrayList<>(set);
-            } else {
+            }else{
                 //TODO: Maybe throw operator not found exception.
             }
-        } else {
+        }  else if (isMergeName1 && !isMergeName2 && isSG2){
+            ShiftGroup sg1 = mergeHelper(mergeObject1);
+            List<String> shiftNamesSG1 = sg1.getShiftList();
+            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
+            if(lo.equals(LogicalOperator.AND)){
+                System.out.println(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2);
+                if (!shiftNamesSG1.isEmpty()) {
+                    result = shiftNamesSG1;
+                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
+                }else{
+                    throw new ResultNotFound("No Union Found");
+                }
+            } else if (lo.equals(LogicalOperator.OR)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                set.addAll(shiftNamesSG2);
+                result = new ArrayList<>(set);
+            }else if (lo.equals(LogicalOperator.XOR)){
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                set.addAll(shiftNamesSG2);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+            }else{
+                //TODO: Maybe throw operator not found exception.
+            }
+        } else if(isMergeName1 && isMergeName2) {
+            ShiftGroup sg1 = mergeHelper(mergeObject1);
+            List<String> shiftNamesSG1 = sg1.getShiftList();
+            ShiftGroup sg2 = mergeHelper(mergeObject2);
+            List<String> shiftNamesSG2 = sg2.getShiftList();
+            if(lo.equals(LogicalOperator.AND)){
+                System.out.println(shiftNamesSG1);
+                shiftNamesSG1.retainAll(shiftNamesSG2);
+                if (!shiftNamesSG1.isEmpty()) {
+                    result = shiftNamesSG1;
+                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
+                }else{
+                    throw new ResultNotFound("No Union Found");
+                }
+            } else if (lo.equals(LogicalOperator.OR)) {
+
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                set.addAll(shiftNamesSG2);
+                result = new ArrayList<>(set);
+            }else if (lo.equals(LogicalOperator.XOR)){
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                set.addAll(shiftNamesSG2);
+                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection
+                set.removeAll(shiftNamesSG1);
+                result = new ArrayList<>(set);
+            }else{
+                //TODO: Maybe throw operator not found exception.
+            }
+        }
+        else{
             throw new NameNotFoundException("Shift Group or Merge Name not found");
         }
         return new ShiftGroup(name, result);
@@ -233,7 +308,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         // add a bunch of nodes to scheduleMap
         return null;
     }
-
 
     void applyShiftToEntity(Shift shift, String entityName) {
         // todo: change LocalDateTime to Calendar from the get go so this works

@@ -23,7 +23,7 @@ import validate.ResultNotFound;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProgramValidationException {
-        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("IfElseExample.txt"));
+        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("Examples.txt"));
 
         for (Token token : lexer.getAllTokens()) {
             System.out.println(token);

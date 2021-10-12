@@ -35,7 +35,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             put(Transformation.IF_THEN_ELSE, new ArrayList<>());
         }};
 
-
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
             Entity entity = this.visitEntity(e1);
             eList.add(entity);
@@ -248,8 +247,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
-        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out
-            // with WS (e.g. "AND ")
+        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;
             default -> throw new RuntimeException("Unrecognized bitwise operator");
