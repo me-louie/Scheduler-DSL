@@ -64,12 +64,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
                 transformationMap.get(Transformation.APPLY).add(apply);
-            } else if (e.merge() != null) {
+            } else if (e.merge() != null){
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
                 mergeList.add(merge);
                 transformationMap.get(Transformation.MERGE).add(merge);
-            } else if (e.loop() != null) {
+            } else if (e.loop() != null){
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
                 transformationMap.get(Transformation.LOOP).add(loop);
