@@ -100,8 +100,17 @@ public class Validator {
     }
 
     public void validate(IfThenElse ifThenElse) throws ProgramValidationException {
-        // TODO implement
-        System.out.println("If then else validation");
+        validate(ifThenElse.getCond());
+    }
+
+    private void validate(Cond cond) throws ProgramValidationException {
+        String shiftOrShiftGroupName1 = cond.getNameSSG1();
+        String shiftOrShiftGroupName2 = cond.getNameSSG2();
+        if (!shiftExists(shiftOrShiftGroupName1) && !shiftGroupExists(shiftOrShiftGroupName1)){
+            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName1);
+        } else if (!shiftExists(shiftOrShiftGroupName2) && !shiftGroupExists(shiftOrShiftGroupName2)) {
+            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName2);
+        }
     }
 
     private boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {

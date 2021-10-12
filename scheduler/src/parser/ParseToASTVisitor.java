@@ -4,8 +4,10 @@ import ast.*;
 import ast.transformation.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
@@ -26,7 +28,13 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
         Map<String, Shift> shiftMap = new HashMap<>();
         Map<String, ShiftGroup> shiftGroupMap = new HashMap<>();
-        Map<String, List<Transformation>> transformationMap = new HashMap<>();
+        Map<String, List<Transformation>> transformationMap = new HashMap<>(){{
+            put(Transformation.APPLY, new ArrayList<>());
+            put(Transformation.MERGE, new ArrayList<>());
+            put(Transformation.LOOP, new ArrayList<>());
+            put(Transformation.IF_THEN_ELSE, new ArrayList<>());
+        }};
+
 
         for (SchedulerParser.EntityContext e1 : ctx.entity()) {
             Entity entity = this.visitEntity(e1);
@@ -56,36 +64,23 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             if (e.apply() != null) {
                 Apply apply = this.visitApply(e.apply());
                 tList.add(apply);
-                if (!transformationMap.containsKey(Transformation.APPLY)) {
-                    transformationMap.put(Transformation.APPLY, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.APPLY).add(apply);
             } else if (e.merge() != null) {
                 Merge merge = this.visitMerge(e.merge());
                 tList.add(merge);
                 mergeList.add(merge);
-                if (!transformationMap.containsKey(Transformation.MERGE)) {
-                    transformationMap.put(Transformation.MERGE, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.MERGE).add(merge);
             } else if (e.loop() != null) {
                 Loop loop = this.visitLoop(e.loop());
                 tList.add(loop);
-                if (!transformationMap.containsKey(Transformation.LOOP)) {
-                    transformationMap.put(Transformation.LOOP, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.LOOP).add(loop);
             } else if (e.ifthenelse() != null) {
                 IfThenElse ifThenElse = this.visitIfthenelse(e.ifthenelse());
                 tList.add(ifThenElse);
-                if (!transformationMap.containsKey(Transformation.IF_THEN_ELSE)){
-                    transformationMap.put(Transformation.IF_THEN_ELSE, new ArrayList<>());
-                }
                 transformationMap.get(Transformation.IF_THEN_ELSE).add(ifThenElse);
-                tList.add(ifThenElse.getThenTransformations().get(0));
-                transformationMap.put(Transformation.MERGE,ifThenElse.getThenTransformations());
-                // TODO: I think we need to populate the mergeList/transformation map with the nested objects for
-                //  validation
+                // Need to add nested transformations to map for validation checks
+                addNestedTransformations(transformationMap, ifThenElse.getThenTransformations());
+                addNestedTransformations(transformationMap, ifThenElse.getElseTransformations());
             }
         }
 
@@ -268,5 +263,20 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             case "XOR" -> LogicalOperator.XOR;
             default -> throw new RuntimeException("Unrecognized logical operator");
         };
+    }
+
+    private void addNestedTransformations(Map<String, List<Transformation>> transformationMap,
+                                          List<Transformation> transformations) {
+        for (Transformation t : transformations) {
+            if (t.getClass().equals(Merge.class)){
+                transformationMap.get(Transformation.MERGE).add(t);
+            } else if (t.getClass().equals(Apply.class)){
+                transformationMap.get(Transformation.APPLY).add(t);
+            } else if (t.getClass().equals(Loop.class)) {
+                transformationMap.get(Transformation.LOOP).add(t);
+            } else if (t.getClass().equals(IfThenElse.class)) {
+                transformationMap.get(Transformation.IF_THEN_ELSE).add(t);
+            }
+        }
     }
 }

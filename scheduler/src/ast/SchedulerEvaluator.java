@@ -106,11 +106,9 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     @Override
     public Void visit(IfThenElse ifThenElse) throws ProgramValidationException {
         validator.validate(ifThenElse);
-
         // Evaluate the conditional
         ifThenElse.getCond().accept(this);
         boolean condValue = ifThenElse.getCond().getState();
-
         if (condValue) {
             for (Transformation t : ifThenElse.getThenTransformations()) {
                 t.accept(this);
@@ -125,7 +123,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     @Override
     public Void visit(Cond cond) throws ProgramValidationException {
-        // TODO
         LogicalOperator logicalOperator = cond.getOperator();
         String shiftOrShiftGroupName1 = cond.getNameSSG1();
         String shiftOrShiftGroupName2 = cond.getNameSSG2();
@@ -134,16 +131,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList().stream().collect(Collectors.toSet());
         Set<String> shiftGroup2 =
                 program.shiftGroupMap.get(shiftOrShiftGroupName2).getShiftList().stream().collect(Collectors.toSet());
-        Set<String> resultantShifts = new HashSet<>();
+        Set<String> resultantShifts = new HashSet<>(shiftGroup1);
 
         if (logicalOperator == LogicalOperator.AND) {
-            resultantShifts.addAll(shiftGroup1);
             resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet());
         } else if (logicalOperator == LogicalOperator.OR) {
-            resultantShifts.addAll(shiftGroup1);
             resultantShifts.addAll(shiftGroup2);
         } else if (logicalOperator == LogicalOperator.XOR) {
-            resultantShifts.addAll(shiftGroup1);
             resultantShifts.addAll(shiftGroup2);
             shiftGroup1.retainAll(shiftGroup2);     //SG1 is the intersection
             resultantShifts.removeAll(shiftGroup1);
