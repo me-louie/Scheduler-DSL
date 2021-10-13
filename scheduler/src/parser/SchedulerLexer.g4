@@ -41,7 +41,12 @@ ENDLINE: ';' WS*;
 LEFT_BRACE: '(' WS;
 RIGHT_BRACE: ')' WS;
 
-
+IF: 'if' WS*;
+ELSE: 'else' WS*;
+OPEN_PAREN: '(' -> mode(TEXT_MODE);
+CLOSE_PAREN: ')' -> mode(COND_MODE);
+OPEN_BRACE: '{' -> mode(COND_MODE);
+CLOSE_BRACE: '}';
 // Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
 WS : [\r\n\t ]+ -> channel(HIDDEN);
 
@@ -58,3 +63,8 @@ DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9
 
 mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
+
+mode COND_MODE;
+COND_WS: [\t ]+ -> channel(HIDDEN);
+COND_OPEN_BRACE: '{';
+COND_NEWLINE : [\r\n]+ -> mode(DEFAULT_MODE);

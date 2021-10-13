@@ -14,5 +14,6 @@ public interface SchedulerVisitor<T> {
     T visit(Apply a) throws ProgramValidationException;
     T visit(Merge m) throws ProgramValidationException;
     T visit(Loop l) throws ProgramValidationException;
-
+    T visit(IfThenElse i) throws ProgramValidationException;
+    T visit(Cond c) throws ProgramValidationException;
 }

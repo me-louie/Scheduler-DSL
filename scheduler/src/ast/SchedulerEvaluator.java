@@ -9,10 +9,11 @@ import validate.Validator;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
-    // map of entity name to a list of all their scheduled events
+    // map of entity name to a set of all their scheduled events
     public Map<String, Set<ScheduledEvent>> scheduleMap = new HashMap<>();
     Program program;
     Validator validator;
@@ -101,8 +102,51 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Merge m) throws ProgramValidationException {
         validator.validate(m);
         ShiftGroup sgResult = mergeHelper(m);
-        program.shiftGroupMap.put(sgResult.getName(),sgResult);
+        program.shiftGroupMap.put(sgResult.getName(), sgResult);
         program.getShiftGroups().add(sgResult);
+        return null;
+    }
+
+    @Override
+    public Void visit(IfThenElse ifThenElse) throws ProgramValidationException {
+        validator.validate(ifThenElse);
+        // Evaluate the conditional
+        ifThenElse.getCond().accept(this);
+        boolean condValue = ifThenElse.getCond().getState();
+        if (condValue) {
+            for (Transformation t : ifThenElse.getThenTransformations()) {
+                t.accept(this);
+            }
+        } else {
+            for (Transformation t : ifThenElse.getElseTransformations()) {
+                t.accept(this);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(Cond cond) throws ProgramValidationException {
+        LogicalOperator logicalOperator = cond.getOperator();
+        String shiftOrShiftGroupName1 = cond.getNameSSG1();
+        String shiftOrShiftGroupName2 = cond.getNameSSG2();
+
+        Set<String> shiftGroup1 =
+                program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList().stream().collect(Collectors.toSet());
+        Set<String> shiftGroup2 =
+                program.shiftGroupMap.get(shiftOrShiftGroupName2).getShiftList().stream().collect(Collectors.toSet());
+        Set<String> resultantShifts = new HashSet<>(shiftGroup1);
+
+        if (logicalOperator == LogicalOperator.AND) {
+            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet());
+        } else if (logicalOperator == LogicalOperator.OR) {
+            resultantShifts.addAll(shiftGroup2);
+        } else if (logicalOperator == LogicalOperator.XOR) {
+            resultantShifts.addAll(shiftGroup2);
+            shiftGroup1.retainAll(shiftGroup2);     //SG1 is the intersection
+            resultantShifts.removeAll(shiftGroup1);
+        }
+        cond.setState(!resultantShifts.isEmpty());
         return null;
     }
 
@@ -353,7 +397,44 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     @Override
     public Void visit(Loop l) throws ProgramValidationException {
         validator.validate(l);
-        // add a bunch of nodes to scheduleMap
+
+        List<String> entities = program.entityGroupMap.get(l.getNameEEG()).getEntities();
+//        List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
+//                .map(Map.Entry::getValue)
+//                .collect(Collectors.toList());
+
+        List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
+        List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        Integer days = 0;
+        Integer repeat = 0;
+
+        while (repeat < l.getRepNum()) {
+
+            for (String e : entities) {
+
+                for (Shift s : shifts) {
+
+                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(days),
+                                                                        s.getClose().plusDays(days),
+                                                                        s.getName());
+                    if (!scheduleMap.containsKey(e)) {
+                        scheduleMap.put(e, new HashSet<>());
+                    }
+                    scheduleMap.get(e).add(scheduledEvent);
+                }
+
+                if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
+                    days += l.getNum();
+                } else {
+                    days -= l.getNum();
+                }
+            }
+            repeat++;
+        }
+
         return null;
     }
 
