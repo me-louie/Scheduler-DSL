@@ -197,6 +197,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer repNum = null;
         if (ctx.NUM(1) != null) {
             repNum = Integer.parseInt(ctx.NUM(1).getText());
+        } else {
+            repNum = 0;
         }
         BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         System.out.println(num);
