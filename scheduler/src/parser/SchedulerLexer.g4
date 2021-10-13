@@ -37,7 +37,7 @@ OPEN_PAREN: '(' -> mode(TEXT_MODE);
 CLOSE_PAREN: ')' -> mode(COND_MODE);
 OPEN_BRACE: '{' -> mode(COND_MODE);
 CLOSE_BRACE: '}';
-// Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
+// Line breaks are ignored during tokenization in DEFAULT_MODE
 WS : [\r\n\t ]+ -> channel(HIDDEN);
 
 mode TEXT_MODE;
