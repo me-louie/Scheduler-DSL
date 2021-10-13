@@ -1,6 +1,8 @@
 package ast;
 
 
+import ast.math.Function;
+import ast.math.Var;
 import ast.transformation.Merge;
 import ast.transformation.Transformation;
 import validate.ProgramValidationException;
@@ -22,15 +24,24 @@ public class Program extends Node {
     private  List<Transformation> transformations;
     private  List<Merge> mergeList;
 
+    private List<Function> functionList;
+
     public Map<String, Entity> entityMap;
     public Map<String, EntityGroup> entityGroupMap;
     public Map<String, Shift> shiftMap;
     public Map<String, ShiftGroup> shiftGroupMap;
     public Map<String, List<Transformation>> transformationMap;
 
+    public Map<String, Var> varMaps;
+    public Map<String, Function> functionMap;
+
     private final Header header;
 
-    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, List<ShiftGroup> sgList, List<Transformation> tList, List<Merge> mergeList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap) {
+    public Program(Header header, List<Entity> eList, List<EntityGroup> eGroupList, List<Shift> sList, 
+                   List<ShiftGroup> sgList, List<Transformation> tList, List<Merge> mergeList, 
+                   List<Function> functionList, Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap, 
+                   Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String, List<Transformation>> transformationMap,
+                   Map<String, Var> varMaps, Map<String, Function> functionMap) {
         this.entities = eList;
         this.entityGroups = eGroupList;
         this.shifts = sList;
@@ -39,11 +50,14 @@ public class Program extends Node {
         this.transformations = tList;
         this.header = header;
         this.mergeList = mergeList;
+        this.functionList = functionList;
         this.entityMap = entityMap;
         this.entityGroupMap = entityGroupMap;
         this.shiftMap = shiftMap;
         this.shiftGroupMap = shiftGroupMap;
         this.transformationMap = transformationMap;
+        this.functionMap = functionMap;
+        this.varMaps =varMaps;
     }
 
     public List<Merge> getMergeList() {
@@ -51,11 +65,11 @@ public class Program extends Node {
     }
 
     public List<Entity> getEntities() {
-      return entities;
+        return entities;
     }
 
     public List<EntityGroup> getEntityGroups() {
-      return entityGroups;
+        return entityGroups;
     }
 
     public List<Shift> getShifts() {
@@ -75,7 +89,7 @@ public class Program extends Node {
     }
 
     public Header getHeader() {
-      return header;
+        return header;
     }
 
     @Override

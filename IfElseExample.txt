@@ -34,7 +34,7 @@ if (SG1 AND SG1) {
         Apply SG2 to NestedSuccess;
     } else {
         Apply SG2 to FAIL;
-    };
+    }
 } else {
     Apply SG2 to FAIL;
 };
@@ -48,7 +48,7 @@ if (SG1 XOR SG1) {
    Apply SG1 to FAIL;
 } else {
    Apply SG1 to ScheduleElse;
-};
+}
 
 if (SG1 XOR SG2) {
     Merge merge1: SG1 XOR SG2;
@@ -56,4 +56,3 @@ if (SG1 XOR SG2) {
 } else {
     Apply SG1 to FAIL;
 };
-

@@ -13,13 +13,15 @@ public class Apply extends Transformation {
     private Integer num;
     private BitwiseOperator bO;
     private TimeUnit timeUnit;
+    private String varOrfunc;
 
-    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit) {
+    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit, String varOrfunc) {
         this.nameSGMG = nameSGMG;
         this.nameEEG = nameEEG;
         this.num = num;
         this.bO = bO;
         this.timeUnit = timeUnit;
+        this.varOrfunc = varOrfunc;
     }
 
     public Integer getNum() {
@@ -40,6 +42,10 @@ public class Apply extends Transformation {
 
     public String getNameEEG() {
         return nameEEG;
+    }
+
+    public String getVarOrfunc() {
+        return varOrfunc;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package ast;
 
+import ast.math.Function;
+import ast.math.MathOP;
+import ast.math.Var;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
 import validate.NameNotFoundException;
@@ -65,6 +68,76 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
+    private Integer varVal (Var var){
+        Integer value = null;
+        System.out.println(var.getName2() + " IN VAR VAL");
+        if (var.getName2() != null){
+            if(program.varMaps.containsKey(var.getName2())){
+                value = varVal(program.varMaps.get(var.getName2()));
+            }else{
+                throw new NameNotFoundException(var.getName2()+" var name not present");
+            }
+        }else{
+            value = var.getNum();
+        }
+        return value;
+    }
+
+    private Integer getMathVal(Integer num1, Integer num2, MathOP mathOP) {
+        Integer result = null;
+        return switch (mathOP) {
+            case PLUS -> result = num1 + num2;
+            case MINUS -> result = num1 - num2;
+            case MULTIPLY -> result = num1 * num2;
+            case DIVIDE -> result = num1 / num2;
+            case POWER -> result = (int) Math.pow(num1, num2);
+            default -> throw new RuntimeException("Unrecognized MathOP");
+        };
+    }
+
+    private Integer varOrfuncCheckHelper(String name){
+        Integer result = null;
+        System.out.println(name);
+        if (program.varMaps.containsKey(name)){
+            result = varVal(program.varMaps.get(name));
+        }else if(program.functionMap.containsKey(name)){
+            result = funcVal(program.functionMap.get(name));
+        }else{
+            throw new NameNotFoundException(name+" VAR OR FUNCTION NAME not present");
+        }
+
+        return result;
+    }
+
+    private Integer funcVal (Function func){
+        Integer value = null;
+        Integer num1 = null;
+        Integer num2 = null;
+        MathOP mathOP = func.mathOP;
+        if (func.getNum1() != null && func.getNum2() != null){
+            num1 = func.getNum1();
+            num2 = func.getNum2();
+            value = getMathVal(num1,num2,mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() == null && func.getVarorfuncName1() != null && func.getNum2() != null){
+            num1 = varOrfuncCheckHelper(func.getVarorfuncName1());
+            num2 = func.getNum2();
+            value = getMathVal(num1,num2,mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() != null && func.getNum2() == null && func.getVarorfuncName2() != null){
+            num2 = varOrfuncCheckHelper(func.getVarorfuncName2());
+            num1 = func.getNum1();
+            value = getMathVal(num1,num2,mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() == null && func.getVarorfuncName1() != null && func.getNum2() == null && func.getVarorfuncName2() != null) {
+            num1 = varOrfuncCheckHelper(func.getVarorfuncName1());
+            num2 = varOrfuncCheckHelper(func.getVarorfuncName2());
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        }
+        return value;
+    }
+
     @Override
     public Void visit(Apply a) throws ProgramValidationException {
         validator.validate(a);
@@ -75,6 +148,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         BitwiseOperator b0 = a.getbO();
         Integer num = a.getNum();
+        if(a.getVarOrfunc() != null){
+            num = varOrfuncCheckHelper(a.getVarOrfunc());
+        }
+        System.out.println(num +" this num in evaluator apply");
         TimeUnit tU = a.getTimeUnit();
 
         if (isEntity && isShift) { // is an entity and a shift
@@ -404,12 +481,20 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 //                .collect(Collectors.toList());
 
         List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
+        System.out.println(shiftList);
         List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
+        System.out.println(shifts);
 
         Integer days = 0;
         Integer repeat = 0;
+
+        Integer num = l.getNum();
+        if(l.getVarOrfunc() != null){
+            num = varOrfuncCheckHelper(l.getVarOrfunc());
+        }
+        System.out.println(num +" this num in evaluator loop");
 
         while (repeat < l.getRepNum()) {
 
@@ -427,9 +512,9 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 }
 
                 if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
-                    days += l.getNum();
+                    days += num;
                 } else {
-                    days -= l.getNum();
+                    days -= num;
                 }
             }
             repeat++;
