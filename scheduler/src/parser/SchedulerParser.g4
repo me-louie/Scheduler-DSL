@@ -13,14 +13,11 @@ shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 logical_operator: LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR;
 bitwise_operator: SHIFT_LEFT | SHIFT_RIGHT;
 
-transformation : (apply | merge | loop | ifthenelse) ENDLINE;
+transformation : ((apply | merge | loop) ENDLINE) | ifthenelse;
 cond_transformations: transformation*;
 
 apply           : APPLY_START name TO name (bitwise_operator NUM)?;
 merge           : MERGE_START name COLON name logical_operator name;
-// SO the user can write user recursion line by line instead of writing one big line. example below:
-//Merge merge3 SG2 AND merge4 to Person 6
-//Merge merge4 SG1 AND SG2 to Person5;
 loop            : LOOP_START name LOOP_MID_1 name bitwise_operator NUM LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
 
 ifthenelse      : IF cond COND_OPEN_BRACE COND_NEWLINE
@@ -32,10 +29,9 @@ ifthenelse      : IF cond COND_OPEN_BRACE COND_NEWLINE
 cond            : OPEN_PAREN name logical_operator name CLOSE_PAREN;
 
 // todo: In order of importance:
-//          1. ifthenelse logic (e.g. if (condition) { apply sg to e >> 4 } else { apply sg2 to e << 1 } or just check statments
-//          2. very simple functions for use in loop (e.g. h(t) = 2t, h(t) = 5/t)
-//          3. other logical operators (e.g. NAND, NOR, NXOR)
-//          4. stretch/compress shift_groups (e.g. stretch: 'Stretch' STRETCH_GROUP_NAME SHIFT_GROUP_NAME NUM would stretch
+//          1. very simple functions for use in loop (e.g. h(t) = 2t, h(t) = 5/t)
+//          2. other logical operators (e.g. NAND, NOR, NXOR)
+//          3. stretch/compress shift_groups (e.g. stretch: 'Stretch' STRETCH_GROUP_NAME SHIFT_GROUP_NAME NUM would stretch
 //             the shift group by a factor of NUM and make it into a new shift_group called STRETCH_GROUP_NAME)
 
 
