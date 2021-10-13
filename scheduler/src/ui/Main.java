@@ -20,7 +20,7 @@ import validate.ResultNotFound;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProgramValidationException {
-        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("Examples.txt"));
+        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("ifElseExample.txt"));
 
         for (Token token : lexer.getAllTokens()) {
             System.out.println(token);
@@ -30,7 +30,7 @@ public class Main {
         System.out.println("Done tokenizing");
         SchedulerParser parser = new SchedulerParser(tokens);
         System.out.println("Done parser1");
-        parser.setErrorHandler(new BailErrorStrategy());
+        //parser.setErrorHandler(new BailErrorStrategy());
         ParseToASTVisitor visitor = new ParseToASTVisitor();
         System.out.println("Done parser2");
         Program parsedProgram = visitor.visitProgram(parser.program());

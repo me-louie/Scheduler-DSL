@@ -1,7 +1,7 @@
 parser grammar SchedulerParser;
 options { tokenVocab = SchedulerLexer; }
 
-program         : header entity+ entity_group* shift+ shift_group* transformations*;
+program         : header entity+ entity_group* shift+ shift_group* transformation*;
 header          : HEADER_START TEXT ENDLINE;
 entity          : ENTITY_START name ENDLINE;
 entity_group    : ENTITY_GROUP_START name COLON name (COMMA name)* ENDLINE;
@@ -13,9 +13,9 @@ shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 logical_operator: LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR |LOGICAL_NOT;
 bitwise_operator: SHIFT_LEFT | SHIFT_RIGHT;
 
-transformations : (apply | merge | loop | ifthenelse) ENDLINE ;
+transformation : (apply | merge | loop | ifthenelse) ENDLINE ;
 timeShiftUnits  : HOURS_SHIFT | DAYS_SHIFT | WEEKS_SHIFT | MONTHS_SHIFT | YEARS_SHIFT ;
-cond_transformations: transformations*;
+cond_transformations: transformation*;
 
 apply           : APPLY_START name TO name (bitwise_operator NUM timeShiftUnits)?;
 merge           : MERGE_START name COLON name logical_operator name;

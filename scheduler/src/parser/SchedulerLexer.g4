@@ -38,8 +38,6 @@ TIME_SEPERATOR: '-' WS -> mode(DATE_MODE);
 COMMA: ',' WS -> mode(TEXT_MODE);
 COLON: ':' WS -> mode(TEXT_MODE);
 ENDLINE: ';' WS*;
-LEFT_BRACE: '(' WS;
-RIGHT_BRACE: ')' WS;
 
 IF: 'if' WS*;
 ELSE: 'else' WS*;
