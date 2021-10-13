@@ -139,7 +139,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         }
         if(isSG1 && isSG2){
             List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
-            System.out.println(shiftNamesSG1);
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if(lo.equals(LogicalOperator.AND)){
                 Set<String> set1 = new HashSet<>();
@@ -177,13 +176,22 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 result = new ArrayList<>(set);
                 System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
                 System.out.println(shiftNamesSG1);
+                System.out.println(shiftNamesSG2);
                 System.out.println(result + " Result");
             } else if (lo.equals(LogicalOperator.EXCEPT)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
+                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
+                System.out.println(shiftNamesSG1);
+                System.out.println(shiftNamesSG2);
                 result = new ArrayList<>(set);
+                System.out.println(result);
 
             } else{
                 //TODO: Maybe throw operator not found exception.
@@ -227,8 +235,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             } else if (lo.equals(LogicalOperator.EXCEPT)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
 
             }else{
@@ -271,8 +283,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             } else if (lo.equals(LogicalOperator.EXCEPT)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
 
             }else{
@@ -316,8 +332,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             } else if (lo.equals(LogicalOperator.EXCEPT)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
-                shiftNamesSG1.retainAll(shiftNamesSG2); //shiftNamesSG1 is intersection list
-                set.removeAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
                 result = new ArrayList<>(set);
 
             }else{

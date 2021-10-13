@@ -110,8 +110,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Shift visitShift(SchedulerParser.ShiftContext ctx) {
         String name = ctx.name().getText();
-        System.out.println(ctx.TIME(0).getText());
-        System.out.println(ctx.DATE(1).getText());
+        //System.out.println(ctx.TIME(0).getText());
+        //System.out.println(ctx.DATE(1).getText());
         String open = ctx.DATE(0).getText() + ctx.TIME(0).getText();
         String close = ctx.DATE(1).getText() + ctx.TIME(1).getText();
 
@@ -155,7 +155,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     @Override
     public Apply visitApply(SchedulerParser.ApplyContext ctx) {
-
+        System.out.println("hello APPLy");
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = null;
@@ -164,6 +164,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             num = Integer.parseInt(ctx.NUM().getText());
         }
         BitwiseOperator bO = null;
+        System.out.println(ctx.bitwise_operator() + "hello");
         if (ctx.bitwise_operator() != null){
             bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
@@ -227,6 +228,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             case "AND" -> LogicalOperator.AND;
             case "OR" -> LogicalOperator.OR;
             case "XOR" -> LogicalOperator.XOR;
+            case "EXCEPT" -> LogicalOperator.EXCEPT;
             default -> throw new RuntimeException("Unrecognized logical operator");
         };
     }
