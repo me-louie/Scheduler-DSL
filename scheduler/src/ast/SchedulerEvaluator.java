@@ -303,10 +303,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Loop l) throws ProgramValidationException {
         validator.validate(l);
 
-        List<String> entityList = program.entityGroupMap.get(l.getNameEEG()).getEntities();
-        List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+        List<String> entities = program.entityGroupMap.get(l.getNameEEG()).getEntities();
+//        List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
+//                .map(Map.Entry::getValue)
+//                .collect(Collectors.toList());
 
         List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
         List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
@@ -315,19 +315,20 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
         Integer days = 0;
         Integer repeat = 0;
+
         while (repeat < l.getRepNum()) {
 
-            for (Entity e : entities) {
+            for (String e : entities) {
 
                 for (Shift s : shifts) {
 
                     ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(days),
                                                                         s.getClose().plusDays(days),
                                                                         s.getName());
-                    if (!scheduleMap.containsKey(e.getName())) {
-                        scheduleMap.put(e.getName(), new HashSet<>());
+                    if (!scheduleMap.containsKey(e)) {
+                        scheduleMap.put(e, new HashSet<>());
                     }
-                    scheduleMap.get(e.getName()).add(scheduledEvent);
+                    scheduleMap.get(e).add(scheduledEvent);
                 }
 
                 if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
