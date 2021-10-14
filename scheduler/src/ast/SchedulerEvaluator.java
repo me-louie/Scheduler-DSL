@@ -1,5 +1,8 @@
 package ast;
 
+import ast.math.Function;
+import ast.math.MathOP;
+import ast.math.Var;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
 import validate.NameNotFoundException;
@@ -7,6 +10,7 @@ import validate.ProgramValidationException;
 import validate.ResultNotFound;
 import validate.Validator;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,6 +68,76 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
+    private Integer varVal(Var var) {
+        Integer value = null;
+        System.out.println(var.getName2() + " IN VAR VAL");
+        if (var.getName2() != null) {
+            if (program.varMaps.containsKey(var.getName2())) {
+                value = varVal(program.varMaps.get(var.getName2()));
+            } else {
+                throw new NameNotFoundException(var.getName2() + " var name not present");
+            }
+        } else {
+            value = var.getNum();
+        }
+        return value;
+    }
+
+    private Integer getMathVal(Integer num1, Integer num2, MathOP mathOP) {
+        Integer result = null;
+        return switch (mathOP) {
+            case PLUS -> result = num1 + num2;
+            case MINUS -> result = num1 - num2;
+            case MULTIPLY -> result = num1 * num2;
+            case DIVIDE -> result = num1 / num2;
+            case POWER -> result = (int) Math.pow(num1, num2);
+            default -> throw new RuntimeException("Unrecognized MathOP");
+        };
+    }
+
+    private Integer varOrfuncCheckHelper(String name) {
+        Integer result = null;
+        System.out.println(name);
+        if (program.varMaps.containsKey(name)) {
+            result = varVal(program.varMaps.get(name));
+        } else if (program.functionMap.containsKey(name)) {
+            result = funcVal(program.functionMap.get(name));
+        } else {
+            throw new NameNotFoundException(name + " VAR OR FUNCTION NAME not present");
+        }
+
+        return result;
+    }
+
+    private Integer funcVal(Function func) {
+        Integer value = null;
+        Integer num1 = null;
+        Integer num2 = null;
+        MathOP mathOP = func.mathOP;
+        if (func.getNum1() != null && func.getNum2() != null) {
+            num1 = func.getNum1();
+            num2 = func.getNum2();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() != null) {
+            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
+            num2 = func.getNum2();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
+            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
+            num1 = func.getNum1();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
+            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
+            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        }
+        return value;
+    }
+
     @Override
     public Void visit(Apply a) throws ProgramValidationException {
         validator.validate(a);
@@ -72,22 +146,29 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         String shiftOrShiftGroupName = a.getNameSGMG();
         boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
+        BitwiseOperator b0 = a.getbO();
+        Integer num = a.getNum();
+        if (a.getVarOrFunc() != null) {
+            num = varOrfuncCheckHelper(a.getVarOrFunc());
+        }
+        System.out.println(num + " this num in evaluator apply");
+        TimeUnit tU = a.getTimeUnit();
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, b0, num, tU);
         } else if (isEntity && !isShift) { // is an entity and a shift group
             for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName);
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, b0, num, tU);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                applyShiftToEntity(shift, entityName);
+                applyShiftToEntity(shift, entityName, b0, num, tU);
             }
         } else { // is an entity group and a shift group
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
                 for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName);
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, b0, num, tU);
                 }
             }
         }
@@ -179,7 +260,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         }
         if (isSG1 && isSG2) {
             List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
-            System.out.println(shiftNamesSG1);
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
             if (lo.equals(LogicalOperator.AND)) {
                 Set<String> set1 = new HashSet<>();
@@ -217,7 +297,23 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 result = new ArrayList<>(set);
                 System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
                 System.out.println(shiftNamesSG1);
+                System.out.println(shiftNamesSG2);
                 System.out.println(result + " Result");
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
+                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
+                System.out.println(shiftNamesSG1);
+                System.out.println(shiftNamesSG2);
+                result = new ArrayList<>(set);
+                System.out.println(result);
+
             } else {
                 //TODO: Maybe throw operator not found exception.
             }
@@ -256,6 +352,17 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2); //set1 is an intersection
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
+                result = new ArrayList<>(set);
+
             } else {
                 //TODO: Maybe throw operator not found exception.
             }
@@ -293,6 +400,17 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2); //set1 is an intersection
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
+                result = new ArrayList<>(set);
+
             } else {
                 //TODO: Maybe throw operator not found exception.
             }
@@ -331,6 +449,17 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2); //set1 is an intersection
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
+            } else if (lo.equals(LogicalOperator.EXCEPT)) {
+                Set<String> set = new HashSet<>();
+                set.addAll(shiftNamesSG1);
+                Set<String> set1 = new HashSet<>();
+                set1.addAll(shiftNamesSG1);
+                Set<String> set2 = new HashSet<>();
+                set2.addAll(shiftNamesSG2);
+                set1.retainAll(set2); //set1 is an intersection
+                set.removeAll(set1);
+                result = new ArrayList<>(set);
+
             } else {
                 //TODO: Maybe throw operator not found exception.
             }
@@ -350,12 +479,21 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 //                .collect(Collectors.toList());
 
         List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
+        System.out.println(shiftList);
         List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
+        System.out.println(shifts);
 
-        Integer days = 0;
+        Integer i = 0;
         Integer repeat = 0;
+
+        TimeUnit tU = l.timeUnit;
+        Integer num = l.getNum();
+        if (l.getVarOrFunc() != null) {
+            num = varOrfuncCheckHelper(l.getVarOrFunc());
+        }
+        System.out.println(num + " this num in evaluator loop");
 
         while (repeat < l.getRepNum()) {
 
@@ -363,20 +501,23 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
                 for (Shift s : shifts) {
 
-                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(days),
-                                                                        s.getClose().plusDays(days),
-                                                                        s.getName());
+                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getOpen(), s.getClose(),
+                            l.getB0(), i, tU);
+//                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(i),
+//                                                                        s.getClose().plusDays(i),
+//                                                                        s.getName());
                     if (!scheduleMap.containsKey(e)) {
                         scheduleMap.put(e, new HashSet<>());
                     }
                     scheduleMap.get(e).add(scheduledEvent);
                 }
 
-                if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
-                    days += l.getNum();
-                } else {
-                    days -= l.getNum();
-                }
+                i += num;
+                // if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
+                //     i += num;
+                // } else {
+                //     i -= num;
+                // }
             }
             repeat++;
         }
@@ -384,12 +525,40 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
-    void applyShiftToEntity(Shift shift, String entityName) {
+    void applyShiftToEntity(Shift shift, String entityName, BitwiseOperator bO, Integer num, TimeUnit tU) {
+        ScheduledEvent scheduledEvent;
+
+        LocalDateTime start = shift.getOpen();
+        LocalDateTime end = shift.getClose();
+        String name = shift.getName();
+        if (bO != null) {
+            scheduledEvent = getShiftedScheduledEvent(name, start, end, bO, num, tU);
+        } else {
+            scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+        }
+
         // todo: change LocalDateTime to Calendar from the get go so this works
-        ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
         if (!scheduleMap.containsKey(entityName)) {
             scheduleMap.put(entityName, new HashSet<>());
         }
         scheduleMap.get(entityName).add(scheduledEvent);
+    }
+
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime start, LocalDateTime end,
+                                                    BitwiseOperator b0, Integer num, TimeUnit tU) {
+        return switch (tU) {
+            case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num),
+                    end.minusHours(num), title) : new ScheduledEvent(start.plusHours(num), end.plusHours(num), title);
+            case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num),
+                    end.minusDays(num), title) : new ScheduledEvent(start.plusDays(num), end.plusDays(num), title);
+            case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num),
+                    end.minusWeeks(num), title) : new ScheduledEvent(start.plusWeeks(num), end.plusWeeks(num), title);
+            case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num),
+                    end.minusMonths(num), title) : new ScheduledEvent(start.plusMonths(num), end.plusMonths(num),
+                    title);
+            case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num),
+                    end.minusYears(num), title) : new ScheduledEvent(start.plusYears(num), end.plusYears(num), title);
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
     }
 }

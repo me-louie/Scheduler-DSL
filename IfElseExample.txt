@@ -44,7 +44,6 @@ if (SG1 AND SG1) {
     Apply SG2 to MultipleApplys;
 } else {
 }
-
 if (SG1 XOR SG1) {
    Apply SG1 to FAIL;
 } else {
@@ -57,4 +56,3 @@ if (SG1 XOR SG2) {
 } else {
     Apply SG1 to FAIL;
 }
-
