@@ -148,8 +148,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         BitwiseOperator b0 = a.getbO();
         Integer num = a.getNum();
-        if (a.getVarOrfunc() != null) {
-            num = varOrfuncCheckHelper(a.getVarOrfunc());
+        if (a.getVarOrFunc() != null) {
+            num = varOrfuncCheckHelper(a.getVarOrFunc());
         }
         System.out.println(num + " this num in evaluator apply");
         TimeUnit tU = a.getTimeUnit();

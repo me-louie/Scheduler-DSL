@@ -319,12 +319,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = 0;
-        String varOrfunc = null;
+        String varOrFunc = null;
         Integer repNum = 1;
         if (isInt(ctx.VARORNUM().getText())) {
             num = Integer.parseInt(ctx.VARORNUM().getText());
         } else {
-            varOrfunc = ctx.VARORNUM().getText();
+            varOrFunc = ctx.VARORNUM().getText();
         }
         if (ctx.NUM() != null) {
             repNum = Integer.parseInt(ctx.NUM().getText());
@@ -338,7 +338,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(tU + " time UNIT");
 //        System.out.println(repNum);
 //        System.out.println(ctx.bitwise_operator().getText());
-        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrfunc, tU);
+        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrFunc, tU);
     }
 
     @Override

@@ -2,10 +2,6 @@ package ast.transformation;
 
 import ast.SchedulerVisitor;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-
 public class Apply extends Transformation {
 
     private final String nameSGMG;
@@ -13,15 +9,15 @@ public class Apply extends Transformation {
     private final Integer num;
     private final BitwiseOperator bO;
     private final TimeUnit timeUnit;
-    private final String varOrfunc;
+    private final String varOrFunc;
 
-    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit, String varOrfunc) {
+    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit, String varOrFunc) {
         this.nameSGMG = nameSGMG;
         this.nameEEG = nameEEG;
         this.num = num;
         this.bO = bO;
         this.timeUnit = timeUnit;
-        this.varOrfunc = varOrfunc;
+        this.varOrFunc = varOrFunc;
     }
 
     public Integer getNum() {
@@ -44,8 +40,8 @@ public class Apply extends Transformation {
         return nameEEG;
     }
 
-    public String getVarOrfunc() {
-        return varOrfunc;
+    public String getVarOrFunc() {
+        return varOrFunc;
     }
 
     @Override
