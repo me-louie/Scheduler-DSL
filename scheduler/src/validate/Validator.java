@@ -104,12 +104,12 @@ public class Validator {
     }
 
     private void validate(Cond cond) throws ProgramValidationException {
-        String shiftOrShiftGroupName1 = cond.getNameSSG1();
-        String shiftOrShiftGroupName2 = cond.getNameSSG2();
-        if (!shiftExists(shiftOrShiftGroupName1) && !shiftGroupExists(shiftOrShiftGroupName1)) {
-            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName1);
-        } else if (!shiftExists(shiftOrShiftGroupName2) && !shiftGroupExists(shiftOrShiftGroupName2)) {
-            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName2);
+        String shiftGroupOrMergeGroupName1 = cond.getNameSGMG1();
+        String shiftGroupOrMergeGroupName2 = cond.getNameSGMG2();
+        if (!shiftGroupExists(shiftGroupOrMergeGroupName1)) {
+            throw new NameNotFoundException("There is no shift/merge group named " + shiftGroupOrMergeGroupName1);
+        } else if (!shiftGroupExists(shiftGroupOrMergeGroupName2)) {
+            throw new NameNotFoundException("There is no shift/merge group named " + shiftGroupOrMergeGroupName2);
         }
     }
 
