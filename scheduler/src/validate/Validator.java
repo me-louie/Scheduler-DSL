@@ -120,7 +120,6 @@ public class Validator {
 
     private boolean isUniqueShiftShiftGroupMergeName(String name) {
         List<Shift> shifts = program.getShifts();
-        long mergeCount = 0;
         // We use shiftGroupsWithoutMergeGroups because the result of a merge gets added to the list of shiftGroups.
         // This way a merge that has already been executed won't be double-counted as a merge and a shift group.
         List<ShiftGroup> shiftGroups = program.getShiftGroupsWithoutMergeGroups();
@@ -128,9 +127,8 @@ public class Validator {
 
         long shiftCount = shifts.stream().filter(shift -> shift.getName().equals(name)).count();
         long shiftGroupCount = shiftGroups.stream().filter(shiftGroup -> shiftGroup.getName().equals(name)).count();
-        if (merges !=null){
-            mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
-        }
+        long mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
+
 
         return shiftCount + shiftGroupCount + mergeCount == 1;
     }

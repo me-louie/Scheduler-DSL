@@ -27,9 +27,6 @@ ifthenelse: 'if' cond '{'
 cond: '(' SHIFT_GROUP_OR_MERGE_GROUP_NAME logical_operator SHIFT_GROUP_OR_MERGE_GROUP_NAME');
 
 TEXT: [a-zA-Z ]+;
-NAME: TEXT;
-SHIFT_NAME: TEXT;
-SHIFT_GROUP_NAME: TEXT;
 COMMA: ',';
 
 TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];
