@@ -329,10 +329,15 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             repNum = Integer.parseInt(ctx.NUM().getText());
         }
         BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
-//        System.out.println(num);
+
+        TimeUnit tU = null;
+        if (ctx.timeShiftUnits() != null){
+            tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
+        }
+        System.out.println(tU +" time UNIT");
 //        System.out.println(repNum);
 //        System.out.println(ctx.bitwise_operator().getText());
-        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrfunc);
+        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrfunc, tU);
     }
 
     @Override

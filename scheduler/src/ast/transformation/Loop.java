@@ -9,15 +9,17 @@ public class Loop extends Transformation {
     private BitwiseOperator b0;
     private Integer num;
     private Integer repNum;
+    public TimeUnit timeUnit;
     private String varOrfunc;
 
-    public Loop(String nameSSG, String nameEEG, BitwiseOperator b0, Integer num, Integer repNum, String varOrfunc) {
+    public Loop(String nameSSG, String nameEEG, BitwiseOperator b0, Integer num, Integer repNum, String varOrfunc, TimeUnit timeUnit) {
         this.nameSSG = nameSSG;
         this.nameEEG = nameEEG;
         this.b0 = b0;
         this.num = num;
         this.repNum = repNum;
         this.varOrfunc = varOrfunc;
+        this.timeUnit = timeUnit;
     }
 
     public String getNameSSG() {

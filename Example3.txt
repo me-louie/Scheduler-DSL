@@ -28,11 +28,12 @@ Var x = 33;
 Var y = 55;
 Var x = y;
 
-Function f2 = 2 + z;
-Function f1 = 2 + f2;
+Function f2 = x + z;
+Function f1 = y + f2;
 Function f3 = f1 + f2;
 
+Var z = 3;
 Merge merge2: SG1 AND SG2;
-Apply merge2 to Person4 >> x MONTHS;
+Apply merge2 to Person4 >> f3 MONTHS;
 
-Loop SG1 over GROUPA >> y each person;
+Loop SG1 over GROUPA >> y DAYS each person;

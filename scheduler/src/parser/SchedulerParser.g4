@@ -29,7 +29,7 @@ apply           : APPLY_START name TO name (bitwise_operator (VARORNUM) timeShif
 
 
 merge           : MERGE_START name COLON name logical_operator name;
-loop            : LOOP_START name LOOP_MID_1 name bitwise_operator VARORNUM LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
+loop            : LOOP_START name LOOP_MID_1 name bitwise_operator VARORNUM timeShiftUnits LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
 
 ifthenelse      : IF cond COND_OPEN_BRACE COND_NEWLINE
                         thenblock=cond_transformations
