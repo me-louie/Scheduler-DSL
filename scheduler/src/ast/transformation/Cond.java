@@ -5,9 +5,9 @@ import ast.SchedulerVisitor;
 
 public class Cond extends Node {
 
-    private LogicalOperator operator;
-    private String nameSSG1;
-    private String nameSSG2;
+    private final LogicalOperator operator;
+    private final String nameSSG1;
+    private final String nameSSG2;
     private boolean state;
 
     public Cond(LogicalOperator operator, String nameSSG1, String nameSSG2) {

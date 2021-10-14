@@ -88,12 +88,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                 // Need to add nested transformations to map for validation checks
                 addNestedTransformations(transformationMap, ifThenElse.getThenTransformations());
                 addNestedTransformations(transformationMap, ifThenElse.getElseTransformations());
-            } else if (e.func() != null){
+            } else if (e.func() != null) {
                 System.out.println("Hello program function");
                 Function func = this.visitFunc(e.func());
                 functionList.add(func);
                 functionMap.put(func.getFuncName(), func);
-            }else if(e.variable()!= null){
+            } else if (e.variable() != null) {
                 System.out.println("Hello program variable");
                 Var var = this.visitVariable(e.variable());
                 //TODO: maybe var list needed
@@ -102,7 +102,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
         return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList,
                 functionList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap,
-       varMaps,functionMap);
+                varMaps, functionMap);
     }
 
     @Override
@@ -189,13 +189,14 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(varName);
         System.out.println(varName2);
         Integer num = 0;
-       if (isInt(ctx.VARORNUM().getText())){
-           num = Integer.parseInt(ctx.VARORNUM().getText());
-       }else{varName2 = ctx.VARORNUM().getText();
-           if (varName.equals(varName2)){
-               throw new RuntimeException(varName+ " can't be used as variable name");
-           }
-       }
+        if (isInt(ctx.VARORNUM().getText())) {
+            num = Integer.parseInt(ctx.VARORNUM().getText());
+        } else {
+            varName2 = ctx.VARORNUM().getText();
+            if (varName.equals(varName2)) {
+                throw new RuntimeException(varName + " can't be used as variable name");
+            }
+        }
         System.out.println(num);
         return new Var(varName, num, varName2);
     }
@@ -210,7 +211,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         }
     }
 
-        @Override
+    @Override
     public Node visitTimeShiftUnits(SchedulerParser.TimeShiftUnitsContext ctx) {
         return null;
     }
@@ -223,24 +224,24 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer num = null;
         String varOrfuncName = null;
         TimeUnit tU = null;
-        if (ctx.VARORNUM() != null){
-            if(isInt(ctx.VARORNUM().getText())){
+        if (ctx.VARORNUM() != null) {
+            if (isInt(ctx.VARORNUM().getText())) {
                 num = Integer.parseInt(ctx.VARORNUM().getText());
-            }else{
+            } else {
                 varOrfuncName = ctx.VARORNUM().getText();
             }
         }
         BitwiseOperator bO = null;
-        if (ctx.bitwise_operator() != null){
+        if (ctx.bitwise_operator() != null) {
             bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
-        if (ctx.timeShiftUnits() != null){
+        if (ctx.timeShiftUnits() != null) {
             tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
         }
 //        System.out.println(num);
 //        System.out.println(bO);
 //        System.out.println(tU);
-        return new Apply(shiftOrShiftGroupOrMergeName,entityOrEntityGroupName,num, bO, tU, varOrfuncName);
+        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, num, bO, tU, varOrfuncName);
     }
 
     @Override
@@ -251,21 +252,21 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer num2 = null;
         String varOrFunc1 = null;
         String varOrFunc2 = null;
-        if (isInt(ctx.VARORNUM(0).getText())){
+        if (isInt(ctx.VARORNUM(0).getText())) {
             num1 = Integer.parseInt(ctx.VARORNUM(0).getText());
-        }else {
+        } else {
             varOrFunc1 = ctx.VARORNUM(0).getText();
-            if (funcname.equals(varOrFunc1)){
-                throw new RuntimeException(funcname+ " can't be used as variable name");
+            if (funcname.equals(varOrFunc1)) {
+                throw new RuntimeException(funcname + " can't be used as variable name");
             }
         }
 
-        if (isInt(ctx.VARORNUM(1).getText())){
+        if (isInt(ctx.VARORNUM(1).getText())) {
             num2 = Integer.parseInt(ctx.VARORNUM(1).getText());
-        } else{
+        } else {
             varOrFunc2 = ctx.VARORNUM(1).getText();
-            if (funcname.equals(varOrFunc2)){
-                throw new RuntimeException(funcname+ " can't be used as variable name");
+            if (funcname.equals(varOrFunc2)) {
+                throw new RuntimeException(funcname + " can't be used as variable name");
             }
         }
         MathOP mathOP = getMathOp(ctx.MATH().getText());
@@ -277,7 +278,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(num1);
         System.out.println(num2);
 
-        return new Function(funcname,varOrFunc1,varOrFunc2, mathOP, num1,num2);
+        return new Function(funcname, varOrFunc1, varOrFunc2, mathOP, num1, num2);
     }
 
     private MathOP getMathOp(String mO) {
@@ -320,9 +321,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer num = 0;
         String varOrfunc = null;
         Integer repNum = 1;
-        if (isInt(ctx.VARORNUM().getText())){
+        if (isInt(ctx.VARORNUM().getText())) {
             num = Integer.parseInt(ctx.VARORNUM().getText());
-        }else {
+        } else {
             varOrfunc = ctx.VARORNUM().getText();
         }
         if (ctx.NUM() != null) {
@@ -331,10 +332,10 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
 
         TimeUnit tU = null;
-        if (ctx.timeShiftUnits() != null){
+        if (ctx.timeShiftUnits() != null) {
             tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
         }
-        System.out.println(tU +" time UNIT");
+        System.out.println(tU + " time UNIT");
 //        System.out.println(repNum);
 //        System.out.println(ctx.bitwise_operator().getText());
         return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrfunc, tU);
@@ -363,7 +364,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
         System.out.println(operator + "OP");
-        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out with WS (e.g. "AND ")
+        return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out
+            // with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
             case ">>" -> BitwiseOperator.RIGHTSHIFT;
             default -> throw new RuntimeException("Unrecognized bitwise operator");

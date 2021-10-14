@@ -8,12 +8,12 @@ import java.io.UnsupportedEncodingException;
 
 public class Apply extends Transformation {
 
-    private String nameSGMG;
-    private String nameEEG;
-    private Integer num;
-    private BitwiseOperator bO;
-    private TimeUnit timeUnit;
-    private String varOrfunc;
+    private final String nameSGMG;
+    private final String nameEEG;
+    private final Integer num;
+    private final BitwiseOperator bO;
+    private final TimeUnit timeUnit;
+    private final String varOrfunc;
 
     public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit, String varOrfunc) {
         this.nameSGMG = nameSGMG;

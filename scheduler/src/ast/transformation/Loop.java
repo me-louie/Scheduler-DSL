@@ -4,21 +4,22 @@ import ast.SchedulerVisitor;
 
 public class Loop extends Transformation {
 
-    private String nameSSG;
-    private String nameEEG;
-    private BitwiseOperator b0;
-    private Integer num;
-    private Integer repNum;
+    private final String nameSSG;
+    private final String nameEEG;
+    private final BitwiseOperator b0;
+    private final Integer num;
+    private final Integer repNum;
+    private final String varOrFunc;
     public TimeUnit timeUnit;
-    private String varOrfunc;
 
-    public Loop(String nameSSG, String nameEEG, BitwiseOperator b0, Integer num, Integer repNum, String varOrfunc, TimeUnit timeUnit) {
+    public Loop(String nameSSG, String nameEEG, BitwiseOperator b0, Integer num, Integer repNum, String varOrFunc,
+                TimeUnit timeUnit) {
         this.nameSSG = nameSSG;
         this.nameEEG = nameEEG;
         this.b0 = b0;
         this.num = num;
         this.repNum = repNum;
-        this.varOrfunc = varOrfunc;
+        this.varOrFunc = varOrFunc;
         this.timeUnit = timeUnit;
     }
 
@@ -42,8 +43,8 @@ public class Loop extends Transformation {
         return repNum;
     }
 
-    public String getVarOrfunc() {
-        return varOrfunc;
+    public String getVarOrFunc() {
+        return varOrFunc;
     }
 
     @Override

@@ -10,7 +10,6 @@ import validate.ProgramValidationException;
 import validate.ResultNotFound;
 import validate.Validator;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,16 +68,16 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
-    private Integer varVal (Var var){
+    private Integer varVal(Var var) {
         Integer value = null;
         System.out.println(var.getName2() + " IN VAR VAL");
-        if (var.getName2() != null){
-            if(program.varMaps.containsKey(var.getName2())){
+        if (var.getName2() != null) {
+            if (program.varMaps.containsKey(var.getName2())) {
                 value = varVal(program.varMaps.get(var.getName2()));
-            }else{
-                throw new NameNotFoundException(var.getName2()+" var name not present");
+            } else {
+                throw new NameNotFoundException(var.getName2() + " var name not present");
             }
-        }else{
+        } else {
             value = var.getNum();
         }
         return value;
@@ -96,43 +95,43 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         };
     }
 
-    private Integer varOrfuncCheckHelper(String name){
+    private Integer varOrfuncCheckHelper(String name) {
         Integer result = null;
         System.out.println(name);
-        if (program.varMaps.containsKey(name)){
+        if (program.varMaps.containsKey(name)) {
             result = varVal(program.varMaps.get(name));
-        }else if(program.functionMap.containsKey(name)){
+        } else if (program.functionMap.containsKey(name)) {
             result = funcVal(program.functionMap.get(name));
-        }else{
-            throw new NameNotFoundException(name+" VAR OR FUNCTION NAME not present");
+        } else {
+            throw new NameNotFoundException(name + " VAR OR FUNCTION NAME not present");
         }
 
         return result;
     }
 
-    private Integer funcVal (Function func){
+    private Integer funcVal(Function func) {
         Integer value = null;
         Integer num1 = null;
         Integer num2 = null;
         MathOP mathOP = func.mathOP;
-        if (func.getNum1() != null && func.getNum2() != null){
+        if (func.getNum1() != null && func.getNum2() != null) {
             num1 = func.getNum1();
             num2 = func.getNum2();
-            value = getMathVal(num1,num2,mathOP);
+            value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getNum1() == null && func.getVarorfuncName1() != null && func.getNum2() != null){
-            num1 = varOrfuncCheckHelper(func.getVarorfuncName1());
+        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() != null) {
+            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
             num2 = func.getNum2();
-            value = getMathVal(num1,num2,mathOP);
+            value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getNum1() != null && func.getNum2() == null && func.getVarorfuncName2() != null){
-            num2 = varOrfuncCheckHelper(func.getVarorfuncName2());
+        } else if (func.getNum1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
+            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
             num1 = func.getNum1();
-            value = getMathVal(num1,num2,mathOP);
+            value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getNum1() == null && func.getVarorfuncName1() != null && func.getNum2() == null && func.getVarorfuncName2() != null) {
-            num1 = varOrfuncCheckHelper(func.getVarorfuncName1());
-            num2 = varOrfuncCheckHelper(func.getVarorfuncName2());
+        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
+            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
+            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
             value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
         }
@@ -149,15 +148,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         BitwiseOperator b0 = a.getbO();
         Integer num = a.getNum();
-        if(a.getVarOrfunc() != null){
+        if (a.getVarOrfunc() != null) {
             num = varOrfuncCheckHelper(a.getVarOrfunc());
         }
-        System.out.println(num +" this num in evaluator apply");
+        System.out.println(num + " this num in evaluator apply");
         TimeUnit tU = a.getTimeUnit();
 
         if (isEntity && isShift) { // is an entity and a shift
             applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, b0, num, tU);
-        } else if (isEntity && !isShift){ // is an entity and a shift group
+        } else if (isEntity && !isShift) { // is an entity and a shift group
             for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
                 applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, b0, num, tU);
             }
@@ -238,31 +237,31 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         //Checking if the second name was a merge name
         boolean isSG1 = false;
         boolean isSG2 = false;
-        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrM1)){
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrM1)) {
             isSG1 = true;
         }
-        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrMergeName)){
+        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrMergeName)) {
             isSG2 = true;
         }
         boolean isMergeName1 = false;
         boolean isMergeName2 = false;
         Merge mergeObject1 = null;
         Merge mergeObject2 = null;
-        for (Merge x: program.getMergeList()){
-            if((x.getName()).equals(ShiftGroupNameOrM1)){
+        for (Merge x : program.getMergeList()) {
+            if ((x.getName()).equals(ShiftGroupNameOrM1)) {
                 isMergeName1 = true;
-                mergeObject1 =x;
+                mergeObject1 = x;
             }
-            if((x.getName()).equals(ShiftGroupNameOrMergeName)){
+            if ((x.getName()).equals(ShiftGroupNameOrMergeName)) {
                 isMergeName2 = true;
-                mergeObject2 =x;
+                mergeObject2 = x;
             }
 
         }
-        if(isSG1 && isSG2){
+        if (isSG1 && isSG2) {
             List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
-            if(lo.equals(LogicalOperator.AND)){
+            if (lo.equals(LogicalOperator.AND)) {
                 Set<String> set1 = new HashSet<>();
                 set1.addAll(shiftNamesSG1);
                 Set<String> set2 = new HashSet<>();
@@ -270,10 +269,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result =  new ArrayList<>(set1);
+                    result = new ArrayList<>(set1);
                     System.out.println(result);
-                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
-                }else{
+                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
+                } else {
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
@@ -285,7 +284,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 System.out.println(shiftNamesSG2);
                 System.out.println(result);
                 //Collections.sort(result); Maybe want to sort results
-            }else if (lo.equals(LogicalOperator.XOR)){
+            } else if (lo.equals(LogicalOperator.XOR)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -315,15 +314,14 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 result = new ArrayList<>(set);
                 System.out.println(result);
 
-            } else{
+            } else {
                 //TODO: Maybe throw operator not found exception.
             }
-        }
-        else if (isMergeName2 && !isMergeName1 && isSG1){
+        } else if (isMergeName2 && !isMergeName1 && isSG1) {
             List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
             ShiftGroup sg2 = mergeHelper(mergeObject2);
             List<String> shiftNamesSG2 = sg2.getShiftList();
-            if(lo.equals(LogicalOperator.AND)){
+            if (lo.equals(LogicalOperator.AND)) {
                 Set<String> set1 = new HashSet<>();
                 set1.addAll(shiftNamesSG1);
                 Set<String> set2 = new HashSet<>();
@@ -331,10 +329,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result =  new ArrayList<>(set1);
+                    result = new ArrayList<>(set1);
                     System.out.println(result);
-                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
-                }else{
+                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
+                } else {
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
@@ -343,7 +341,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
-            }else if (lo.equals(LogicalOperator.XOR)){
+            } else if (lo.equals(LogicalOperator.XOR)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -365,14 +363,14 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
 
-            }else{
+            } else {
                 //TODO: Maybe throw operator not found exception.
             }
-        }  else if (isMergeName1 && !isMergeName2 && isSG2){
+        } else if (isMergeName1 && !isMergeName2 && isSG2) {
             ShiftGroup sg1 = mergeHelper(mergeObject1);
             List<String> shiftNamesSG1 = sg1.getShiftList();
             List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
-            if(lo.equals(LogicalOperator.AND)){
+            if (lo.equals(LogicalOperator.AND)) {
                 Set<String> set1 = new HashSet<>();
                 set1.addAll(shiftNamesSG1);
                 Set<String> set2 = new HashSet<>();
@@ -380,10 +378,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result =  new ArrayList<>(set1);
+                    result = new ArrayList<>(set1);
                     System.out.println(result);
-                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
-                }else{
+                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
+                } else {
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
@@ -391,7 +389,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
-            }else if (lo.equals(LogicalOperator.XOR)){
+            } else if (lo.equals(LogicalOperator.XOR)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -413,15 +411,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
 
-            }else{
+            } else {
                 //TODO: Maybe throw operator not found exception.
             }
-        } else if(isMergeName1 && isMergeName2) {
+        } else if (isMergeName1 && isMergeName2) {
             ShiftGroup sg1 = mergeHelper(mergeObject1);
             List<String> shiftNamesSG1 = sg1.getShiftList();
             ShiftGroup sg2 = mergeHelper(mergeObject2);
             List<String> shiftNamesSG2 = sg2.getShiftList();
-            if(lo.equals(LogicalOperator.AND)){
+            if (lo.equals(LogicalOperator.AND)) {
                 Set<String> set1 = new HashSet<>();
                 set1.addAll(shiftNamesSG1);
                 Set<String> set2 = new HashSet<>();
@@ -429,10 +427,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set1.retainAll(set2);
                 System.out.println(shiftNamesSG1);
                 if (!shiftNamesSG1.isEmpty()) {
-                    result =  new ArrayList<>(set1);
+                    result = new ArrayList<>(set1);
                     System.out.println(result);
-                    System.out.println(shiftNamesSG1+" Changed?");//Union of results.
-                }else{
+                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
+                } else {
                     throw new ResultNotFound("No Union Found");
                 }
             } else if (lo.equals(LogicalOperator.OR)) {
@@ -440,7 +438,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
                 result = new ArrayList<>(set);
-            }else if (lo.equals(LogicalOperator.XOR)){
+            } else if (lo.equals(LogicalOperator.XOR)) {
                 Set<String> set = new HashSet<>();
                 set.addAll(shiftNamesSG1);
                 set.addAll(shiftNamesSG2);
@@ -462,11 +460,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 set.removeAll(set1);
                 result = new ArrayList<>(set);
 
-            }else{
+            } else {
                 //TODO: Maybe throw operator not found exception.
             }
-        }
-        else{
+        } else {
             throw new NameNotFoundException("Shift Group or Merge Name not found");
         }
         return new ShiftGroup(name, result);
@@ -493,10 +490,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
         TimeUnit tU = l.timeUnit;
         Integer num = l.getNum();
-        if(l.getVarOrfunc() != null){
-            num = varOrfuncCheckHelper(l.getVarOrfunc());
+        if (l.getVarOrFunc() != null) {
+            num = varOrfuncCheckHelper(l.getVarOrFunc());
         }
-        System.out.println(num +" this num in evaluator loop");
+        System.out.println(num + " this num in evaluator loop");
 
         while (repeat < l.getRepNum()) {
 
@@ -504,7 +501,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
                 for (Shift s : shifts) {
 
-                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getOpen(), s.getClose(), l.getB0(), i, tU);
+                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getOpen(), s.getClose(),
+                            l.getB0(), i, tU);
 //                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(i),
 //                                                                        s.getClose().plusDays(i),
 //                                                                        s.getName());
@@ -533,26 +531,33 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         LocalDateTime start = shift.getOpen();
         LocalDateTime end = shift.getClose();
         String name = shift.getName();
-        if (bO != null){
+        if (bO != null) {
             scheduledEvent = getShiftedScheduledEvent(name, start, end, bO, num, tU);
         } else {
             scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
         }
 
-            // todo: change LocalDateTime to Calendar from the get go so this works
+        // todo: change LocalDateTime to Calendar from the get go so this works
         if (!scheduleMap.containsKey(entityName)) {
             scheduleMap.put(entityName, new HashSet<>());
         }
         scheduleMap.get(entityName).add(scheduledEvent);
     }
 
-    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime start, LocalDateTime end, BitwiseOperator b0, Integer num, TimeUnit tU) {
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime start, LocalDateTime end,
+                                                    BitwiseOperator b0, Integer num, TimeUnit tU) {
         return switch (tU) {
-            case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num), end.minusHours(num), title) : new ScheduledEvent(start.plusHours(num), end.plusHours(num), title);
-            case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num), end.minusDays(num), title) : new ScheduledEvent(start.plusDays(num), end.plusDays(num), title);
-            case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num), end.minusWeeks(num), title) : new ScheduledEvent(start.plusWeeks(num), end.plusWeeks(num), title);
-            case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num), end.minusMonths(num), title) : new ScheduledEvent(start.plusMonths(num), end.plusMonths(num), title);
-            case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num), end.minusYears(num), title) : new ScheduledEvent(start.plusYears(num), end.plusYears(num), title);
+            case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num),
+                    end.minusHours(num), title) : new ScheduledEvent(start.plusHours(num), end.plusHours(num), title);
+            case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num),
+                    end.minusDays(num), title) : new ScheduledEvent(start.plusDays(num), end.plusDays(num), title);
+            case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num),
+                    end.minusWeeks(num), title) : new ScheduledEvent(start.plusWeeks(num), end.plusWeeks(num), title);
+            case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num),
+                    end.minusMonths(num), title) : new ScheduledEvent(start.plusMonths(num), end.plusMonths(num),
+                    title);
+            case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num),
+                    end.minusYears(num), title) : new ScheduledEvent(start.plusYears(num), end.plusYears(num), title);
             default -> throw new RuntimeException("Unrecognized time unit");
         };
     }

@@ -53,7 +53,7 @@ FUNC_START: 'Function' WS* -> mode(TEXT_MODE);
 EQUALSIGN: '=' WS* -> mode(FUNC_MODE);
 
 MATH: ('+'|'-'|'/'|'*'|'^') WS*-> mode(FUNC_MODE);
-// Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE, not IDENT_MODE)
+// Line breaks are ignored during tokenization (note that this rule only applies in DEFAULT_MODE)
 WS : [\r\n\t ]+ -> channel(HIDDEN);
 
 mode TEXT_MODE;
@@ -77,6 +77,3 @@ mode COND_MODE;
 COND_WS: [\t ]+ -> channel(HIDDEN);
 COND_OPEN_BRACE: '{';
 COND_NEWLINE : [\r\n]+ -> mode(DEFAULT_MODE);
-
-
-

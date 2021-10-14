@@ -10,7 +10,7 @@ import java.util.List;
 public class ShiftGroup extends Node {
 
     private final String name;
-    private List<String> shiftList;
+    private final List<String> shiftList;
     
     public ShiftGroup(String name, List<String> shiftList) {
         this.name = name;
