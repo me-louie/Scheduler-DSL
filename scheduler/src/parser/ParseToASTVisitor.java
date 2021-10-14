@@ -222,9 +222,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Cond visitCond(SchedulerParser.CondContext ctx) {
         LogicalOperator logicalOperator = getLogicalOperator(ctx.logical_operator().getText());
-        String shiftOrShiftGroupName1 = ctx.name(0).getText();
-        String shiftOrShiftGroupName2 = ctx.name(1).getText();
-        return new Cond(logicalOperator, shiftOrShiftGroupName1, shiftOrShiftGroupName2);
+        String shiftGroupOrMergeGroupName1 = ctx.name(0).getText();
+        String shiftGroupOrMergeGroupName2 = ctx.name(1).getText();
+        return new Cond(logicalOperator, shiftGroupOrMergeGroupName1, shiftGroupOrMergeGroupName2);
     }
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
