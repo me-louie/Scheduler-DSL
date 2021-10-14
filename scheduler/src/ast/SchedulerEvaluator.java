@@ -205,13 +205,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     @Override
     public Void visit(Cond cond) throws ProgramValidationException {
         LogicalOperator logicalOperator = cond.getOperator();
-        String shiftOrShiftGroupName1 = cond.getNameSSG1();
-        String shiftOrShiftGroupName2 = cond.getNameSSG2();
+        String shiftGroupOrMergeGroupName1 = cond.getNameSGMG1();
+        String shiftGroupOrMergeGroupName2 = cond.getNameSGMG2();
 
         Set<String> shiftGroup1 =
-                program.shiftGroupMap.get(shiftOrShiftGroupName1).getShiftList().stream().collect(Collectors.toSet());
+                program.shiftGroupMap.get(shiftGroupOrMergeGroupName1).getShiftList().stream().collect(Collectors.toSet());
         Set<String> shiftGroup2 =
-                program.shiftGroupMap.get(shiftOrShiftGroupName2).getShiftList().stream().collect(Collectors.toSet());
+                program.shiftGroupMap.get(shiftGroupOrMergeGroupName2).getShiftList().stream().collect(Collectors.toSet());
         Set<String> resultantShifts = new HashSet<>(shiftGroup1);
 
         if (logicalOperator == LogicalOperator.AND) {
