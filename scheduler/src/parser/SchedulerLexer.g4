@@ -45,6 +45,7 @@ OPEN_PAREN: '(' -> mode(TEXT_MODE);
 CLOSE_PAREN: ')' -> mode(COND_MODE);
 OPEN_BRACE: '{' -> mode(COND_MODE);
 CLOSE_BRACE: '}';
+// Line breaks are ignored during tokenization in DEFAULT_MODE
 
 
 VAR_START: 'Var' WS* -> mode(TEXT_MODE);

@@ -27,13 +27,6 @@ apply           : APPLY_START name TO name (bitwise_operator (VARORNUM) timeShif
 
 //funcName: (num or varName or func Name) MATH (num or varName or func Name) Endline;
 
-// funcName:
-// h(t) = ... fun1(fun2(SG1))
-// f(x) = x + 1
-// g(x) = 2x
-// g(f(SG1)) = 2(x + 1)
-// g
-
 
 merge           : MERGE_START name COLON name logical_operator name;
 // SO the user can write user recursion line by line instead of writing one big line. example below:
