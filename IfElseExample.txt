@@ -21,13 +21,13 @@ if (SG1 OR SG2) {
     Apply SG1 to BasicIfElse;
 } else {
     Apply SG1 to FAIL;
-};
+}
 
 if (SG1 XOR SG2) {
 
 } else  {
 
-};
+}
 
 if (SG1 AND SG1) {
     if (SG1 AND SG1) {
@@ -37,13 +37,13 @@ if (SG1 AND SG1) {
     }
 } else {
     Apply SG2 to FAIL;
-};
+}
 
 if (SG1 AND SG1) {
     Apply SG1 to MultipleApplys;
     Apply SG2 to MultipleApplys;
 } else {
-};
+}
 if (SG1 XOR SG1) {
    Apply SG1 to FAIL;
 } else {
@@ -55,4 +55,4 @@ if (SG1 XOR SG2) {
     Apply merge1 to IfElseAndMerge;
 } else {
     Apply SG1 to FAIL;
-};
+}
