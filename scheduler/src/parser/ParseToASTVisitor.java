@@ -191,7 +191,11 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer num = 0;
        if (isInt(ctx.VARORNUM().getText())){
            num = Integer.parseInt(ctx.VARORNUM().getText());
-       }else{varName2 = ctx.VARORNUM().getText();}
+       }else{varName2 = ctx.VARORNUM().getText();
+           if (varName.equals(varName2)){
+               throw new RuntimeException(varName+ " can't be used as variable name");
+           }
+       }
         System.out.println(num);
         return new Var(varName, num, varName2);
     }
@@ -251,12 +255,18 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             num1 = Integer.parseInt(ctx.VARORNUM(0).getText());
         }else {
             varOrFunc1 = ctx.VARORNUM(0).getText();
+            if (funcname.equals(varOrFunc1)){
+                throw new RuntimeException(funcname+ " can't be used as variable name");
+            }
         }
 
         if (isInt(ctx.VARORNUM(1).getText())){
             num2 = Integer.parseInt(ctx.VARORNUM(1).getText());
         } else{
             varOrFunc2 = ctx.VARORNUM(1).getText();
+            if (funcname.equals(varOrFunc2)){
+                throw new RuntimeException(funcname+ " can't be used as variable name");
+            }
         }
         MathOP mathOP = getMathOp(ctx.MATH().getText());
 
