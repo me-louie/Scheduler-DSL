@@ -24,7 +24,6 @@ Merge merge1: SG1 OR SG2;
 Apply merge1 to Person3;
 
 Var y = 55;
-Var x = y;
 
 Expression f2 = x + z;
 Expression f1 = y + f2;
@@ -32,6 +31,6 @@ Expression f3 = f1 + f2;
 
 Var z = 3;
 Merge merge2: SG1 AND SG2;
-Apply merge2 to Person4 >> f3 MONTHS;
+Apply merge2 to Person4 >> x MONTHS;
 
-Loop SG1 over GROUPA >> y DAYS each person;
+Loop SG1 over GROUPA >> f3 DAYS each person;

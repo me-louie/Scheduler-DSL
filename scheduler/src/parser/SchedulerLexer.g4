@@ -73,7 +73,7 @@ mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
 
 mode FUNC_MODE;
-VARORNUM: [a-zA-Z0-9]+ -> mode(DEFAULT_MODE);
+VARORNUM: [a-zA-Z0-9]* -> mode(DEFAULT_MODE);
 
 mode COND_MODE;
 COND_WS: [\t ]+ -> channel(HIDDEN);

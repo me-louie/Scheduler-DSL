@@ -31,4 +31,4 @@ Expression f2 = 2 + 2;
 Merge merge2: SG1 AND SG2;
 Apply merge2 to Person4 >> 10 DAYS;
 
-Loop SG1 over GROUPA >> 2 each person;
+Loop SG1 over GROUPA >> 2 DAYS each person;

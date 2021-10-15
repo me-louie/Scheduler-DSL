@@ -18,4 +18,8 @@ Shift Group SG2: S2, S4, S5;
 Shift Group SG3: S1, S3, S5;
 
 Var x = 3;
-Loop SG1 over GROUPA << x DAYS each person;
+Var x = y;
+Var y = 10;
+
+Expression f1 = x + y;
+Loop SG1 over GROUPA << f1 DAYS each person;
