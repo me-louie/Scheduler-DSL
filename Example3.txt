@@ -23,6 +23,7 @@ Apply SG2 to Person2;
 Merge merge1: SG1 OR SG2;
 Apply merge1 to Person3;
 
+Var x = 33;
 Var y = 55;
 
 Expression f2 = x + z;

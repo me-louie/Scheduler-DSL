@@ -71,7 +71,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         OffsetOperator offsetOperator = a.getOffsetOperator();
         TimeUnit timeUnit = a.getTimeUnit();
-        Integer offsetNumber = a.getVarOrExpression() != null ? varOrfuncCheckHelper(a.getVarOrExpression()) :  a.getOffsetAmount();
+        Integer offsetNumber = a.getVarOrExpression() != null ? varOrExpressionCheckHelper(a.getVarOrExpression()) :  a.getOffsetAmount();
 
         if (isEntity && isShift) { // is an entity and a shift
             applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
@@ -234,7 +234,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
         TimeUnit timeUnit = l.timeUnit;
-        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : varOrfuncCheckHelper(l.getVarOrExpression());
+        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : varOrExpressionCheckHelper(l.getVarOrExpression());
 
         for (int i = 0; i < l.getRepeatAmount(); i++) {
             for (String e : entities) {
@@ -275,40 +275,40 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         };
     }
 
-    private Integer varOrfuncCheckHelper(String name) {
+    private Integer varOrExpressionCheckHelper(String name) {
         Integer result;
         System.out.println(name);
         if (program.variableMap.containsKey(name)) {
             result = varVal(program.variableMap.get(name));
         } else if (program.expressionMap.containsKey(name)) {
-            result = funcVal(program.expressionMap.get(name));
+            result = expressionVal(program.expressionMap.get(name));
         } else {
-            throw new NameNotFoundException(name + " VAR OR FUNCTION NAME not present");
+            throw new NameNotFoundException(name + " VAR OR EXPRESSION NAME not present");
         }
         return result;
     }
 
-    private Integer funcVal(Expression func) {
+    private Integer expressionVal(Expression expression) {
         Integer value = null, num1, num2;
-        MathOperation mathOP = func.mathOperation;
-        if (func.getValue1() != null && func.getValue2() != null) {
-            num1 = func.getValue1();
-            num2 = func.getValue2();
+        MathOperation mathOP = expression.mathOperation;
+        if (expression.getValue1() != null && expression.getValue2() != null) {
+            num1 = expression.getValue1();
+            num2 = expression.getValue2();
             value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getValue1() == null && func.getVariableOrExpressionName1() != null && func.getValue2() != null) {
-            num1 = varOrfuncCheckHelper(func.getVariableOrExpressionName1());
-            num2 = func.getValue2();
+        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() != null) {
+            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
+            num2 = expression.getValue2();
             value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getValue1() != null && func.getValue2() == null && func.getVariableOrExpressionName2() != null) {
-            num2 = varOrfuncCheckHelper(func.getVariableOrExpressionName2());
-            num1 = func.getValue1();
+        } else if (expression.getValue1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
+            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
+            num1 = expression.getValue1();
             value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
-        } else if (func.getValue1() == null && func.getVariableOrExpressionName1() != null && func.getValue2() == null && func.getVariableOrExpressionName2() != null) {
-            num1 = varOrfuncCheckHelper(func.getVariableOrExpressionName1());
-            num2 = varOrfuncCheckHelper(func.getVariableOrExpressionName2());
+        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
+            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
+            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
             value = getMathVal(num1, num2, mathOP);
             System.out.println(value);
         }
