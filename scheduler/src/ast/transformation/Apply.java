@@ -4,20 +4,20 @@ import ast.SchedulerVisitor;
 
 public class Apply extends Transformation {
 
-    private final String nameSGMG;
-    private final String nameEEG;
+    private final String shiftOrShiftGroupOrMergeGroupName;
+    private final String entityOrEntityGroupName;
     private final Integer offsetAmount;
     private final OffsetOperator offsetOperator;
     private final TimeUnit timeUnit;
-    private final String varOrFunc;
+    private final String varOrExpression;
 
-    public Apply(String nameSGMG, String nameEEG, Integer offsetAmount, OffsetOperator offsetOperator, TimeUnit timeUnit, String varOrFunc) {
-        this.nameSGMG = nameSGMG;
-        this.nameEEG = nameEEG;
+    public Apply(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, Integer offsetAmount, OffsetOperator offsetOperator, TimeUnit timeUnit, String varOrExpression) {
+        this.shiftOrShiftGroupOrMergeGroupName = shiftOrShiftGroupOrMergeGroupName;
+        this.entityOrEntityGroupName = entityOrEntityGroupName;
         this.offsetAmount = offsetAmount;
         this.offsetOperator = offsetOperator;
         this.timeUnit = timeUnit;
-        this.varOrFunc = varOrFunc;
+        this.varOrExpression = varOrExpression;
     }
 
     public Integer getOffsetAmount() {
@@ -32,16 +32,16 @@ public class Apply extends Transformation {
         return timeUnit;
     }
 
-    public String getNameSGMG() {
-        return nameSGMG;
+    public String getShiftOrShiftGroupOrMergeGroupName() {
+        return shiftOrShiftGroupOrMergeGroupName;
     }
 
-    public String getNameEEG() {
-        return nameEEG;
+    public String getEntityOrEntityGroupName() {
+        return entityOrEntityGroupName;
     }
 
-    public String getVarOrFunc() {
-        return varOrFunc;
+    public String getVarOrExpression() {
+        return varOrExpression;
     }
 
     @Override

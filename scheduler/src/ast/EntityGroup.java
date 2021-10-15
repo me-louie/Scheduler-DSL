@@ -5,6 +5,7 @@ import validate.ProgramValidationException;
 import java.util.List;
 
 public class EntityGroup extends Node {
+
     private final String name;
     private final List<String> entities;
 

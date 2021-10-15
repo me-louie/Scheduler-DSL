@@ -65,13 +65,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Apply a) throws ProgramValidationException {
         Validator.validate(a);
 
-        String entityOrEntityGroupName = a.getNameEEG();
-        String shiftOrShiftGroupName = a.getNameSGMG();
+        String entityOrEntityGroupName = a.getEntityOrEntityGroupName();
+        String shiftOrShiftGroupName = a.getShiftOrShiftGroupOrMergeGroupName();
         boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         OffsetOperator offsetOperator = a.getOffsetOperator();
         TimeUnit timeUnit = a.getTimeUnit();
-        Integer offsetNumber = a.getVarOrFunc() != null ? varOrfuncCheckHelper(a.getVarOrFunc()) :  a.getOffsetAmount();
+        Integer offsetNumber = a.getVarOrExpression() != null ? varOrfuncCheckHelper(a.getVarOrExpression()) :  a.getOffsetAmount();
 
         if (isEntity && isShift) { // is an entity and a shift
             applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
@@ -123,11 +123,11 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     private ShiftGroup mergeHelper(Merge m) {
         List<String> result = null;
         String name = m.getName();
-        String shiftGroupOrMergeGroup1Name = m.getShiftGroupOrMergeGroupName1();
-        String shiftGroupOrMergeGroup2Name = m.getShiftGroupOrMergeGroupName2();
+        String shiftGroupOrMergeGroupName1 = m.getShiftGroupOrMergeGroupName1();
+        String shiftGroupOrMergeGroupName2 = m.getShiftGroupOrMergeGroupName2();
         SetOperator setOperator = m.getSetOperator();
-        List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroup1Name);
-        List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroup2Name);
+        List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName1);
+        List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName2);
 
         if (setOperator.equals(SetOperator.AND)) {
             Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
@@ -191,7 +191,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     @Override
     public Void visit(Cond cond) throws ProgramValidationException {
-        SetOperator setOperator = cond.getOperator();
+        SetOperator setOperator = cond.getSetOperator();
         String shiftGroupOrMergeGroupName1 = cond.getShiftGroupOrMergeGroupName1();
         String shiftGroupOrMergeGroupName2 = cond.getShiftGroupOrMergeGroupName2();
 
@@ -200,7 +200,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Set<String> resultantShifts = new HashSet<>(shiftGroup1);
 
         if (setOperator == SetOperator.AND) {
-            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet());
+            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet()); // todo: does stream make a new list or does this alter the original? if the former then we need to change some stuff elsewhere that's working on the opposite assumption
         } else if (setOperator == SetOperator.OR) {
             resultantShifts.addAll(shiftGroup2);
         } else if (setOperator == SetOperator.XOR) {
@@ -228,13 +228,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Loop l) throws ProgramValidationException {
         Validator.validate(l);
 
-        List<String> entities = program.entityGroupMap.get(l.getNameEEG()).getEntities();
-        List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShifts();
+        List<String> entities = program.entityGroupMap.get(l.getEntityOrEntityGroupName()).getEntities();
+        List<String> shiftList = program.shiftGroupMap.get(l.getShiftOrShiftGroupOrMergeGroupName()).getShifts();
         List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
         TimeUnit timeUnit = l.timeUnit;
-        Integer offsetAmount = l.getVarOrFunc() == null ? l.getOffsetAmount() : varOrfuncCheckHelper(l.getVarOrFunc());
+        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : varOrfuncCheckHelper(l.getVarOrExpression());
 
         for (int i = 0; i < l.getRepeatAmount(); i++) {
             for (String e : entities) {

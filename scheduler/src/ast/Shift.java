@@ -15,8 +15,8 @@ public class Shift extends Node {
 
     private static final DateTimeFormatter dateFormatter =
             new DateTimeFormatterBuilder().appendPattern("[MM/dd/yyyy HH:mm]").appendPattern("[MM-dd-yyyy HH:mm]")
-            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-            .toFormatter();
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .toFormatter();
 
     public Shift(String name, String open, String close, String description) {
         this.name = name;

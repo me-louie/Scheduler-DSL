@@ -4,31 +4,31 @@ import ast.SchedulerVisitor;
 
 public class Loop extends Transformation {
 
-    private final String nameSSG;
-    private final String nameEEG;
+    private final String shiftOrShiftGroupOrMergeGroupName;
+    private final String entityOrEntityGroupName;
     private final OffsetOperator offsetOperator;
     private final Integer offsetAmount;
     private final Integer repeatAmount;
-    private final String varOrFunc;
+    private final String varOrExpression;
     public TimeUnit timeUnit;
 
-    public Loop(String nameSSG, String nameEEG, OffsetOperator offsetOperator, Integer offsetAmount, Integer repeatAmount, String varOrFunc,
+    public Loop(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, OffsetOperator offsetOperator, Integer offsetAmount, Integer repeatAmount, String varOrExpression,
                 TimeUnit timeUnit) {
-        this.nameSSG = nameSSG;
-        this.nameEEG = nameEEG;
+        this.shiftOrShiftGroupOrMergeGroupName = shiftOrShiftGroupOrMergeGroupName;
+        this.entityOrEntityGroupName = entityOrEntityGroupName;
         this.offsetOperator = offsetOperator;
         this.offsetAmount = offsetAmount;
         this.repeatAmount = repeatAmount;
-        this.varOrFunc = varOrFunc;
+        this.varOrExpression = varOrExpression;
         this.timeUnit = timeUnit;
     }
 
-    public String getNameSSG() {
-        return nameSSG;
+    public String getShiftOrShiftGroupOrMergeGroupName() {
+        return shiftOrShiftGroupOrMergeGroupName;
     }
 
-    public String getNameEEG() {
-        return nameEEG;
+    public String getEntityOrEntityGroupName() {
+        return entityOrEntityGroupName;
     }
 
     public OffsetOperator getOffsetOperator() {
@@ -43,8 +43,8 @@ public class Loop extends Transformation {
         return repeatAmount;
     }
 
-    public String getVarOrFunc() {
-        return varOrFunc;
+    public String getVarOrExpression() {
+        return varOrExpression;
     }
 
     @Override

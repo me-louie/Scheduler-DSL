@@ -54,8 +54,8 @@ public class Validator {
     }
 
     public static void validate(Apply apply) throws ProgramValidationException {
-        String shiftOrShiftGroupName = apply.getNameSGMG();
-        String entityOrEntityGroupName = apply.getNameEEG();
+        String shiftOrShiftGroupName = apply.getShiftOrShiftGroupOrMergeGroupName();
+        String entityOrEntityGroupName = apply.getEntityOrEntityGroupName();
         if (!shiftExists(shiftOrShiftGroupName) && !shiftGroupExists(shiftOrShiftGroupName)) {
             throw new NameNotFoundException("There is no shift/shift group named " + shiftOrShiftGroupName);
         } else if (!isUniqueShiftShiftGroupMergeName(shiftOrShiftGroupName)) {
@@ -85,8 +85,8 @@ public class Validator {
     }
 
     public static void validate(Loop loop) throws ProgramValidationException {
-        String shiftGroupName = loop.getNameSSG();
-        String entityGroupName = loop.getNameEEG();
+        String shiftGroupName = loop.getShiftOrShiftGroupOrMergeGroupName();
+        String entityGroupName = loop.getEntityOrEntityGroupName();
         if (!shiftGroupExists(shiftGroupName)) {
             throw new NameNotFoundException("There is no shift group named " + shiftGroupName);
         } else if (!isUniqueShiftShiftGroupMergeName(shiftGroupName)) {

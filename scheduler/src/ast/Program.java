@@ -47,11 +47,11 @@ public class Program extends Node {
     public static void setInstance(Map<String, Entity> entityMap, Map<String, EntityGroup> entityGroupMap,
                                    Map<String, Shift> shiftMap, Map<String, ShiftGroup> shiftGroupMap, Map<String,
                                    List<Transformation>> transformationMap,
-                                   Map<String, Variable> varMap, Map<String, Expression> functionMap) {
+                                   Map<String, Variable> varMap, Map<String, Expression> expressionMap) {
         if (instance != null) {
             throw new RuntimeException("Tried to set Program instance after it had already been instantiated.");
         }
-        instance = new Program(entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap, varMap, functionMap);
+        instance = new Program(entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap, varMap, expressionMap);
     }
 
     @Override
