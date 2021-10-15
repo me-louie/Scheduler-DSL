@@ -21,14 +21,6 @@ import java.util.Set;
 
 public class OutputGenerator {
 
-    private static Calendar createCalendar() {
-        Calendar cal = new net.fortuna.ical4j.model.Calendar();
-        cal.getProperties().add(new ProdId("-//Events Calendar//iCal4j 1.0//EN"));
-        cal.getProperties().add(Version.VERSION_2_0);
-        cal.getProperties().add(CalScale.GREGORIAN);
-        return cal;
-    }
-
     public void generate(Map<String, Set<ScheduledEvent>> scheduleMap, String outputFileName) throws IOException {
         Calendar cal = createCalendar();
         cal.getComponents().addAll(createEvents(scheduleMap));
@@ -54,6 +46,11 @@ public class OutputGenerator {
         }
         return events;
     }
-
-
+    private static Calendar createCalendar() {
+        Calendar cal = new net.fortuna.ical4j.model.Calendar();
+        cal.getProperties().add(new ProdId("-//Events Calendar//iCal4j 1.0//EN"));
+        cal.getProperties().add(Version.VERSION_2_0);
+        cal.getProperties().add(CalScale.GREGORIAN);
+        return cal;
+    }
 }

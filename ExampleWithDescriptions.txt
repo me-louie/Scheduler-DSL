@@ -16,5 +16,3 @@ Shift S3 is 10/13/2021 12:00 - 10/13/2021 13:00
 Shift Group SG1: S1, S2, S3;
 
 Apply SG1 to NewHires;
-
-

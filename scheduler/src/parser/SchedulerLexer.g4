@@ -71,7 +71,6 @@ mode DATE_MODE;
 // mm-dd-yyyy or mm/dd/yyyy
 DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9] WS*-> mode(TIME_MODE);
 
-
 mode NUM_MODE;
 NUM: [0-9]+ -> mode(DEFAULT_MODE);
 
