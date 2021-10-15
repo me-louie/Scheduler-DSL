@@ -47,8 +47,8 @@ public class OutputGenerator {
         for (Map.Entry<String, Set<ScheduledEvent>> entry : scheduleMap.entrySet()) {
             String name = entry.getKey();
             for (ScheduledEvent e : entry.getValue()) {
-                DateTime startDateTime = convertLocalDateTime(e.getStartDate());
-                DateTime endDateTime = convertLocalDateTime(e.getEndDate());
+                DateTime startDateTime = convertLocalDateTime(e.getStartDateTime());
+                DateTime endDateTime = convertLocalDateTime(e.getEndDateTime());
                 VEvent meeting = new VEvent(startDateTime, endDateTime, name + " - " + e.getTitle());
                 meeting.getProperties().add(ug.generateUid());
                 meeting.getProperties().add(new Description(e.getDescription()));
