@@ -6,7 +6,7 @@ entity          : ENTITY_START name ENDLINE;
 entity_group    : ENTITY_GROUP_START name COLON name (COMMA name)* ENDLINE;
 name            : TEXT;
 
-shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR DATE TIME ENDLINE;
+shift           : SHIFT_START name IS DATE TIME TIME_SEPERATOR DATE TIME (OPEN_QUOTE DESCRIPTION CLOSE_QUOTE)? ENDLINE;
 shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 
 set_operator    : SET_AND | SET_OR | SET_XOR | SET_EXCEPT;

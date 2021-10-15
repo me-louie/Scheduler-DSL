@@ -97,10 +97,11 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Shift visitShift(SchedulerParser.ShiftContext ctx) {
         String name = ctx.name().getText();
-        String open = ctx.DATE(0).getText() + ctx.TIME(0).getText();
-        String close = ctx.DATE(1).getText() + ctx.TIME(1).getText();
+        String begin = ctx.DATE(0).getText() + ctx.TIME(0).getText();
+        String end = ctx.DATE(1).getText() + ctx.TIME(1).getText();
+        String description = ctx.DESCRIPTION() != null ? ctx.DESCRIPTION().getText() : "";
 
-        return new Shift(name, open, close);
+        return new Shift(name, begin, end, description);
     }
 
     @Override

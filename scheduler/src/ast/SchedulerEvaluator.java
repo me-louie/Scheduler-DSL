@@ -98,9 +98,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         LocalDateTime start = shift.getBegin();
         LocalDateTime end = shift.getEnd();
         String name = shift.getName();
+        String description = shift.getDescription();
         ScheduledEvent scheduledEvent = offsetOperator != null ?
-                getShiftedScheduledEvent(name, start, end, offsetOperator, offsetAmount, timeUnit) :
-                new ScheduledEvent(shift.getBegin(), shift.getEnd(), shift.getName());
+                getShiftedScheduledEvent(name, start, end, description, offsetOperator, offsetAmount, timeUnit) :
+                new ScheduledEvent(shift.getBegin(), shift.getEnd(), shift.getName(), shift.getDescription());
 
         if (!scheduleMap.containsKey(entityName)) {
             scheduleMap.put(entityName, new HashSet<>());
@@ -239,7 +240,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             for (String e : entities) {
                 for (Shift s : shifts) {
                     ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getBegin(), s.getEnd(),
-                            l.getOffsetOperator(), i * offsetAmount, timeUnit);
+                            s.getDescription(), l.getOffsetOperator(), i * offsetAmount, timeUnit);
                     if (!scheduleMap.containsKey(e)) {
                         scheduleMap.put(e, new HashSet<>());
                     }
@@ -314,15 +315,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return value;
     }
 
-    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end,
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end, String description,
                                                     OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
         offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
         return switch (timeUnit) {
-            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title);
-            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title);
-            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title);
-            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title);
-            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title);
+            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title, description);
+            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title, description);
+            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title, description);
+            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title, description);
+            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title, description);
         };
     }
 }
