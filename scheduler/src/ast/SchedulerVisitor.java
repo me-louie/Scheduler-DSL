@@ -1,5 +1,7 @@
 package ast;
 
+import ast.math.Function;
+import ast.math.Var;
 import ast.transformation.*;
 import validate.ProgramValidationException;
 

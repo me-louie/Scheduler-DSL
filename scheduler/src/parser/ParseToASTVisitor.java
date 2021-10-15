@@ -1,6 +1,9 @@
 package parser;
 
 import ast.*;
+import ast.math.Function;
+import ast.math.MathOP;
+import ast.math.Var;
 import ast.transformation.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -20,9 +23,14 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         List<Shift> sList = new ArrayList<>();
         List<ShiftGroup> sgList = new ArrayList<>();
         List<Transformation> tList = new ArrayList<>();
-        List<Apply> applyList = new ArrayList<>();
+        //List<Apply> applyList = new ArrayList<>();
         List<Merge> mergeList = new ArrayList<>();
-        List<Loop> loopList = new ArrayList<>();
+        //List<Loop> loopList = new ArrayList<>();
+
+        List<Function> functionList = new ArrayList<>();
+
+        Map<String, Var> varMaps = new HashMap<>();
+        Map<String, Function> functionMap = new HashMap<>();
 
         Map<String, Entity> entityMap = new HashMap<>();
         Map<String, EntityGroup> entityGroupMap = new HashMap<>();
@@ -80,11 +88,21 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
                 // Need to add nested transformations to map for validation checks
                 addNestedTransformations(transformationMap, ifThenElse.getThenTransformations());
                 addNestedTransformations(transformationMap, ifThenElse.getElseTransformations());
+            } else if (e.func() != null) {
+                System.out.println("Hello program function");
+                Function func = this.visitFunc(e.func());
+                functionList.add(func);
+                functionMap.put(func.getFuncName(), func);
+            } else if (e.variable() != null) {
+                System.out.println("Hello program variable");
+                Var var = this.visitVariable(e.variable());
+                //TODO: maybe var list needed
+                varMaps.put(var.getName(), var);
             }
         }
-
-        return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList, entityMap, entityGroupMap,
-                shiftMap, shiftGroupMap, transformationMap);
+        return new Program(header, eList, eGroupList, sList, sgList, tList, mergeList,
+                functionList, entityMap, entityGroupMap, shiftMap, shiftGroupMap, transformationMap,
+                varMaps, functionMap);
     }
 
     @Override
@@ -118,8 +136,8 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Shift visitShift(SchedulerParser.ShiftContext ctx) {
         String name = ctx.name().getText();
-        System.out.println(ctx.TIME(0).getText());
-        System.out.println(ctx.DATE(1).getText());
+        //System.out.println(ctx.TIME(0).getText());
+        //System.out.println(ctx.DATE(1).getText());
         String open = ctx.DATE(0).getText() + ctx.TIME(0).getText();
         String close = ctx.DATE(1).getText() + ctx.TIME(1).getText();
         String description = "";
@@ -138,7 +156,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
         for (int i = 1; i < ctx.name().size(); i++) {
             sList.add((ctx.name(i).getText()));
-            System.out.println(ctx.name(i).getText());
+            //System.out.println(ctx.name(i).getText());
         }
 
 
@@ -168,20 +186,130 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     @Override
+    public Var visitVariable(SchedulerParser.VariableContext ctx) {
+
+        String varName = ctx.name().getText();
+        String varName2 = null;
+        System.out.println(varName);
+        System.out.println(varName2);
+        Integer num = 0;
+        if (isInt(ctx.VARORNUM().getText())) {
+            num = Integer.parseInt(ctx.VARORNUM().getText());
+        } else {
+            varName2 = ctx.VARORNUM().getText();
+            System.out.println(varName2+" HELLO THERE");
+            if (varName.equals(varName2)) {
+                throw new RuntimeException(varName + " can't be used as variable name");
+            } else if (varName2.isEmpty()){
+                varName2=null;
+            }
+        }
+        System.out.println(num);
+        return new Var(varName, num, varName2);
+    }
+
+    public boolean isInt(String str) {
+
+        try {
+            int x = Integer.parseInt(str);
+            return true; //String is an Integer
+        } catch (NumberFormatException e) {
+            return false; //String is not an Integer
+        }
+    }
+
+    @Override
+    public Node visitTimeShiftUnits(SchedulerParser.TimeShiftUnitsContext ctx) {
+        return null;
+    }
+
+    @Override
     public Apply visitApply(SchedulerParser.ApplyContext ctx) {
+        //System.out.println("hello APPLy");
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
         Integer num = null;
-        if (ctx.NUM() != null) {
-            num = Integer.parseInt(ctx.NUM().getText());
+        String varOrfuncName = null;
+        TimeUnit tU = null;
+        if (ctx.VARORNUM() != null) {
+            if (isInt(ctx.VARORNUM().getText())) {
+                num = Integer.parseInt(ctx.VARORNUM().getText());
+            } else {
+                varOrfuncName = ctx.VARORNUM().getText();
+            }
         }
         BitwiseOperator bO = null;
         if (ctx.bitwise_operator() != null) {
             bO = getBitwiseOperator(ctx.bitwise_operator().getText());
         }
-        System.out.println(num);
-        System.out.println(bO);
-        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, num, bO);
+        if (ctx.timeShiftUnits() != null) {
+            tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
+        }
+//        System.out.println(num);
+//        System.out.println(bO);
+//        System.out.println(tU);
+        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, num, bO, tU, varOrfuncName);
+    }
+
+    @Override
+    public Function visitFunc(SchedulerParser.FuncContext ctx) {
+        System.out.println("HELLO  FUNCTION");
+        String funcname = ctx.name().getText();
+        Integer num1 = null;
+        Integer num2 = null;
+        String varOrFunc1 = null;
+        String varOrFunc2 = null;
+        if (isInt(ctx.VARORNUM(0).getText())) {
+            num1 = Integer.parseInt(ctx.VARORNUM(0).getText());
+        } else {
+            varOrFunc1 = ctx.VARORNUM(0).getText();
+            if (funcname.equals(varOrFunc1) || funcname.isEmpty()) {
+                throw new RuntimeException(funcname + " can't be used as variable name");
+            }
+        }
+
+        if (isInt(ctx.VARORNUM(1).getText())) {
+            num2 = Integer.parseInt(ctx.VARORNUM(1).getText());
+        } else {
+            varOrFunc2 = ctx.VARORNUM(1).getText();
+            if (funcname.equals(varOrFunc2) || funcname.isEmpty()) {
+                throw new RuntimeException(funcname + " can't be used as variable name");
+            }
+        }
+        MathOP mathOP = getMathOp(ctx.MATH().getText());
+
+        System.out.println(funcname);
+        System.out.println(varOrFunc1);
+        System.out.println(varOrFunc2);
+        System.out.println(mathOP);
+        System.out.println(num1);
+        System.out.println(num2);
+
+        return new Function(funcname, varOrFunc1, varOrFunc2, mathOP, num1, num2);
+    }
+
+    private MathOP getMathOp(String mO) {
+        return switch (mO.trim()) {
+
+            //TODO: ADD OPTION TO WRITE PLUS OR + if we have time
+            case "+" -> MathOP.PLUS;
+            case "-" -> MathOP.MINUS;
+            case "*" -> MathOP.MULTIPLY;
+            case "/" -> MathOP.DIVIDE;
+            case "^" -> MathOP.POWER;
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
+    }
+
+    private TimeUnit getTimeShiftUnit(String tU) {
+        return switch (tU.trim()) {
+            case "HOURS" -> TimeUnit.HOURS;
+            case "DAYS" -> TimeUnit.DAYS;
+            case "WEEKS" -> TimeUnit.WEEKS;
+            case "MONTHS" -> TimeUnit.MONTHS;
+            case "YEARS" -> TimeUnit.YEARS;
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
     }
 
     @Override
@@ -197,18 +325,27 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     public Loop visitLoop(SchedulerParser.LoopContext ctx) {
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
-        Integer num = Integer.parseInt(ctx.NUM(0).getText());
-        Integer repNum = null;
-        if (ctx.NUM(1) != null) {
-            repNum = Integer.parseInt(ctx.NUM(1).getText());
+        Integer num = 0;
+        String varOrFunc = null;
+        Integer repNum = 1;
+        if (isInt(ctx.VARORNUM().getText())) {
+            num = Integer.parseInt(ctx.VARORNUM().getText());
         } else {
-            repNum = 0;
+            varOrFunc = ctx.VARORNUM().getText();
+        }
+        if (ctx.NUM() != null) {
+            repNum = Integer.parseInt(ctx.NUM().getText());
         }
         BitwiseOperator bO = getBitwiseOperator(ctx.bitwise_operator().getText());
-        System.out.println(num);
-        System.out.println(repNum);
-        System.out.println(ctx.bitwise_operator().getText());
-        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum);
+
+        TimeUnit tU = null;
+        if (ctx.timeShiftUnits() != null) {
+            tU = getTimeShiftUnit(ctx.timeShiftUnits().getText());
+        }
+        System.out.println(tU + " time UNIT");
+//        System.out.println(repNum);
+//        System.out.println(ctx.bitwise_operator().getText());
+        return new Loop(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, bO, num, repNum, varOrFunc, tU);
     }
 
     @Override
@@ -233,6 +370,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
 
     // todo: fix this so that the lexer returns bitwise/logical operators without trailing whitespace
     private BitwiseOperator getBitwiseOperator(String operator) {
+        System.out.println(operator + "OP");
         return switch (operator.trim()) { // hack to make this work for now, for some reason these are coming out
             // with WS (e.g. "AND ")
             case "<<" -> BitwiseOperator.LEFTSHIFT;
@@ -246,6 +384,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             case "AND" -> LogicalOperator.AND;
             case "OR" -> LogicalOperator.OR;
             case "XOR" -> LogicalOperator.XOR;
+            case "EXCEPT" -> LogicalOperator.EXCEPT;
             default -> throw new RuntimeException("Unrecognized logical operator");
         };
     }

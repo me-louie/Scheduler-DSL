@@ -18,11 +18,18 @@ Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S2, S4, S5;
 Shift Group SG3: S1, S3, S5;
 
-Apply SG1 to Person1;
+Apply SG1 to Person1 >> 3 DAYS;
 Apply SG2 to Person2;
 
 Merge merge1: SG1 OR SG2;
 Apply merge1 to Person3;
 
+Var x = 33;
+Var y = 55;
+Function f1 = x + 2;
+Function f2 = 2 + 2;
+
 Merge merge2: SG1 AND SG2;
-Apply merge2 to Person4;
+Apply merge2 to Person4 >> 10 DAYS;
+
+Loop SG1 over GROUPA >> 2 each person;

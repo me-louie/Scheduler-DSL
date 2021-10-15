@@ -6,10 +6,10 @@ import java.util.Objects;
 
 public class ScheduledEvent {
 
-    private Calendar startDate;
-    private Calendar endDate;
-    private String title;
-    private String description;
+    private final Calendar startDate;
+    private final Calendar endDate;
+    private final String title;
+    private final String description;
 
     public ScheduledEvent(LocalDateTime startDate, LocalDateTime endDate, String title, String description) {
         this.startDate = Calendar.getInstance();
