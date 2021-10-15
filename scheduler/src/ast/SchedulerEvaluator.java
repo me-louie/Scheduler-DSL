@@ -5,14 +5,15 @@ import ast.math.MathOperation;
 import ast.math.Variable;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
-import validate.NameNotFoundException;
 import validate.ProgramValidationException;
-import validate.ResultNotFound;
+import validate.ResultNotFoundException;
 import validate.Validator;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ast.transformation.SetOperator.*;
 
 public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
@@ -26,8 +27,11 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         p.entityGroupMap.values().forEach(eg -> eg.accept(this));
         p.shiftMap.values().forEach(s -> s.accept(this));
         p.shiftGroupMap.values().forEach(sg -> sg.accept(this));
-        p.variableMap.values().forEach(v -> v.accept(this)); // todo: implement these so that we can validate/calculate each function ahead of time, then everything that uses a function can just grab the value
+        p.variableMap.values().forEach(v -> v.accept(this));
         p.expressionMap.values().forEach(f -> f.accept(this));
+        // hack to make this work: since transformationMap makes no guarantees about the order transformations will be visited in
+        // we need to have merges done ahead of time to avoid NameNotFoundExceptions
+        p.transformationMap.get(Transformation.MERGE).forEach(m -> m.accept(this));
         p.transformationMap.values().forEach(tl -> tl.forEach(t -> t.accept(this)));
         return null;
     }
@@ -61,7 +65,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     }
 
     @Override
-    // todo: add method signatures for the transformations, or maybe this is better put as class descriptions
     public Void visit(Apply a) throws ProgramValidationException {
         Validator.validate(a);
 
@@ -71,23 +74,23 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         OffsetOperator offsetOperator = a.getOffsetOperator();
         TimeUnit timeUnit = a.getTimeUnit();
-        Integer offsetNumber = a.getVarOrExpression() != null ? varOrExpressionCheckHelper(a.getVarOrExpression()) :  a.getOffsetAmount();
+        Integer offsetAmount = a.getVarOrExpression() != null ? getVarOrExpressionFinalValue(a.getVarOrExpression()) : a.getOffsetAmount();
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetAmount, timeUnit);
         } else if (isEntity && !isShift) { // is an entity and a shift group
             for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator, offsetAmount, timeUnit);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                applyShiftToEntity(shift, entityName, offsetOperator, offsetNumber, timeUnit);
+                applyShiftToEntity(shift, entityName, offsetOperator, offsetAmount, timeUnit);
             }
         } else { // is an entity group and a shift group
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
                 for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetNumber, timeUnit);
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetAmount, timeUnit);
                 }
             }
         }
@@ -109,9 +112,22 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         scheduleMap.get(entityName).add(scheduledEvent);
     }
 
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end, String description,
+                                                    OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
+        offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
+        return switch (timeUnit) {
+            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title, description);
+            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title, description);
+            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title, description);
+            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title, description);
+            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title, description);
+        };
+    }
+
     @Override
     public Void visit(Merge m) throws ProgramValidationException {
-        // sometimes we visit nodes repeatedly, in these cases we don't want to re-put a node
+        // Check if this node has already been visited. Since merge statements can take as argument merges that haven't
+        // happened yet it's possible we visit a node multiple times. In these case skip validation/evaluation
         if (!program.shiftGroupMap.containsKey(m.getName())) {
             Validator.validate(m);
             ShiftGroup result = mergeHelper(m);
@@ -121,43 +137,28 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     }
 
     private ShiftGroup mergeHelper(Merge m) {
-        List<String> result = null;
-        String name = m.getName();
         String shiftGroupOrMergeGroupName1 = m.getShiftGroupOrMergeGroupName1();
         String shiftGroupOrMergeGroupName2 = m.getShiftGroupOrMergeGroupName2();
-        SetOperator setOperator = m.getSetOperator();
         List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName1);
         List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName2);
+        SetOperator setOperator = m.getSetOperator();
 
-        if (setOperator.equals(SetOperator.AND)) {
-            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-            resultSet.retainAll(sgomg2ShiftNames);
-            if (resultSet.isEmpty()) {
-                throw new ResultNotFound("No Union Found");
+        Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+        switch (setOperator) {
+            case AND -> resultSet.retainAll(sgomg2ShiftNames);
+            case OR -> resultSet.addAll(sgomg2ShiftNames);
+            case XOR -> {
+                Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
+                intersectionSet.retainAll(sgomg2ShiftNames); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
+                resultSet.addAll(sgomg2ShiftNames);
+                resultSet.removeAll(intersectionSet);
             }
-            result = new ArrayList<>(resultSet);
-        } else if (setOperator.equals(SetOperator.OR)) {
-            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-            resultSet.addAll(sgomg2ShiftNames);
-            result = new ArrayList<>(resultSet);
-        } else if (setOperator.equals(SetOperator.XOR)) {
-            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-            resultSet.addAll(sgomg2ShiftNames);
-            Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames); // todo: do these have to be sets?
-            intersectionSet.retainAll(new HashSet<>(sgomg2ShiftNames)); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
-            resultSet.removeAll(intersectionSet);
-            result = new ArrayList<>(resultSet);
-        } else if (setOperator.equals(SetOperator.EXCEPT)) {
-            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-            Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
-            intersectionSet.retainAll(new HashSet<>(sgomg2ShiftNames)); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
-            resultSet.removeAll(intersectionSet);
-            result = new ArrayList<>(resultSet);
-            // todo: for this does it work if we just do
-            //      Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-            //      resultSet.removeAll(sgomg2ShiftNames);
+            case EXCEPT -> resultSet.removeAll(sgomg2ShiftNames);
         }
-        return new ShiftGroup(name, result);
+        if (resultSet.isEmpty()) {
+            throw new ResultNotFoundException("Merging " + shiftGroupOrMergeGroupName1 + " " + setOperator + " " + shiftGroupOrMergeGroupName2 + " resulted in an empty set.");
+        }
+        return new ShiftGroup(m.getName(), new ArrayList<>(resultSet));
     }
 
     private List<String> getShiftGroupOrMergeGroupShifts(String shiftGroupOrMergeGroup1Name) {
@@ -199,28 +200,83 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Set<String> shiftGroup2 = new HashSet<>(program.shiftGroupMap.get(shiftGroupOrMergeGroupName2).getShifts());
         Set<String> resultantShifts = new HashSet<>(shiftGroup1);
 
-        if (setOperator == SetOperator.AND) {
-            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet()); // todo: does stream make a new list or does this alter the original? if the former then we need to change some stuff elsewhere that's working on the opposite assumption
-        } else if (setOperator == SetOperator.OR) {
+        if (setOperator == AND) {
+            resultantShifts = resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet());
+        } else if (setOperator == OR) {
             resultantShifts.addAll(shiftGroup2);
-        } else if (setOperator == SetOperator.XOR) {
+        } else if (setOperator == XOR) {
             resultantShifts.addAll(shiftGroup2);
-            shiftGroup1.retainAll(shiftGroup2);     //SG1 is the intersection
+            shiftGroup1.retainAll(shiftGroup2);     // shiftGroup1 is now the intersection of shiftGroup1 and shiftGroup2
             resultantShifts.removeAll(shiftGroup1);
-        }
+        } // todo: this doesn't take in EXCEPT, is this by design?
         cond.setState(!resultantShifts.isEmpty());
         return null;
     }
 
     @Override
-    public Void visit(Expression f) throws ProgramValidationException {
-        Validator.validate(f);
+    public Void visit(Expression e) throws ProgramValidationException {
+        // check if expression has already been visited
+        if (e.getFinalValue() != null) {
+            return null;
+        }
+        Validator.validate(e);
+
+        Integer num1 = getExpressionValue(e, true);
+        Integer num2 = getExpressionValue(e, false);
+        MathOperation mathOperation = e.mathOperation;
+        e.setFinalValue(calculateExpressionFinalValue(num1, num2, mathOperation));
         return null;
+    }
+
+    // todo: this feels like it belongs in the Expression class, same for the method below
+    // determines whether the arg to an expression is a number, variable, or another expression and returns its value
+    private Integer getExpressionValue(Expression e, boolean isFirstArg) {
+        String variableOrExpressionName = isFirstArg ? e.getVariableOrExpressionName1() : e.getVariableOrExpressionName2();
+        if (program.variableMap.containsKey(variableOrExpressionName)) { // arg to e is a variable
+            Variable variable = program.variableMap.get(variableOrExpressionName);
+            visit(variable);
+            return variable.getFinalValue();
+        } else if (program.expressionMap.containsKey(variableOrExpressionName)) { // arg to e is an expression
+            Expression expression = program.expressionMap.get(variableOrExpressionName);
+            visit(expression);
+            return expression.getFinalValue();
+        } else { // arg to e is a number
+            return isFirstArg ? e.getValue1() : e.getValue2();
+        }
+    }
+
+    private Integer calculateExpressionFinalValue(Integer num1, Integer num2, MathOperation mathOP) {
+        return switch (mathOP) {
+            case PLUS -> num1 + num2;
+            case MINUS -> num1 - num2;
+            case MULTIPLY -> num1 * num2;
+            case DIVIDE -> num1 / num2;
+            case POWER -> (int) Math.pow(num1, num2);
+        };
     }
 
     @Override
     public Void visit(Variable v) throws ProgramValidationException {
+        // check if variable has already been visited
+        if (v.getFinalValue() != null) {
+            return null;
+        }
         Validator.validate(v);
+
+        Integer finalValue;
+        String aliasName = v.getAlias();
+        if (program.variableMap.containsKey(aliasName)) { // alias is a variable
+            Variable alias = program.variableMap.get(aliasName);
+            visit(alias);
+            finalValue = alias.getFinalValue();
+        } else if (program.expressionMap.containsKey(aliasName)) { // alias is an expression
+            Expression alias = program.expressionMap.get(aliasName);
+            visit(alias);
+            finalValue = alias.getFinalValue();
+        } else { // variable doesn't have an alias, is a constant
+            finalValue = v.getValue();
+        }
+        v.setFinalValue(finalValue);
         return null;
     }
 
@@ -234,7 +290,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
         TimeUnit timeUnit = l.timeUnit;
-        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : varOrExpressionCheckHelper(l.getVarOrExpression());
+        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : getVarOrExpressionFinalValue(l.getVarOrExpression());
 
         for (int i = 0; i < l.getRepeatAmount(); i++) {
             for (String e : entities) {
@@ -251,79 +307,15 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
-    private Integer varVal(Variable var) {
-        Integer value;
-        if (var.getAlias() != null) {
-            if (program.variableMap.containsKey(var.getAlias())) {
-                value = varVal(program.variableMap.get(var.getAlias()));
-            } else {
-                throw new NameNotFoundException(var.getAlias() + " var name not present");
-            }
-        } else {
-            value = var.getValue();
-        }
-        return value;
-    }
-
-    private Integer getMathVal(Integer num1, Integer num2, MathOperation mathOP) {
-        return switch (mathOP) {
-            case PLUS -> num1 + num2;
-            case MINUS -> num1 - num2;
-            case MULTIPLY -> num1 * num2;
-            case DIVIDE -> num1 / num2;
-            case POWER -> (int) Math.pow(num1, num2);
-        };
-    }
-
-    private Integer varOrExpressionCheckHelper(String name) {
-        Integer result;
-        System.out.println(name);
+    // todo: this feels like it belongs in the Loop class, although to make it work
+    //       will probably be more work than we bargained for
+    private Integer getVarOrExpressionFinalValue(String name) {
         if (program.variableMap.containsKey(name)) {
-            result = varVal(program.variableMap.get(name));
-        } else if (program.expressionMap.containsKey(name)) {
-            result = expressionVal(program.expressionMap.get(name));
+            Variable var = program.variableMap.get(name);
+            return var.getFinalValue();
         } else {
-            throw new NameNotFoundException(name + " VAR OR EXPRESSION NAME not present");
+            Expression expression = program.expressionMap.get(name);
+            return expression.getFinalValue();
         }
-        return result;
-    }
-
-    private Integer expressionVal(Expression expression) {
-        Integer value = null, num1, num2;
-        MathOperation mathOP = expression.mathOperation;
-        if (expression.getValue1() != null && expression.getValue2() != null) {
-            num1 = expression.getValue1();
-            num2 = expression.getValue2();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() != null) {
-            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
-            num2 = expression.getValue2();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (expression.getValue1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
-            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
-            num1 = expression.getValue1();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
-            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
-            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        }
-        return value;
-    }
-
-    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end, String description,
-                                                    OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
-        offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
-        return switch (timeUnit) {
-            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title, description);
-            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title, description);
-            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title, description);
-            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title, description);
-            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title, description);
-        };
     }
 }
