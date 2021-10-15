@@ -1,44 +1,45 @@
 Source of truth for our grammar:
 
-//todo: fix grammar to reflect new changes
+program         : entity+ entity_group* shift+ shift_group* transformation*;
+entity          : 'Entity' ENTITY_NAME ';'
+entity_group    : 'Entity Group' ENTITY_GROUP_NAME ':' ENTITY_NAME (',' ENTITY_NAME)* ';';
+name            : TEXT;
 
-program: header entity+ entity_group* shift+ shift_group* transformation*; ';';
-header: ‘Title:’ TEXT ';
-entity: ‘Entity’ ENTITY_NAME ';';
-entity_group: ‘Entity group’ ENTITY_GROUP_NAME ':' ENTITY_NAME+ ';';
+shift           : 'Shift' SHIFT_NAME DATE TIME '-' DATE TIME ('"' DESCRIPTION '"')? ';';
+shift_group     : 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (',' SHIFT_NAME)* ';';
 
-shift: ‘Shift:’ SHIFT_NAME IS DATE TIME '-' DATE TIME;
-shift_group: 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (COMMA SHIFT_NAME)* ';';
+set_operator    : 'AND' | 'OR' | 'XOR' | 'EXCEPT';
+offset_operator : '<<' | '>>';
 
-logical_operator: 'AND' | 'OR' | 'XOR';
-bitwise_operator: >> | <<;
+variable        : 'Var' VARIABLE_NAME ('=' (VARIABLE_NAME | NUM))? ';'?;
+expression      : 'Expression' EXPRESSION_NAME '=' (VARIABLE_NAME | EXPRESSION_NAME | NUM) MATH (VARIABLE_NAME | EXPRESSION_NAME | NUM) ';'?;
 
-transformation: ((apply | merge | loop) ';') | ifthenelse;
+transformation  : ((apply | merge | loop | expression | variable) ';') |  ifthenelse;
+timeShiftUnits  : 'HOURS' | 'DAYS' | 'WEEKS' | 'MONTHS' | 'YEARS';
 cond_transformations: transformation*;
-
-apply: 'Apply' SHIFT_GROUP_OR_MERGE_GROUP_NAME 'to' ENTITY_OR_ENTITY_GROUP_NAME (bitwise_operator NUM)?;
-merge: 'Merge' MERGE_GROUP_NAME ':' SHIFT_GROUP_OR_MERGE_GROUP_NAME logical_operator SHIFT_GROUP_OR_MERGE_GROUP_NAME;
-loop: 'Loop' SHIFT_GROUP_OR_MERGE_GROUP_NAME 'over' ENTITY_GROUP_NAME bitwise_operator NUM 'each person' ('and repeat' NUM 'times')?;
-
-ifthenelse: 'if' cond '{'
-                    thenblock=cond_transformations
-                '} else {'
-                    elseblock=cond_transformations
-                '}';
-
-cond: '(' SHIFT_GROUP_OR_MERGE_GROUP_NAME logical_operator SHIFT_GROUP_OR_MERGE_GROUP_NAME');
-
-TEXT: [a-zA-Z ]+;
-COMMA: ',';
-
-TIME: ([01]?[0-9]|2[0-3]):[0-5][0-9];
-
-DATE: [0-2][0-9]\/[0-3][0-9]\/[0-9]{2}(?:[0-9]{2})?
-NUM: [0-9]+;
+apply           : 'Apply' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'to' (ENTITY_NAME | ENTITY_GROUP_NAME) (offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits)?;
+merge           : 'Merge' MERGE_GROUP_NAME ':' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) set_operator (SHIFT_GROUP_NAME | MERGE_GROUP_NAME);
+loop            : 'Loop' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) 'over' ENTITY_GROUP_NAME offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits 'each person' ('and repeat' NUM 'times')?;
+ifthenelse      : 'if' cond '{'
+                        cond_transformations
+                   '} else {'
+                        cond_transformations
+                   '}';
+cond            : '(' SHIFT_GROUP_NAME set_operator SHIFT_GROUP_NAME ')';
 
 ENTITY_NAME: TEXT;
 ENTITY_GROUP_NAME: TEXT;
 SHIFT_NAME: TEXT;
 SHIFT_GROUP_NAME: TEXT;
 MERGE_GROUP_NAME: TEXT;
-SHIFT_GROUP_OR_MERGE_GROUP_NAME: TEXT;
+VARIABLE_NAME: TEXT;
+EXPRESSION_NAME: TEXT;
+
+NUM: [0-9]+;
+DATE: ('0'[1-9]|'1'[012])[- /.]('0'[1-9]|[12][0-9]|'3'[01])[- /.]('19'|'20')[0-9][0-9];
+TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]);
+DESCRIPTION: ~["]+;
+
+
+
+
