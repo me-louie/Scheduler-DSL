@@ -1,3 +1,134 @@
+## Milestone 5
+
+### Progress Summary
+This week the team conducted a second round of user studies and also finished the implementation of the DSL. New 
+features from which we added include: implementing looping logic to schedule an entire group, implementing if/else 
+logic for conditional scheduling, a XOR set operator, and the ability to add custom user defined functions. Upon 
+receiving additional feedback from our TA, we also added a small feature which allows users to add descriptions 
+to their events.
+
+### Results of Final User Studies
+There was a big improvement in usability from the first user study, because we pared the grammar down from many simple,
+unintuitive rules to a few useful but complex rules. They thought it was cool that it actually outputted a file that 
+could be used in actual calendar apps and that made it seem much more useful.  
+
+Both users were confused by what we called the bitwise operator, which was used to move the start of a shift by a 
+number of days. The confusion was both due to the name, as the only connection to the bitwise operator is the symbol 
+<< and also due to the unintuitiveness of the grammar, which didn’t make it clear how the shift was shifted and what 
+unit of time. As a result, we changed the name of the operator and added to the grammar the ability to move shifts by 
+NUM TIMEUNITS, (ex. 2 days, 6 hours, etc). This will help with both useability and flexibility of the language.  
+
+User 3 mentioned that having some sort of conditional would be useful, especially in real world use cases. It would also 
+reduce repetition and the number of shift groups he had to make, by offering more specificity for scheduling shifts and 
+groups. One of the stretch goals we had discussed was an if/else. As a result of this feedback, we put it at the top of 
+the list and we were able to implement if/else in the DSL.  
+
+Another issue User 3 had was shifts being linked to a specific day. He thought there were many more real world use cases 
+for shifts that were only a block of time or linked to a day of the week. This is something we would consider changing 
+if we had more time, but linking shifts to a specific day makes the grammar much more simple, because users don’t have 
+to input dates repetitively and handling day of the week and date also caused confusion and an increase in formatting 
+issues with the first user group. We chose simplicity over expressibility in this case.  
+
+User 4 wanted to do merges on entity groups as well as shift groups, which is a logical extension of our grammar and 
+would be a good next feature to implement if we continued with this project. She also wanted the ability to create and 
+assign entities to a shift group on the same line and/or create multiple entities on the same line. Both of these would
+be good features to implement if we continued with this project.  
+
+### Planned Timeline for Remaining Days
+The team plans to complete the video presentation on Friday, October 15th. Over the weekend, we will continue to 
+refactor our code for readability and complete additional testing in preparation for the final project submission. We
+will create a README file which will describe how to use our DSL and prepare several example inputs demonstrating our
+range of features.  
+
+### User Studies
+
+**User Study 3**    
+**Task:**
+Use the above DSL to create a schedule that does the following:
+
+* Create six employees, two who are cooks, two who are waiters, 1 manager, and 1 maitred
+* Creates three shifts (12-4, 4-8, 8-12) on october 1 and two shifts (4-8, 8-12) on Oct 2.  
+Schedule:  
+  * 1 waiter for the 4-8 and 8-12 shifts,
+  * 2 cooks for the 12-4 and 4-8 shifts
+  * 1 manager for all of the shifts.
+  * Repeat the shifts every week for a month. Waiters should all get similar numbers of shifts
+
+**Summary:**  
+User 3 is a project manager at a software company. He has programming experience and manages a small team.
+
+User 3 was able to pick up and use the grammar quicker than users in the first study, due to a shift in focus to fewer 
+commands but more complexity in the commands. Formatting was generally fine, although he tried to create an Entity with
+white space in the name. He relied heavily on copying and editing from examples.   
+
+He found the use of terms like ‘logical operator’ and ‘bitwise operator’ was not consistent with normal use of those 
+terms and was confusing, especially ‘bitwise operator.’ Like the other user study found, it was not easy to understand 
+what the ‘bitwise operator’ would do and referencing shifting bits made it worse. Renaming it to ‘shift by’ DAYS or 
+‘shift by’ HOURS could improve this. An easy change would be to make it more clear that any time Entity is used,
+Entity Group can also be used.  
+
+His main opinion was that shifts should not be linked to a specific day. Being able to assign a group of people a
+specific shift and repeat that was very useful. For example, assign all cooks to a shift from 0800-1200 every Monday 
+or assigning waiters to a shift from 1700-200 for the next three days was a useful real world case, but having to link 
+that to a specific date was frustrating.  
+	
+He also mentioned that having an if statement would be really useful, which is something we had discussed as a possible
+feature. Being able to include a shift or an entity based on a condition would help and seemed like a common use case.
+
+**Comments from User 3:**
+* Dates should be standard ISO format, why aren’t they ISO, etc?
+* At least times are in 24hr clock, that’s good
+* I want to apply logical operators to entities, for example Apply shift1 to cook1 AND cook2
+* Can I just use Entity Groups for Entity, so I can apply a shift group to a entity group
+* Does looping apply all shifts to each entity or 1 shift from group to each entity in group?
+* No way to say I want multiple shifts to apply to a group and ALSO repeat and/or shift by days. This would help a lot.
+
+**User Study 4**  
+**Task:**
+Use the above DSL to create a schedule that does the following:
+
+* Create five employees, two of whom are waiters, two are cooks, and 1 is a manager
+* Creates two shifts (8-12, 12-4) on october 1 and two shifts (8-12, 12-4, 4-8) on Oct 2.
+* Schedule 1 employees to fill the above shifts and repeat every 7 days for different employees for 1 month
+* Schedule 2 cooks for the 8-12 and 12-4 shifts
+* Schedule 1 waiter for 12-4 and 4-8 shifts
+* Schedule 1 manager on every shift
+
+**Summary:**  
+User 4 is a junior software dev. She also has prior experience scheduling employees in retail settings.
+
+Overall, User 4  found the grammar easier to decipher and use than in previous iterations, but there was confusion about
+how transformations works. The grammar is more straightforward now and users don’t have to distinguish between many
+different rules, but figuring out what the output from a merge is and where to use it was not clear. Being able to
+create multiple entities on the same line would improve it and that is one change we could make. Similarly, the ability
+to assign entities to shift groups when they are created as well as add entities on a line would be a good improvement.
+
+User 4 thought that the most straightforward way to make a schedule was to brute force it and assign every shift 
+individually, but that was tedious, so the transformations seemed more promising. She originally wanted to create 
+repeating shifts through loops and store it in a shift group which isn’t possible currently but makes sense as a
+feature. Loop was the transformation that was the most useful and saved work, by taking out repetition. She also wanted 
+to be able to do the merge action on entity groups which could be a good extension of our DSL. 
+	
+She also wanted a default shift group that referred to all shifts. 
+
+Formatting issues were much less common than the previous user studies. Partly this is due to the examples being easier
+to copy and alter, partly due to less rules and removing days of the week.  
+
+Getting a file that is an actual calendar (in google calendar or other programs) at the end was cool and seemed useful.
+
+**Comments from User 4**:
+* What’s the date format? Which is month/day?
+* Being able to create multiple entities on one line would be much nicer, esp. If we could assign groups at the same time that would be nice
+* We previously had roles that could be assigned when creating an entity, is that easy to re-add?
+* Creating entities on the same line seems like a possible easy addition
+* Entity Amy, Bob, Clara;
+* Do I have to create a shift group for all the shifts? It would be useful to be able to refer to ALL shifts automatically with a keyword
+* How do I know if this will work?
+* UI detail, not implementation, but documentation for users should include what happens if input is invalid
+* What are merges for??? Can I use merge transformations on employee groups?
+* Loop syntax would make more sense if it used more natural language
+
+
 ## Milestone 4
 
 ### Progress Summary
