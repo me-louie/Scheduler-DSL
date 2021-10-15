@@ -4,47 +4,47 @@ import ast.SchedulerVisitor;
 
 public class Loop extends Transformation {
 
-    private final String nameSSG;
-    private final String nameEEG;
-    private final BitwiseOperator b0;
-    private final Integer num;
-    private final Integer repNum;
-    private final String varOrFunc;
+    private final String shiftOrShiftGroupOrMergeGroupName;
+    private final String entityOrEntityGroupName;
+    private final OffsetOperator offsetOperator;
+    private final Integer offsetAmount;
+    private final Integer repeatAmount;
+    private final String varOrExpression;
     public TimeUnit timeUnit;
 
-    public Loop(String nameSSG, String nameEEG, BitwiseOperator b0, Integer num, Integer repNum, String varOrFunc,
+    public Loop(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, OffsetOperator offsetOperator, Integer offsetAmount, Integer repeatAmount, String varOrExpression,
                 TimeUnit timeUnit) {
-        this.nameSSG = nameSSG;
-        this.nameEEG = nameEEG;
-        this.b0 = b0;
-        this.num = num;
-        this.repNum = repNum;
-        this.varOrFunc = varOrFunc;
+        this.shiftOrShiftGroupOrMergeGroupName = shiftOrShiftGroupOrMergeGroupName;
+        this.entityOrEntityGroupName = entityOrEntityGroupName;
+        this.offsetOperator = offsetOperator;
+        this.offsetAmount = offsetAmount;
+        this.repeatAmount = repeatAmount;
+        this.varOrExpression = varOrExpression;
         this.timeUnit = timeUnit;
     }
 
-    public String getNameSSG() {
-        return nameSSG;
+    public String getShiftOrShiftGroupOrMergeGroupName() {
+        return shiftOrShiftGroupOrMergeGroupName;
     }
 
-    public String getNameEEG() {
-        return nameEEG;
+    public String getEntityOrEntityGroupName() {
+        return entityOrEntityGroupName;
     }
 
-    public BitwiseOperator getB0() {
-        return b0;
+    public OffsetOperator getOffsetOperator() {
+        return offsetOperator;
     }
 
-    public Integer getNum() {
-        return num;
+    public Integer getOffsetAmount() {
+        return offsetAmount;
     }
 
-    public Integer getRepNum() {
-        return repNum;
+    public Integer getRepeatAmount() {
+        return repeatAmount;
     }
 
-    public String getVarOrFunc() {
-        return varOrFunc;
+    public String getVarOrExpression() {
+        return varOrExpression;
     }
 
     @Override

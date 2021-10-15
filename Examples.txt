@@ -1,4 +1,3 @@
-Title: ExampleSchedule;
 Entity Person1;
 Entity Person2;
 Entity Person3;
@@ -26,8 +25,8 @@ Apply merge1 to Person3;
 
 Var x = 33;
 Var y = 55;
-Function f1 = x + 2;
-Function f2 = 2 + 2;
+Expression f1 = x + 2;
+Expression f2 = 2 + 2;
 
 Merge merge2: SG1 AND SG2;
 Apply merge2 to Person4 >> 10 DAYS;

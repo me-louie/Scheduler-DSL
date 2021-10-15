@@ -1,8 +1,8 @@
 package ast;
 
-import ast.math.Function;
-import ast.math.MathOP;
-import ast.math.Var;
+import ast.math.Expression;
+import ast.math.MathOperation;
+import ast.math.Variable;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
 import validate.NameNotFoundException;
@@ -18,175 +18,162 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     // map of entity name to a set of all their scheduled events
     public Map<String, Set<ScheduledEvent>> scheduleMap = new HashMap<>();
-    Program program;
-    Validator validator;
+    Program program = Program.getInstance();
 
     @Override
     public Void visit(Program p) throws ProgramValidationException {
-        program = p;
-        validator = new Validator(p);
-        p.getHeader().accept(this);
-        p.getEntities().forEach(e -> e.accept(this));
-        p.getEntityGroups().forEach(eg -> eg.accept(this));
-        p.getShifts().forEach(s -> s.accept(this));
-        p.getShiftGroups().forEach(sg -> sg.accept(this));
-        p.getTransformations().forEach(t -> t.accept(this));
-        return null;
-    }
-
-    @Override
-    public Void visit(Header h) {
-        // we don't actually use this for anything
+        p.entityMap.values().forEach(e -> e.accept(this));
+        p.entityGroupMap.values().forEach(eg -> eg.accept(this));
+        p.shiftMap.values().forEach(s -> s.accept(this));
+        p.shiftGroupMap.values().forEach(sg -> sg.accept(this));
+        p.variableMap.values().forEach(v -> v.accept(this)); // todo: implement these so that we can validate/calculate each function ahead of time, then everything that uses a function can just grab the value
+        p.expressionMap.values().forEach(f -> f.accept(this));
+        p.transformationMap.values().forEach(tl -> tl.forEach(t -> t.accept(this)));
         return null;
     }
 
     @Override
     public Void visit(Entity e) throws ProgramValidationException {
-        validator.validate(e);
+        Validator.validate(e);
         // no evaluation
         return null;
     }
 
     @Override
     public Void visit(EntityGroup eg) throws ProgramValidationException {
-        validator.validate(eg);
+        Validator.validate(eg);
         // no evaluation
         return null;
     }
 
     @Override
     public Void visit(Shift s) throws ProgramValidationException {
-        validator.validate(s);
+        Validator.validate(s);
         // no evaluation
         return null;
     }
 
     @Override
     public Void visit(ShiftGroup sg) throws ProgramValidationException {
-        validator.validate(sg);
+        Validator.validate(sg);
         // no evaluation
         return null;
     }
 
-    private Integer varVal(Var var) {
-        Integer value = null;
-        System.out.println(var.getName2() + " IN VAR VAL");
-        if (var.getName2() != null) {
-            if (program.varMaps.containsKey(var.getName2())) {
-                value = varVal(program.varMaps.get(var.getName2()));
-            } else {
-                throw new NameNotFoundException(var.getName2() + " var name not present");
-            }
-        } else {
-            value = var.getNum();
-        }
-        return value;
-    }
-
-    private Integer getMathVal(Integer num1, Integer num2, MathOP mathOP) {
-        Integer result = null;
-        return switch (mathOP) {
-            case PLUS -> result = num1 + num2;
-            case MINUS -> result = num1 - num2;
-            case MULTIPLY -> result = num1 * num2;
-            case DIVIDE -> result = num1 / num2;
-            case POWER -> result = (int) Math.pow(num1, num2);
-            default -> throw new RuntimeException("Unrecognized MathOP");
-        };
-    }
-
-    private Integer varOrfuncCheckHelper(String name) {
-        Integer result = null;
-        System.out.println(name);
-        if (program.varMaps.containsKey(name)) {
-            result = varVal(program.varMaps.get(name));
-        } else if (program.functionMap.containsKey(name)) {
-            result = funcVal(program.functionMap.get(name));
-        } else {
-            throw new NameNotFoundException(name + " VAR OR FUNCTION NAME not present");
-        }
-
-        return result;
-    }
-
-    private Integer funcVal(Function func) {
-        Integer value = null;
-        Integer num1 = null;
-        Integer num2 = null;
-        MathOP mathOP = func.mathOP;
-        if (func.getNum1() != null && func.getNum2() != null) {
-            num1 = func.getNum1();
-            num2 = func.getNum2();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() != null) {
-            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
-            num2 = func.getNum2();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (func.getNum1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
-            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
-            num1 = func.getNum1();
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        } else if (func.getNum1() == null && func.getVarOrFuncName1() != null && func.getNum2() == null && func.getVarOrFuncName2() != null) {
-            num1 = varOrfuncCheckHelper(func.getVarOrFuncName1());
-            num2 = varOrfuncCheckHelper(func.getVarOrFuncName2());
-            value = getMathVal(num1, num2, mathOP);
-            System.out.println(value);
-        }
-        return value;
-    }
-
     @Override
+    // todo: add method signatures for the transformations, or maybe this is better put as class descriptions
     public Void visit(Apply a) throws ProgramValidationException {
-        validator.validate(a);
+        Validator.validate(a);
 
-        String entityOrEntityGroupName = a.getNameEEG();
-        String shiftOrShiftGroupName = a.getNameSGMG();
+        String entityOrEntityGroupName = a.getEntityOrEntityGroupName();
+        String shiftOrShiftGroupName = a.getShiftOrShiftGroupOrMergeGroupName();
         boolean isEntity = program.entityMap.containsKey(entityOrEntityGroupName);
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
-        BitwiseOperator b0 = a.getbO();
-        Integer num = a.getNum();
-        if (a.getVarOrFunc() != null) {
-            num = varOrfuncCheckHelper(a.getVarOrFunc());
-        }
-        System.out.println(num + " this num in evaluator apply");
-        TimeUnit tU = a.getTimeUnit();
+        OffsetOperator offsetOperator = a.getOffsetOperator();
+        TimeUnit timeUnit = a.getTimeUnit();
+        Integer offsetNumber = a.getVarOrExpression() != null ? varOrExpressionCheckHelper(a.getVarOrExpression()) :  a.getOffsetAmount();
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, b0, num, tU);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
         } else if (isEntity && !isShift) { // is an entity and a shift group
-            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, b0, num, tU);
+            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator, offsetNumber, timeUnit);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                applyShiftToEntity(shift, entityName, b0, num, tU);
+                applyShiftToEntity(shift, entityName, offsetOperator, offsetNumber, timeUnit);
             }
         } else { // is an entity group and a shift group
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShiftList()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, b0, num, tU);
+                for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetNumber, timeUnit);
                 }
             }
         }
         return null;
     }
 
+    private void applyShiftToEntity(Shift shift, String entityName, OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
+        LocalDateTime start = shift.getBegin();
+        LocalDateTime end = shift.getEnd();
+        String name = shift.getName();
+        String description = shift.getDescription();
+        ScheduledEvent scheduledEvent = offsetOperator != null ?
+                getShiftedScheduledEvent(name, start, end, description, offsetOperator, offsetAmount, timeUnit) :
+                new ScheduledEvent(shift.getBegin(), shift.getEnd(), shift.getName(), shift.getDescription());
+
+        if (!scheduleMap.containsKey(entityName)) {
+            scheduleMap.put(entityName, new HashSet<>());
+        }
+        scheduleMap.get(entityName).add(scheduledEvent);
+    }
+
     @Override
     public Void visit(Merge m) throws ProgramValidationException {
-        validator.validate(m);
-        ShiftGroup sgResult = mergeHelper(m);
-        program.shiftGroupMap.put(sgResult.getName(), sgResult);
-        program.getShiftGroups().add(sgResult);
+        // sometimes we visit nodes repeatedly, in these cases we don't want to re-put a node
+        if (!program.shiftGroupMap.containsKey(m.getName())) {
+            Validator.validate(m);
+            ShiftGroup result = mergeHelper(m);
+            program.shiftGroupMap.put(result.getName(), result);
+        }
         return null;
+    }
+
+    private ShiftGroup mergeHelper(Merge m) {
+        List<String> result = null;
+        String name = m.getName();
+        String shiftGroupOrMergeGroupName1 = m.getShiftGroupOrMergeGroupName1();
+        String shiftGroupOrMergeGroupName2 = m.getShiftGroupOrMergeGroupName2();
+        SetOperator setOperator = m.getSetOperator();
+        List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName1);
+        List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName2);
+
+        if (setOperator.equals(SetOperator.AND)) {
+            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+            resultSet.retainAll(sgomg2ShiftNames);
+            if (resultSet.isEmpty()) {
+                throw new ResultNotFound("No Union Found");
+            }
+            result = new ArrayList<>(resultSet);
+        } else if (setOperator.equals(SetOperator.OR)) {
+            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+            resultSet.addAll(sgomg2ShiftNames);
+            result = new ArrayList<>(resultSet);
+        } else if (setOperator.equals(SetOperator.XOR)) {
+            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+            resultSet.addAll(sgomg2ShiftNames);
+            Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames); // todo: do these have to be sets?
+            intersectionSet.retainAll(new HashSet<>(sgomg2ShiftNames)); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
+            resultSet.removeAll(intersectionSet);
+            result = new ArrayList<>(resultSet);
+        } else if (setOperator.equals(SetOperator.EXCEPT)) {
+            Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+            Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
+            intersectionSet.retainAll(new HashSet<>(sgomg2ShiftNames)); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
+            resultSet.removeAll(intersectionSet);
+            result = new ArrayList<>(resultSet);
+            // todo: for this does it work if we just do
+            //      Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+            //      resultSet.removeAll(sgomg2ShiftNames);
+        }
+        return new ShiftGroup(name, result);
+    }
+
+    private List<String> getShiftGroupOrMergeGroupShifts(String shiftGroupOrMergeGroup1Name) {
+        // the args of a merge can either be shiftgroups or other merges, determine which this is
+        if (!program.shiftGroupMap.containsKey(shiftGroupOrMergeGroup1Name)) {
+            Merge merge = (Merge) program.transformationMap.get(Transformation.MERGE)
+                    .stream().filter(mrg -> mrg.getName().equals(shiftGroupOrMergeGroup1Name)).findAny().get();
+            ShiftGroup mergeResult = mergeHelper(merge);
+            return mergeResult.getShifts();
+        }
+        return program.shiftGroupMap.get(shiftGroupOrMergeGroup1Name).getShifts();
     }
 
     @Override
     public Void visit(IfThenElse ifThenElse) throws ProgramValidationException {
-        validator.validate(ifThenElse);
+        Validator.validate(ifThenElse);
         // Evaluate the conditional
         ifThenElse.getCond().accept(this);
         boolean condValue = ifThenElse.getCond().getState();
@@ -204,21 +191,19 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     @Override
     public Void visit(Cond cond) throws ProgramValidationException {
-        LogicalOperator logicalOperator = cond.getOperator();
-        String shiftGroupOrMergeGroupName1 = cond.getNameSGMG1();
-        String shiftGroupOrMergeGroupName2 = cond.getNameSGMG2();
+        SetOperator setOperator = cond.getSetOperator();
+        String shiftGroupOrMergeGroupName1 = cond.getShiftGroupOrMergeGroupName1();
+        String shiftGroupOrMergeGroupName2 = cond.getShiftGroupOrMergeGroupName2();
 
-        Set<String> shiftGroup1 =
-                program.shiftGroupMap.get(shiftGroupOrMergeGroupName1).getShiftList().stream().collect(Collectors.toSet());
-        Set<String> shiftGroup2 =
-                program.shiftGroupMap.get(shiftGroupOrMergeGroupName2).getShiftList().stream().collect(Collectors.toSet());
+        Set<String> shiftGroup1 = new HashSet<>(program.shiftGroupMap.get(shiftGroupOrMergeGroupName1).getShifts());
+        Set<String> shiftGroup2 = new HashSet<>(program.shiftGroupMap.get(shiftGroupOrMergeGroupName2).getShifts());
         Set<String> resultantShifts = new HashSet<>(shiftGroup1);
 
-        if (logicalOperator == LogicalOperator.AND) {
-            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet());
-        } else if (logicalOperator == LogicalOperator.OR) {
+        if (setOperator == SetOperator.AND) {
+            resultantShifts.stream().filter(shiftGroup2::contains).collect(Collectors.toSet()); // todo: does stream make a new list or does this alter the original? if the former then we need to change some stuff elsewhere that's working on the opposite assumption
+        } else if (setOperator == SetOperator.OR) {
             resultantShifts.addAll(shiftGroup2);
-        } else if (logicalOperator == LogicalOperator.XOR) {
+        } else if (setOperator == SetOperator.XOR) {
             resultantShifts.addAll(shiftGroup2);
             shiftGroup1.retainAll(shiftGroup2);     //SG1 is the intersection
             resultantShifts.removeAll(shiftGroup1);
@@ -227,346 +212,118 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
-    private ShiftGroup mergeHelper(Merge m) {
-        // create a new shift group
-        List<String> result = null;
-        String name = m.getName();
-        String ShiftGroupNameOrM1 = m.getNameSGS1();
-        String ShiftGroupNameOrMergeName = m.getNameSGS2();
-        LogicalOperator lo = m.getlO();
-        //Checking if the second name was a merge name
-        boolean isSG1 = false;
-        boolean isSG2 = false;
-        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrM1)) {
-            isSG1 = true;
-        }
-        if (program.shiftGroupMap.containsKey(ShiftGroupNameOrMergeName)) {
-            isSG2 = true;
-        }
-        boolean isMergeName1 = false;
-        boolean isMergeName2 = false;
-        Merge mergeObject1 = null;
-        Merge mergeObject2 = null;
-        for (Merge x : program.getMergeList()) {
-            if ((x.getName()).equals(ShiftGroupNameOrM1)) {
-                isMergeName1 = true;
-                mergeObject1 = x;
-            }
-            if ((x.getName()).equals(ShiftGroupNameOrMergeName)) {
-                isMergeName2 = true;
-                mergeObject2 = x;
-            }
+    @Override
+    public Void visit(Expression f) throws ProgramValidationException {
+        Validator.validate(f);
+        return null;
+    }
 
-        }
-        if (isSG1 && isSG2) {
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
-            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
-            if (lo.equals(LogicalOperator.AND)) {
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2);
-                System.out.println(shiftNamesSG1);
-                if (!shiftNamesSG1.isEmpty()) {
-                    result = new ArrayList<>(set1);
-                    System.out.println(result);
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
-                    throw new ResultNotFound("No Union Found");
-                }
-            } else if (lo.equals(LogicalOperator.OR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                result = new ArrayList<>(set);
-                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
-                System.out.println(shiftNamesSG2);
-                System.out.println(result);
-                //Collections.sort(result); Maybe want to sort results
-            } else if (lo.equals(LogicalOperator.XOR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
-                System.out.println(shiftNamesSG1);
-                System.out.println(shiftNamesSG2);
-                System.out.println(result + " Result");
-            } else if (lo.equals(LogicalOperator.EXCEPT)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                System.out.println(program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList());
-                System.out.println(shiftNamesSG1);
-                System.out.println(shiftNamesSG2);
-                result = new ArrayList<>(set);
-                System.out.println(result);
-
-            } else {
-                //TODO: Maybe throw operator not found exception.
-            }
-        } else if (isMergeName2 && !isMergeName1 && isSG1) {
-            List<String> shiftNamesSG1 = program.shiftGroupMap.get(ShiftGroupNameOrM1).getShiftList();
-            ShiftGroup sg2 = mergeHelper(mergeObject2);
-            List<String> shiftNamesSG2 = sg2.getShiftList();
-            if (lo.equals(LogicalOperator.AND)) {
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2);
-                System.out.println(shiftNamesSG1);
-                if (!shiftNamesSG1.isEmpty()) {
-                    result = new ArrayList<>(set1);
-                    System.out.println(result);
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
-                    throw new ResultNotFound("No Union Found");
-                }
-            } else if (lo.equals(LogicalOperator.OR)) {
-
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.XOR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.EXCEPT)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-
-            } else {
-                //TODO: Maybe throw operator not found exception.
-            }
-        } else if (isMergeName1 && !isMergeName2 && isSG2) {
-            ShiftGroup sg1 = mergeHelper(mergeObject1);
-            List<String> shiftNamesSG1 = sg1.getShiftList();
-            List<String> shiftNamesSG2 = program.shiftGroupMap.get(ShiftGroupNameOrMergeName).getShiftList();
-            if (lo.equals(LogicalOperator.AND)) {
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2);
-                System.out.println(shiftNamesSG1);
-                if (!shiftNamesSG1.isEmpty()) {
-                    result = new ArrayList<>(set1);
-                    System.out.println(result);
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
-                    throw new ResultNotFound("No Union Found");
-                }
-            } else if (lo.equals(LogicalOperator.OR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.XOR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.EXCEPT)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-
-            } else {
-                //TODO: Maybe throw operator not found exception.
-            }
-        } else if (isMergeName1 && isMergeName2) {
-            ShiftGroup sg1 = mergeHelper(mergeObject1);
-            List<String> shiftNamesSG1 = sg1.getShiftList();
-            ShiftGroup sg2 = mergeHelper(mergeObject2);
-            List<String> shiftNamesSG2 = sg2.getShiftList();
-            if (lo.equals(LogicalOperator.AND)) {
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2);
-                System.out.println(shiftNamesSG1);
-                if (!shiftNamesSG1.isEmpty()) {
-                    result = new ArrayList<>(set1);
-                    System.out.println(result);
-                    System.out.println(shiftNamesSG1 + " Changed?");//Union of results.
-                } else {
-                    throw new ResultNotFound("No Union Found");
-                }
-            } else if (lo.equals(LogicalOperator.OR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.XOR)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                set.addAll(shiftNamesSG2);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-            } else if (lo.equals(LogicalOperator.EXCEPT)) {
-                Set<String> set = new HashSet<>();
-                set.addAll(shiftNamesSG1);
-                Set<String> set1 = new HashSet<>();
-                set1.addAll(shiftNamesSG1);
-                Set<String> set2 = new HashSet<>();
-                set2.addAll(shiftNamesSG2);
-                set1.retainAll(set2); //set1 is an intersection
-                set.removeAll(set1);
-                result = new ArrayList<>(set);
-
-            } else {
-                //TODO: Maybe throw operator not found exception.
-            }
-        } else {
-            throw new NameNotFoundException("Shift Group or Merge Name not found");
-        }
-        return new ShiftGroup(name, result);
+    @Override
+    public Void visit(Variable v) throws ProgramValidationException {
+        Validator.validate(v);
+        return null;
     }
 
     @Override
     public Void visit(Loop l) throws ProgramValidationException {
-        validator.validate(l);
+        Validator.validate(l);
 
-        List<String> entities = program.entityGroupMap.get(l.getNameEEG()).getEntities();
-//        List<Entity> entities = program.entityMap.entrySet().stream().filter(e -> entityList.contains(e.getKey()))
-//                .map(Map.Entry::getValue)
-//                .collect(Collectors.toList());
-
-        List<String> shiftList = program.shiftGroupMap.get(l.getNameSSG()).getShiftList();
-        System.out.println(shiftList);
+        List<String> entities = program.entityGroupMap.get(l.getEntityOrEntityGroupName()).getEntities();
+        List<String> shiftList = program.shiftGroupMap.get(l.getShiftOrShiftGroupOrMergeGroupName()).getShifts();
         List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
-        System.out.println(shifts);
+        TimeUnit timeUnit = l.timeUnit;
+        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : varOrExpressionCheckHelper(l.getVarOrExpression());
 
-        Integer i = 0;
-        Integer repeat = 0;
-
-        TimeUnit tU = l.timeUnit;
-        Integer num = l.getNum();
-        if (l.getVarOrFunc() != null) {
-            num = varOrfuncCheckHelper(l.getVarOrFunc());
-        }
-        System.out.println(num + " this num in evaluator loop");
-
-        while (repeat < l.getRepNum()) {
-
+        for (int i = 0; i < l.getRepeatAmount(); i++) {
             for (String e : entities) {
-
                 for (Shift s : shifts) {
-
-                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getOpen(), s.getClose(),
-                            s.getDescription(), l.getB0(), i, tU);
-//                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(i),
-//                                                                        s.getClose().plusDays(i),
-//                                                                        s.getName());
+                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getBegin(), s.getEnd(),
+                            s.getDescription(), l.getOffsetOperator(), i * offsetAmount, timeUnit);
                     if (!scheduleMap.containsKey(e)) {
                         scheduleMap.put(e, new HashSet<>());
                     }
                     scheduleMap.get(e).add(scheduledEvent);
                 }
-
-                i += num;
-                // if (l.getB0() == BitwiseOperator.RIGHTSHIFT) {
-                //     i += num;
-                // } else {
-                //     i -= num;
-                // }
             }
-            repeat++;
         }
-
         return null;
     }
 
-    void applyShiftToEntity(Shift shift, String entityName, BitwiseOperator bO, Integer num, TimeUnit tU) {
-        ScheduledEvent scheduledEvent;
-
-        LocalDateTime start = shift.getOpen();
-        LocalDateTime end = shift.getClose();
-        String name = shift.getName();
-        String description = shift.getDescription();
-        if (bO != null) {
-            scheduledEvent = getShiftedScheduledEvent(name, start, end, description, bO, num, tU);
+    private Integer varVal(Variable var) {
+        Integer value;
+        if (var.getAlias() != null) {
+            if (program.variableMap.containsKey(var.getAlias())) {
+                value = varVal(program.variableMap.get(var.getAlias()));
+            } else {
+                throw new NameNotFoundException(var.getAlias() + " var name not present");
+            }
         } else {
-            scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName(),
-                    shift.getDescription());
+            value = var.getValue();
         }
-
-        // todo: change LocalDateTime to Calendar from the get go so this works
-        if (!scheduleMap.containsKey(entityName)) {
-            scheduleMap.put(entityName, new HashSet<>());
-        }
-        scheduleMap.get(entityName).add(scheduledEvent);
+        return value;
     }
 
-    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime start, LocalDateTime end,
-                                                    String description,
-                                                    BitwiseOperator b0, Integer num, TimeUnit tU) {
-        return switch (tU) {
-            case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num),
-                    end.minusHours(num), title, description) : new ScheduledEvent(start.plusHours(num),
-                    end.plusHours(num), title, description);
-            case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num),
-                    end.minusDays(num), title, description) : new ScheduledEvent(start.plusDays(num),
-                    end.plusDays(num), title, description);
-            case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num),
-                    end.minusWeeks(num), title, description) : new ScheduledEvent(start.plusWeeks(num),
-                    end.plusWeeks(num), title, description);
-            case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num),
-                    end.minusMonths(num), title, description) : new ScheduledEvent(start.plusMonths(num),
-                    end.plusMonths(num),
-                    title, description);
-            case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num),
-                    end.minusYears(num), title, description) : new ScheduledEvent(start.plusYears(num),
-                    end.plusYears(num), title, description);
-            default -> throw new RuntimeException("Unrecognized time unit");
+    private Integer getMathVal(Integer num1, Integer num2, MathOperation mathOP) {
+        return switch (mathOP) {
+            case PLUS -> num1 + num2;
+            case MINUS -> num1 - num2;
+            case MULTIPLY -> num1 * num2;
+            case DIVIDE -> num1 / num2;
+            case POWER -> (int) Math.pow(num1, num2);
+        };
+    }
+
+    private Integer varOrExpressionCheckHelper(String name) {
+        Integer result;
+        System.out.println(name);
+        if (program.variableMap.containsKey(name)) {
+            result = varVal(program.variableMap.get(name));
+        } else if (program.expressionMap.containsKey(name)) {
+            result = expressionVal(program.expressionMap.get(name));
+        } else {
+            throw new NameNotFoundException(name + " VAR OR EXPRESSION NAME not present");
+        }
+        return result;
+    }
+
+    private Integer expressionVal(Expression expression) {
+        Integer value = null, num1, num2;
+        MathOperation mathOP = expression.mathOperation;
+        if (expression.getValue1() != null && expression.getValue2() != null) {
+            num1 = expression.getValue1();
+            num2 = expression.getValue2();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() != null) {
+            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
+            num2 = expression.getValue2();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (expression.getValue1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
+            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
+            num1 = expression.getValue1();
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        } else if (expression.getValue1() == null && expression.getVariableOrExpressionName1() != null && expression.getValue2() == null && expression.getVariableOrExpressionName2() != null) {
+            num1 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName1());
+            num2 = varOrExpressionCheckHelper(expression.getVariableOrExpressionName2());
+            value = getMathVal(num1, num2, mathOP);
+            System.out.println(value);
+        }
+        return value;
+    }
+
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end, String description,
+                                                    OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
+        offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
+        return switch (timeUnit) {
+            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title, description);
+            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title, description);
+            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title, description);
+            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title, description);
+            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title, description);
         };
     }
 }

@@ -1,6 +1,6 @@
 package ast.transformation;
 
-public enum LogicalOperator {
+public enum SetOperator {
     AND,
     OR,
     XOR,

@@ -5,27 +5,27 @@ import ast.SchedulerVisitor;
 
 public class Cond extends Node {
 
-    private LogicalOperator operator;
-    private String nameSGMG1;
-    private String nameSGMG2;
+    private SetOperator setOperator;
+    private String shiftGroupOrMergeGroupName1;
+    private String shiftGroupOrMergeGroupName2;
     private boolean state;
 
-    public Cond(LogicalOperator operator, String nameSSG1, String nameSSG2) {
-        this.operator = operator;
-        this.nameSGMG1 = nameSSG1;
-        this.nameSGMG2 = nameSSG2;
+    public Cond(SetOperator setOperator, String shiftGroupOrMergeGroupName1, String shiftGroupOrMergeGroupName2) {
+        this.setOperator = setOperator;
+        this.shiftGroupOrMergeGroupName1 = shiftGroupOrMergeGroupName1;
+        this.shiftGroupOrMergeGroupName2 = shiftGroupOrMergeGroupName2;
     }
 
-    public LogicalOperator getOperator() {
-        return operator;
+    public SetOperator getSetOperator() {
+        return setOperator;
     }
 
-    public String getNameSGMG1() {
-        return nameSGMG1;
+    public String getShiftGroupOrMergeGroupName1() {
+        return shiftGroupOrMergeGroupName1;
     }
 
-    public String getNameSGMG2() {
-        return nameSGMG2;
+    public String getShiftGroupOrMergeGroupName2() {
+        return shiftGroupOrMergeGroupName2;
     }
 
     public void setState(boolean state) {
