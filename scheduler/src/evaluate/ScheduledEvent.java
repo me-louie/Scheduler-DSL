@@ -1,35 +1,27 @@
 package evaluate;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Objects;
 
 public class ScheduledEvent {
 
-    private final Calendar startDate;
-    private final Calendar endDate;
+    private final LocalDateTime startDate;
+    private final LocalDateTime endDate;
     private final String title;
     private final String description;
 
     public ScheduledEvent(LocalDateTime startDate, LocalDateTime endDate, String title, String description) {
-        this.startDate = Calendar.getInstance();
-        this.startDate.clear();
-        // we subtract 1 from month because LocalDateTime uses one-based indexing, Calendar zero-based
-        this.startDate.set(startDate.getYear(), startDate.getMonthValue() - 1, startDate.getDayOfMonth(),
-                startDate.getHour(), startDate.getMinute(), startDate.getSecond());
-        this.endDate = Calendar.getInstance();
-        this.endDate.clear();
-        this.endDate.set(endDate.getYear(), endDate.getMonthValue() - 1, endDate.getDayOfMonth(),
-                endDate.getHour(), endDate.getMinute(), endDate.getSecond());
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.title = title;
         this.description = description;
     }
 
-    public Calendar getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public Calendar getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 

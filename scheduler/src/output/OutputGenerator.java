@@ -15,6 +15,9 @@ import net.fortuna.ical4j.util.UidGenerator;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,14 +47,19 @@ public class OutputGenerator {
         for (Map.Entry<String, Set<ScheduledEvent>> entry : scheduleMap.entrySet()) {
             String name = entry.getKey();
             for (ScheduledEvent e : entry.getValue()) {
-                VEvent meeting = new VEvent(new DateTime(e.getStartDate().getTime()),
-                        new DateTime(e.getEndDate().getTime()),
-                        name + " - " + e.getTitle());
+                DateTime startDateTime = convertLocalDateTime(e.getStartDate());
+                DateTime endDateTime = convertLocalDateTime(e.getEndDate());
+                VEvent meeting = new VEvent(startDateTime, endDateTime, name + " - " + e.getTitle());
                 meeting.getProperties().add(ug.generateUid());
                 meeting.getProperties().add(new Description(e.getDescription()));
                 events.add(meeting);
             }
         }
         return events;
+    }
+
+    private DateTime convertLocalDateTime(LocalDateTime ldt) {
+        Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        return new DateTime(date);
     }
 }
