@@ -2,18 +2,27 @@ package ast;
 
 import validate.ProgramValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
 public class Shift extends Node {
-
     private final String name;
     private final LocalDateTime open, close;
+    private final String description;
+
+    private static final DateTimeFormatter dateFormatter =
+            new DateTimeFormatterBuilder().appendPattern("[MM/dd/yyyy HH:mm]").appendPattern("[MM-dd-yyyy HH:mm]")
+                    .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                    .toFormatter();
+
+    public Shift(String name, String open, String close, String description) {
+        this.name = name;
+        this.open = this.parseDateTime(open);
+        this.close = this.parseDateTime(close);
+        this.description = description;
+    }
 
     public String getName() {
         return name;
@@ -27,15 +36,8 @@ public class Shift extends Node {
         return close;
     }
 
-    private static final DateTimeFormatter dateFormatter =
-            new DateTimeFormatterBuilder().appendPattern("[MM/dd/yyyy HH:mm]").appendPattern("[MM-dd-yyyy HH:mm]")
-            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-            .toFormatter();
-
-    public Shift(String name, String open, String close) {
-        this.name = name;
-        this.open = this.parseDateTime(open);
-        this.close = this.parseDateTime(close);
+    public String getDescription() {
+        return description;
     }
 
     private LocalDateTime parseDateTime(String dateTimeString) {

@@ -9,8 +9,9 @@ public class ScheduledEvent {
     private final Calendar startDate;
     private final Calendar endDate;
     private final String title;
+    private final String description;
 
-    public ScheduledEvent(LocalDateTime startDate, LocalDateTime endDate, String title) {
+    public ScheduledEvent(LocalDateTime startDate, LocalDateTime endDate, String title, String description) {
         this.startDate = Calendar.getInstance();
         this.startDate.clear();
         // we subtract 1 from month because LocalDateTime uses one-based indexing, Calendar zero-based
@@ -21,6 +22,7 @@ public class ScheduledEvent {
         this.endDate.set(endDate.getYear(), endDate.getMonthValue() - 1, endDate.getDayOfMonth(),
                 endDate.getHour(), endDate.getMinute(), endDate.getSecond());
         this.title = title;
+        this.description = description;
     }
 
     public Calendar getStartDate() {
@@ -33,6 +35,10 @@ public class ScheduledEvent {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     @Override

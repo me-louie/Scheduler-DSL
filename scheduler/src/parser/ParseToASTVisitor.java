@@ -140,8 +140,12 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         //System.out.println(ctx.DATE(1).getText());
         String open = ctx.DATE(0).getText() + ctx.TIME(0).getText();
         String close = ctx.DATE(1).getText() + ctx.TIME(1).getText();
+        String description = "";
+        if (ctx.DESCRIPTION() != null){
+            description = ctx.DESCRIPTION().getText();
+        }
 
-        return new Shift(name, open, close);
+        return new Shift(name, open, close, description);
     }
 
     @Override

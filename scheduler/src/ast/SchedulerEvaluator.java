@@ -502,7 +502,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 for (Shift s : shifts) {
 
                     ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getOpen(), s.getClose(),
-                            l.getB0(), i, tU);
+                            s.getDescription(), l.getB0(), i, tU);
 //                    ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(i),
 //                                                                        s.getClose().plusDays(i),
 //                                                                        s.getName());
@@ -531,10 +531,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         LocalDateTime start = shift.getOpen();
         LocalDateTime end = shift.getClose();
         String name = shift.getName();
+        String description = shift.getDescription();
         if (bO != null) {
-            scheduledEvent = getShiftedScheduledEvent(name, start, end, bO, num, tU);
+            scheduledEvent = getShiftedScheduledEvent(name, start, end, description, bO, num, tU);
         } else {
-            scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+            scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName(),
+                    shift.getDescription());
         }
 
         // todo: change LocalDateTime to Calendar from the get go so this works
@@ -545,19 +547,25 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     }
 
     private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime start, LocalDateTime end,
+                                                    String description,
                                                     BitwiseOperator b0, Integer num, TimeUnit tU) {
         return switch (tU) {
             case HOURS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusHours(num),
-                    end.minusHours(num), title) : new ScheduledEvent(start.plusHours(num), end.plusHours(num), title);
+                    end.minusHours(num), title, description) : new ScheduledEvent(start.plusHours(num),
+                    end.plusHours(num), title, description);
             case DAYS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusDays(num),
-                    end.minusDays(num), title) : new ScheduledEvent(start.plusDays(num), end.plusDays(num), title);
+                    end.minusDays(num), title, description) : new ScheduledEvent(start.plusDays(num),
+                    end.plusDays(num), title, description);
             case WEEKS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusWeeks(num),
-                    end.minusWeeks(num), title) : new ScheduledEvent(start.plusWeeks(num), end.plusWeeks(num), title);
+                    end.minusWeeks(num), title, description) : new ScheduledEvent(start.plusWeeks(num),
+                    end.plusWeeks(num), title, description);
             case MONTHS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusMonths(num),
-                    end.minusMonths(num), title) : new ScheduledEvent(start.plusMonths(num), end.plusMonths(num),
-                    title);
+                    end.minusMonths(num), title, description) : new ScheduledEvent(start.plusMonths(num),
+                    end.plusMonths(num),
+                    title, description);
             case YEARS -> b0 == BitwiseOperator.LEFTSHIFT ? new ScheduledEvent(start.minusYears(num),
-                    end.minusYears(num), title) : new ScheduledEvent(start.plusYears(num), end.plusYears(num), title);
+                    end.minusYears(num), title, description) : new ScheduledEvent(start.plusYears(num),
+                    end.plusYears(num), title, description);
             default -> throw new RuntimeException("Unrecognized time unit");
         };
     }
