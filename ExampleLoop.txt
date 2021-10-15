@@ -22,4 +22,4 @@ Var x = y;
 Var y = 10;
 
 Expression f1 = x + y;
-Loop SG1 over GROUPA << f1 DAYS each person;
+Loop SG1: GROUPA | Offset: << f1 DAYS | Repeat: 2;

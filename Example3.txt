@@ -34,4 +34,4 @@ Var z = 3;
 Merge merge2: SG1 AND SG2;
 Apply merge2 to Person4 >> x MONTHS;
 
-Loop SG1 over GROUPA >> f3 DAYS each person;
+Loop SG1: GROUPA | Offset:  >> f3 DAYS;

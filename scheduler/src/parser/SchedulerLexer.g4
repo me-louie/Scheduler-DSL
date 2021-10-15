@@ -24,10 +24,8 @@ SHIFT_LEFT: '<<' WS* -> mode(FUNC_MODE);
 APPLY_START: 'Apply' WS* -> mode(TEXT_MODE);
 MERGE_START: 'Merge' WS* -> mode(TEXT_MODE);
 LOOP_START: 'Loop' WS* -> mode(TEXT_MODE);
-LOOP_MID_1: 'over' WS* -> mode(TEXT_MODE);
-LOOP_MID_2: 'each person' WS*;
-LOOP_MID_3: 'and repeat' WS* -> mode(NUM_MODE);
-LOOP_END: 'times' WS*;
+OFFSET: 'Offset:' WS*;
+REPEAT: 'Repeat:' WS* -> mode(NUM_MODE);
 
 
 TO: 'to' WS* -> mode(TEXT_MODE);
@@ -44,6 +42,7 @@ CLOSE_PAREN: ')' -> mode(COND_MODE);
 OPEN_BRACE: '{' -> mode(COND_MODE);
 CLOSE_BRACE: '}';
 OPEN_QUOTE: '"' -> mode(TEXT_BLOCK_MODE);
+LOOP_SEPERATOR: '|' WS*;
 // Line breaks are ignored during tokenization in DEFAULT_MODE
 
 

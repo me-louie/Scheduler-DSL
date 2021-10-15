@@ -20,7 +20,7 @@ timeShiftUnits  : HOURS_SHIFT | DAYS_SHIFT | WEEKS_SHIFT | MONTHS_SHIFT | YEARS_
 cond_transformations: transformation*;
 apply           : APPLY_START name TO name (offset_operator (VARORNUM) timeShiftUnits)?;
 merge           : MERGE_START name COLON name set_operator name;
-loop            : LOOP_START name LOOP_MID_1 name offset_operator VARORNUM timeShiftUnits LOOP_MID_2 (LOOP_MID_3 NUM LOOP_END)?;
+loop            : LOOP_START name COLON name LOOP_SEPERATOR OFFSET offset_operator VARORNUM timeShiftUnits (LOOP_SEPERATOR REPEAT NUM)?;
 ifthenelse      : IF cond COND_OPEN_BRACE COND_NEWLINE
                         thenblock=cond_transformations
                      CLOSE_BRACE ELSE OPEN_BRACE COND_NEWLINE
