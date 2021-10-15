@@ -1,6 +1,6 @@
 package ast.math;
 
-public enum MathOP {
+public enum MathOperation {
     PLUS,
     MINUS,
     MULTIPLY,

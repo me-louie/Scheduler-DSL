@@ -1,6 +1,6 @@
 package ast.transformation;
 
-public enum BitwiseOperator {
+public enum OffsetOperator {
     LEFTSHIFT,
     RIGHTSHIFT
 }

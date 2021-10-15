@@ -1,5 +1,7 @@
 Source of truth for our grammar:
 
+//todo: fix grammar to reflect new changes
+
 program: header entity+ entity_group* shift+ shift_group* transformation*; ';';
 header: ‘Title:’ TEXT ';
 entity: ‘Entity’ ENTITY_NAME ';';

@@ -1,4 +1,3 @@
-Title: ExampleSchedule;
 Entity Person1;
 Entity Person2;
 Entity Person3;

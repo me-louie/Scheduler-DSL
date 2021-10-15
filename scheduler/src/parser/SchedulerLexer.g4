@@ -1,17 +1,15 @@
 lexer grammar SchedulerLexer;
 /// Default mode
-HEADER_START: 'Title:' WS* -> mode(TEXT_MODE);
-
 ENTITY_START: 'Entity' WS* -> mode(TEXT_MODE);
 ENTITY_GROUP_START: 'EntityGroup' WS* -> mode(TEXT_MODE);
 
 SHIFT_START: 'Shift' WS* -> mode(TEXT_MODE);
 SHIFT_GROUP_START: 'Shift Group' WS* -> mode(TEXT_MODE);
 
-LOGICAL_AND: 'AND' WS* -> mode(TEXT_MODE);
-LOGICAL_OR: 'OR' WS* -> mode(TEXT_MODE);
-LOGICAL_XOR: 'XOR' WS* -> mode(TEXT_MODE);
-LOGICAL_NOT: 'EXCEPT' WS* -> mode(TEXT_MODE);
+SET_AND: 'AND' WS* -> mode(TEXT_MODE);
+SET_OR: 'OR' WS* -> mode(TEXT_MODE);
+SET_XOR: 'XOR' WS* -> mode(TEXT_MODE);
+SET_EXCEPT: 'EXCEPT' WS* -> mode(TEXT_MODE);
 
 HOURS_SHIFT: 'HOURS';
 DAYS_SHIFT: 'DAYS';
@@ -49,7 +47,7 @@ CLOSE_BRACE: '}';
 
 
 VAR_START: 'Var' WS* -> mode(TEXT_MODE);
-FUNC_START: 'Function' WS* -> mode(TEXT_MODE);
+EXPRESSION_START: 'Expression' WS* -> mode(TEXT_MODE);
 EQUALSIGN: '=' WS* -> mode(FUNC_MODE);
 
 MATH: ('+'|'-'|'/'|'*'|'^') WS*-> mode(FUNC_MODE);

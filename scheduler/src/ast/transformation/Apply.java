@@ -6,26 +6,26 @@ public class Apply extends Transformation {
 
     private final String nameSGMG;
     private final String nameEEG;
-    private final Integer num;
-    private final BitwiseOperator bO;
+    private final Integer offsetAmount;
+    private final OffsetOperator offsetOperator;
     private final TimeUnit timeUnit;
     private final String varOrFunc;
 
-    public Apply(String nameSGMG, String nameEEG, Integer num, BitwiseOperator bO, TimeUnit timeUnit, String varOrFunc) {
+    public Apply(String nameSGMG, String nameEEG, Integer offsetAmount, OffsetOperator offsetOperator, TimeUnit timeUnit, String varOrFunc) {
         this.nameSGMG = nameSGMG;
         this.nameEEG = nameEEG;
-        this.num = num;
-        this.bO = bO;
+        this.offsetAmount = offsetAmount;
+        this.offsetOperator = offsetOperator;
         this.timeUnit = timeUnit;
         this.varOrFunc = varOrFunc;
     }
 
-    public Integer getNum() {
-        return num;
+    public Integer getOffsetAmount() {
+        return offsetAmount;
     }
 
-    public BitwiseOperator getbO() {
-        return bO;
+    public OffsetOperator getOffsetOperator() {
+        return offsetOperator;
     }
 
     public TimeUnit getTimeUnit() {

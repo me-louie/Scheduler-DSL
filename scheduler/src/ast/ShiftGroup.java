@@ -2,27 +2,24 @@ package ast;
 
 import validate.ProgramValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class ShiftGroup extends Node {
 
     private final String name;
-    private final List<String> shiftList;
+    private final List<String> shifts;
     
-    public ShiftGroup(String name, List<String> shiftList) {
+    public ShiftGroup(String name, List<String> shifts) {
         this.name = name;
-        this.shiftList = shiftList;
+        this.shifts = shifts;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<String> getShiftList() {
-        return shiftList;
+    public List<String> getShifts() {
+        return shifts;
     }
 
     @Override

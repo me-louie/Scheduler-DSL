@@ -1,37 +1,36 @@
 package validate;
 
 import ast.*;
+import ast.math.Expression;
+import ast.math.Variable;
 import ast.transformation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public class Validator {
 
-    private final Program program;
+    private static final Program program = Program.getInstance();
 
-    public Validator(Program program) {
-        this.program = program;
-    }
-
-    public void validate(Entity entity) throws ProgramValidationException {
+    public static void validate(Entity entity) throws ProgramValidationException {
         String entityName = entity.getName();
         if (!isUniqueEntityEntityGroup(entityName)) {
             throw new DuplicateNameException("2 or more entity/entity groups share the name " + entityName);
         }
     }
 
-    public void validate(EntityGroup entityGroup) throws ProgramValidationException {
+    public static void validate(EntityGroup entityGroup) throws ProgramValidationException {
         String entityGroupName = entityGroup.getName();
         if (!isUniqueEntityEntityGroup(entityGroupName)) {
             throw new DuplicateNameException("2 or more entity/entity groups share the name " + entityGroupName);
         }
     }
 
-    public void validate(Shift shift) throws ProgramValidationException {
+    public static void validate(Shift shift) throws ProgramValidationException {
         String shiftName = shift.getName();
-        LocalDateTime start = shift.getOpen();
-        LocalDateTime end = shift.getClose();
+        LocalDateTime start = shift.getBegin();
+        LocalDateTime end = shift.getEnd();
         if (!isUniqueShiftShiftGroupMergeName(shiftName)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + shiftName);
         } else if (!isValidDateTimeRange(start, end)) {
@@ -39,9 +38,9 @@ public class Validator {
         }
     }
 
-    public void validate(ShiftGroup shiftGroup) throws ProgramValidationException {
+    public static void validate(ShiftGroup shiftGroup) throws ProgramValidationException {
         String shiftGroupName = shiftGroup.getName();
-        List<String> shiftNames = shiftGroup.getShiftList();
+        List<String> shiftNames = shiftGroup.getShifts();
         if (!isUniqueShiftShiftGroupMergeName(shiftGroupName)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + shiftGroupName);
         }
@@ -54,7 +53,7 @@ public class Validator {
         }
     }
 
-    public void validate(Apply apply) throws ProgramValidationException {
+    public static void validate(Apply apply) throws ProgramValidationException {
         String shiftOrShiftGroupName = apply.getNameSGMG();
         String entityOrEntityGroupName = apply.getNameEEG();
         if (!shiftExists(shiftOrShiftGroupName) && !shiftGroupExists(shiftOrShiftGroupName)) {
@@ -68,10 +67,10 @@ public class Validator {
         }
     }
 
-    public void validate(Merge merge) throws ProgramValidationException {
+    public static void validate(Merge merge) throws ProgramValidationException {
         String mergeGroupName = merge.getName();
-        String shiftGroup1Name = merge.getNameSGS1();
-        String shiftGroup2Name = merge.getNameSGS2();
+        String shiftGroup1Name = merge.getShiftGroupOrMergeGroupName1();
+        String shiftGroup2Name = merge.getShiftGroupOrMergeGroupName2();
         if (!isUniqueShiftShiftGroupMergeName(mergeGroupName)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + mergeGroupName);
         } else if (!shiftGroupExists(shiftGroup1Name) && !mergeGroupExists(shiftGroup1Name)) {
@@ -85,7 +84,7 @@ public class Validator {
         }
     }
 
-    public void validate(Loop loop) throws ProgramValidationException {
+    public static void validate(Loop loop) throws ProgramValidationException {
         String shiftGroupName = loop.getNameSSG();
         String entityGroupName = loop.getNameEEG();
         if (!shiftGroupExists(shiftGroupName)) {
@@ -99,43 +98,53 @@ public class Validator {
         }
     }
 
-    public void validate(IfThenElse ifThenElse) throws ProgramValidationException {
+    public static void validate(IfThenElse ifThenElse) throws ProgramValidationException {
         validate(ifThenElse.getCond());
     }
 
-    private void validate(Cond cond) throws ProgramValidationException {
-        String shiftOrShiftGroupName1 = cond.getNameSSG1();
-        String shiftOrShiftGroupName2 = cond.getNameSSG2();
-        if (!shiftExists(shiftOrShiftGroupName1) && !shiftGroupExists(shiftOrShiftGroupName1)) {
-            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName1);
-        } else if (!shiftExists(shiftOrShiftGroupName2) && !shiftGroupExists(shiftOrShiftGroupName2)) {
-            throw new NameNotFoundException("There is no shift group named " + shiftOrShiftGroupName2);
+    private static void validate(Cond cond) throws ProgramValidationException {
+        String shiftGroupOrMergeGroupName1 = cond.getShiftGroupOrMergeGroupName1();
+        String shiftGroupOrMergeGroupName2 = cond.getShiftGroupOrMergeGroupName2();
+        if (!shiftGroupExists(shiftGroupOrMergeGroupName1)) {
+            throw new NameNotFoundException("There is no shift/merge group named " + shiftGroupOrMergeGroupName1);
+        } else if (!shiftGroupExists(shiftGroupOrMergeGroupName2)) {
+            throw new NameNotFoundException("There is no shift/merge group named " + shiftGroupOrMergeGroupName2);
         }
     }
 
-    private boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {
-        // currently we allow times/dates from the past
+    public static void validate(Expression expression) {
+
+    }
+
+    public static void validate(Variable variable) {
+
+    }
+
+    private static boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {
+        // we allow times/dates from the past
         return begin.isBefore(end) || begin.isEqual(end);
     }
 
-    private boolean isUniqueShiftShiftGroupMergeName(String name) {
-        List<Shift> shifts = program.getShifts();
+    private static boolean isUniqueShiftShiftGroupMergeName(String name) {
+        Collection<Shift> shifts = program.shiftMap.values();
         // We use shiftGroupsWithoutMergeGroups because the result of a merge gets added to the list of shiftGroups.
         // This way a merge that has already been executed won't be double-counted as a merge and a shift group.
-        List<ShiftGroup> shiftGroups = program.getShiftGroupsWithoutMergeGroups();
+        List<ShiftGroup> shiftGroups = program.shiftGroupsWithoutMergeGroups;
         List<Transformation> merges = program.transformationMap.get(Transformation.MERGE);
 
         long shiftCount = shifts.stream().filter(shift -> shift.getName().equals(name)).count();
         long shiftGroupCount = shiftGroups.stream().filter(shiftGroup -> shiftGroup.getName().equals(name)).count();
         long mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
+        // todo: also look through the transformations nested in program.transformationMap.get(Transformation.IfElse)
+        //       then can change the below back to == 1
+        //       currently we won't catch the case where multiple merges with the same name are defined in an ifelse
 
-
-        return shiftCount + shiftGroupCount + mergeCount == 1;
+        return shiftCount + shiftGroupCount + mergeCount <= 1;
     }
 
-    private boolean isUniqueEntityEntityGroup(String name) {
-        List<Entity> entities = program.getEntities();
-        List<EntityGroup> entityGroups = program.getEntityGroups();
+    private static boolean isUniqueEntityEntityGroup(String name) {
+        Collection<Entity> entities = program.entityMap.values();
+        Collection<EntityGroup> entityGroups = program.entityGroupMap.values();
 
         long entityCount = entities.stream().filter(entity -> entity.getName().equals(name)).count();
         long entityGroupCount = entityGroups.stream().filter(entityGroup -> entityGroup.getName().equals(name)).count();
@@ -143,23 +152,23 @@ public class Validator {
         return entityCount + entityGroupCount == 1;
     }
 
-    private boolean entityExists(String name) {
+    private static boolean entityExists(String name) {
         return program.entityMap.containsKey(name);
     }
 
-    private boolean entityGroupExists(String name) {
+    private static boolean entityGroupExists(String name) {
         return program.entityGroupMap.containsKey(name);
     }
 
-    private boolean shiftExists(String name) {
+    private static boolean shiftExists(String name) {
         return program.shiftMap.containsKey(name);
     }
 
-    private boolean shiftGroupExists(String name) {
+    private static boolean shiftGroupExists(String name) {
         return program.shiftGroupMap.containsKey(name);
     }
 
-    private boolean mergeGroupExists(String name) {
+    private static boolean mergeGroupExists(String name) {
         return program.transformationMap.get(Transformation.MERGE)
                 .stream().anyMatch(merge -> merge.getName().equals(name));
     }

@@ -1,5 +1,3 @@
-Title: IfElseExampleSchedule;
-
 Entity BasicIfElse;
 Entity FAIL;
 Entity NestedSuccess;

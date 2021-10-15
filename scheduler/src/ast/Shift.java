@@ -2,9 +2,6 @@ package ast;
 
 import validate.ProgramValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -13,18 +10,18 @@ import java.time.temporal.ChronoField;
 public class Shift extends Node {
 
     private final String name;
-    private final LocalDateTime open, close;
+    private final LocalDateTime begin, end;
 
     public String getName() {
         return name;
     }
 
-    public LocalDateTime getOpen() {
-        return open;
+    public LocalDateTime getBegin() {
+        return begin;
     }
 
-    public LocalDateTime getClose() {
-        return close;
+    public LocalDateTime getEnd() {
+        return end;
     }
 
     private static final DateTimeFormatter dateFormatter =
@@ -34,8 +31,8 @@ public class Shift extends Node {
 
     public Shift(String name, String open, String close) {
         this.name = name;
-        this.open = this.parseDateTime(open);
-        this.close = this.parseDateTime(close);
+        this.begin = this.parseDateTime(open);
+        this.end = this.parseDateTime(close);
     }
 
     private LocalDateTime parseDateTime(String dateTimeString) {
