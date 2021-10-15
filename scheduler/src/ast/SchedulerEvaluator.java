@@ -364,8 +364,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 for (Shift s : shifts) {
 
                     ScheduledEvent scheduledEvent = new ScheduledEvent(s.getOpen().plusDays(days),
-                                                                        s.getClose().plusDays(days),
-                                                                        s.getName());
+                            s.getClose().plusDays(days),
+                            s.getName(), s.getDescription());
                     if (!scheduleMap.containsKey(e)) {
                         scheduleMap.put(e, new HashSet<>());
                     }
@@ -386,7 +386,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     void applyShiftToEntity(Shift shift, String entityName) {
         // todo: change LocalDateTime to Calendar from the get go so this works
-        ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName());
+        ScheduledEvent scheduledEvent = new ScheduledEvent(shift.getOpen(), shift.getClose(), shift.getName(),
+                shift.getDescription());
         if (!scheduleMap.containsKey(entityName)) {
             scheduleMap.put(entityName, new HashSet<>());
         }

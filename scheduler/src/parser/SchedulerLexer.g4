@@ -37,11 +37,16 @@ OPEN_PAREN: '(' -> mode(TEXT_MODE);
 CLOSE_PAREN: ')' -> mode(COND_MODE);
 OPEN_BRACE: '{' -> mode(COND_MODE);
 CLOSE_BRACE: '}';
+OPEN_QUOTE: '"' -> mode(TEXT_BLOCK_MODE);
 // Line breaks are ignored during tokenization in DEFAULT_MODE
 WS : [\r\n\t ]+ -> channel(HIDDEN);
 
 mode TEXT_MODE;
 TEXT: [a-zA-Z0-9]+ -> mode(DEFAULT_MODE);
+
+mode TEXT_BLOCK_MODE;
+DESCRIPTION: ~["]+;
+CLOSE_QUOTE: '"' -> mode(DEFAULT_MODE);
 
 mode TIME_MODE;
 TIME:  ([01]?[0-9]|'2'[0-3])(':'[0-5][0-9]) WS*-> mode(DEFAULT_MODE);
