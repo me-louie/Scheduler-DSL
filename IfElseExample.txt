@@ -16,7 +16,7 @@ Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S3, S4, S5;
 
 if (SG1 OR SG2) {
-    Apply SG1 to BasicIfElse;
+    Apply SG1 to BasicIfElse | Offset: >> 2 DAYS;
 } else {
     Apply SG1 to FAIL;
 }

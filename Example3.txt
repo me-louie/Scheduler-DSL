@@ -17,7 +17,7 @@ Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S2, S4, S5;
 Shift Group SG3: S1, S3, S5;
 
-Apply SG1 to Person1 >> x DAYS;
+Apply SG1 to Person1 | Offset: >> x DAYS;
 Apply SG2 to Person2;
 
 Merge merge1: SG1 OR SG2;
@@ -32,6 +32,6 @@ Expression f3 = f1 + f2;
 
 Var z = 3;
 Merge merge2: SG1 AND SG2;
-Apply merge2 to Person4 >> x MONTHS;
+Apply merge2 to Person4 | Offset: >> x MONTHS;
 
 Loop SG1: GROUPA | Offset:  >> f3 DAYS;
