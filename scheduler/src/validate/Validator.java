@@ -6,6 +6,7 @@ import ast.math.Variable;
 import ast.transformation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -64,6 +65,8 @@ public class Validator {
             throw new NameNotFoundException("There is no entity/entity group named " + entityOrEntityGroupName);
         } else if (!isUniqueEntityEntityGroup(entityOrEntityGroupName)) {
             throw new DuplicateNameException("2 or more entity/entity groups share the name " + entityOrEntityGroupName);
+        } else if (apply.getTimeUnit() != null && !isValueOrVariableOrExpression(apply.getOffsetAmount(), apply.getVarOrExpression())) {
+            throw new NameNotFoundException("There is no variable/expression named " + apply.getVarOrExpression());
         }
     }
 
@@ -95,6 +98,10 @@ public class Validator {
             throw new NameNotFoundException("There is no entity group named " + entityGroupName);
         } else if (!isUniqueEntityEntityGroup(entityGroupName)) {
             throw new DuplicateNameException("2 or more entity/entity groups share the name " + entityGroupName);
+        } else if (loop.getOffsetAmount() == null && loop.getVarOrExpression() == null) {
+            throw new ValueNotProvidedException("A loop was provided without a valid offset amount (either a constant, variable, or expression)");
+        } else if (!isValueOrVariableOrExpression(null, loop.getVarOrExpression())) {
+            throw new NameNotFoundException("There is no variable/expression named " + loop.getVarOrExpression());
         }
     }
 
@@ -113,11 +120,32 @@ public class Validator {
     }
 
     public static void validate(Expression expression) {
+        String variableOrExpressionName1 = expression.getVariableOrExpressionName1();
+        String variableOrExpressionName2 = expression.getVariableOrExpressionName2();
+        if (variableOrExpressionName1 == null && expression.getValue1() == null) {
+            throw new ValueNotProvidedException("Expression " + expression.getName() + " has neither a constant or expression/variable for a first argument.");
+        } else if (variableOrExpressionName2 == null && expression.getValue2() == null) {
+            throw new ValueNotProvidedException("Expression " + expression.getName() + " has neither a constant or expression/variable for a second argument.");
+        } else if (!isValueOrVariableOrExpression(expression.getValue1(), variableOrExpressionName1)) {
+            throw new NameNotFoundException(variableOrExpressionName1 + " is not defined as either a variable or expression");
+        } else if (!isValueOrVariableOrExpression(expression.getValue2(), variableOrExpressionName2)) {
+            throw new NameNotFoundException(variableOrExpressionName2 + " is not defined as either a variable or expression");
+        }
+    }
 
+    private static boolean isValueOrVariableOrExpression(Integer value, String variableOrExpressionName) {
+        return value != null ||
+                !program.expressionMap.containsKey(variableOrExpressionName) ||
+                !program.variableMap.containsKey(variableOrExpressionName);
     }
 
     public static void validate(Variable variable) {
-
+        String aliasName = variable.getAlias();
+        if (variable.getValue() == null && aliasName == null) {
+            throw new ValueNotProvidedException("Variable " + variable.getName() + " has neither a constant or expression/variable as argument.");
+        } else if (!isValueOrVariableOrExpression(variable.getValue(), aliasName)) {
+            throw new NameNotFoundException(aliasName + " is not defined as either a variable or expression");
+        }
     }
 
     private static boolean isValidDateTimeRange(LocalDateTime begin, LocalDateTime end) {
@@ -131,15 +159,29 @@ public class Validator {
         // This way a merge that has already been executed won't be double-counted as a merge and a shift group.
         List<ShiftGroup> shiftGroups = program.shiftGroupsWithoutMergeGroups;
         List<Transformation> merges = program.transformationMap.get(Transformation.MERGE);
+        List<Transformation> nestedThenMerges = new ArrayList<>();
+        List<Transformation> nestedElseMerges = new ArrayList<>();
+        program.transformationMap.get(Transformation.IF_THEN_ELSE).forEach(ifelse -> {
+            ((IfThenElse) ifelse).getThenTransformations().forEach(transformation -> {
+                if (transformation.getClass().equals(Merge.class)) {
+                    nestedThenMerges.add(transformation);
+                }
+            });
+            ((IfThenElse) ifelse).getElseTransformations().forEach(transformation -> {
+                if (transformation.getClass().equals(Merge.class)) {
+                    nestedElseMerges.add(transformation);
+                }
+            });
+        });
 
         long shiftCount = shifts.stream().filter(shift -> shift.getName().equals(name)).count();
         long shiftGroupCount = shiftGroups.stream().filter(shiftGroup -> shiftGroup.getName().equals(name)).count();
         long mergeCount = merges.stream().filter(merge -> merge.getName().equals(name)).count();
-        // todo: also look through the transformations nested in program.transformationMap.get(Transformation.IfElse)
-        //       then can change the below back to == 1
-        //       currently we won't catch the case where multiple merges with the same name are defined in an ifelse
+        long nestedThenMergeCount = nestedThenMerges.stream().filter(merge -> merge.getName().equals(name)).count();
+        long nestedElseMergeCount = nestedElseMerges.stream().filter(merge -> merge.getName().equals(name)).count();
 
-        return shiftCount + shiftGroupCount + mergeCount <= 1;
+        return shiftCount + shiftGroupCount + mergeCount + nestedThenMergeCount == 1 ||
+                shiftCount + shiftGroupCount + mergeCount + nestedElseMergeCount == 1;
     }
 
     private static boolean isUniqueEntityEntityGroup(String name) {

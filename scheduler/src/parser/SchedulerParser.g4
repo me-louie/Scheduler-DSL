@@ -12,7 +12,7 @@ shift_group     : SHIFT_GROUP_START name COLON name (COMMA name)* ENDLINE;
 set_operator    : SET_AND | SET_OR | SET_XOR | SET_EXCEPT;
 offset_operator : SHIFT_LEFT | SHIFT_RIGHT;
 
-variable        : VAR_START name EQUALSIGN VARORNUM;
+variable        : VAR_START name (EQUALSIGN VARORNUM)?;
 expression      : EXPRESSION_START name EQUALSIGN VARORNUM MATH VARORNUM;
 
 transformation  : ((apply | merge | loop | expression | variable) ENDLINE) |  ifthenelse;

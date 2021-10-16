@@ -142,13 +142,17 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         System.out.println(varName);
         System.out.println(varName2);
         Integer num = 0;
-        if (isInt(ctx.VARORNUM().getText())) {
-            num = Integer.parseInt(ctx.VARORNUM().getText());
-        } else {
-            varName2 = ctx.VARORNUM().getText();
-            if (varName.equals(varName2)) {
-                throw new RuntimeException(varName + " can't be used as variable name");
+        try {
+            if (isInt(ctx.VARORNUM().getText())) {
+                num = Integer.parseInt(ctx.VARORNUM().getText());
+            } else {
+                varName2 = ctx.VARORNUM().getText();
+                if (varName.equals(varName2)) {
+                    throw new RuntimeException(varName + " can't be used as variable name");
+                }
             }
+        } catch (NullPointerException e) {
+            // if user declares but doesn't assign a value this will null pointer, in that case we automatically assign the value of 0
         }
         System.out.println(num);
         return new Variable(varName, num, varName2);
