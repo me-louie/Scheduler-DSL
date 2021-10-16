@@ -168,7 +168,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Integer num2 = getExpressionValue(e, false);
         MathOperation mathOperation = e.mathOperation;
         if (num2 == 0 && mathOperation == MathOperation.DIVIDE){
-            throw new DivideByZero("Can't divide by zero");
+            throw new DivideByZero(e.getName() +" Can't divide by zero");
         }
         Integer result = null;
         try{
