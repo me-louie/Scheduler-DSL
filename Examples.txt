@@ -17,11 +17,11 @@ Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S2, S4, S5;
 Shift Group SG3: S1, S3, S5;
 
-Apply SG1 to Person1 | Offset: >> 3 DAYS;
-Apply SG2 to Person2;
+Apply SG1: Person1 | Offset: >> 3 DAYS;
+Apply SG2: Person2;
 
 Merge merge1: SG1 OR SG2;
-Apply merge1 to Person3;
+Apply merge1: Person3;
 
 Var x = 33;
 Var y = 55;
@@ -29,6 +29,6 @@ Expression f1 = x + 2;
 Expression f2 = 2 + 2;
 
 Merge merge2: SG1 AND SG2;
-Apply merge2 to Person4 | Offset: >> 10 DAYS;
+Apply merge2: Person4 | Offset: >> 10 DAYS;
 
 Loop SG1: GROUPA | Offset: >> 2 DAYS;

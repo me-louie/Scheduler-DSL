@@ -4,6 +4,10 @@ Entity NestedSuccess;
 Entity MultipleApplys;
 Entity IfElseAndMerge;
 Entity ScheduleElse;
+Entity Complex1;
+Entity Complex2;
+
+EntityGroup ComplexGroup: Complex1, Complex2;
 
 
 Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
@@ -16,9 +20,9 @@ Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S3, S4, S5;
 
 if (SG1 OR SG2) {
-    Apply SG1 to BasicIfElse | Offset: >> 2 DAYS;
+    Apply SG1: BasicIfElse | Offset: >> 2 DAYS;
 } else {
-    Apply SG1 to FAIL;
+    Apply SG1: FAIL;
 }
 
 if (SG1 XOR SG2) {
@@ -29,28 +33,38 @@ if (SG1 XOR SG2) {
 
 if (SG1 AND SG1) {
     if (SG1 AND SG1) {
-        Apply SG2 to NestedSuccess;
+        Apply SG2: NestedSuccess;
     } else {
-        Apply SG2 to FAIL;
+        Apply SG2: FAIL;
     }
 } else {
-    Apply SG2 to FAIL;
+    Apply SG2: FAIL;
 }
 
 if (SG1 AND SG1) {
-    Apply SG1 to MultipleApplys;
-    Apply SG2 to MultipleApplys;
+    Apply SG1: MultipleApplys;
+    Apply SG2: MultipleApplys;
 } else {
 }
 if (SG1 XOR SG1) {
-   Apply SG1 to FAIL;
+   Apply SG1: FAIL;
 } else {
-   Apply SG1 to ScheduleElse;
+   Apply SG1: ScheduleElse;
 }
 
 if (SG1 XOR SG2) {
     Merge merge1: SG1 XOR SG2;
-    Apply merge1 to IfElseAndMerge;
+    Apply merge1: IfElseAndMerge;
 } else {
-    Apply SG1 to FAIL;
+    Apply SG1: FAIL;
+}
+
+if (SG1 AND SG1) {
+    if (SG1 AND SG1) {
+        Loop SG2: ComplexGroup | Offset: >> 2 DAYS | Repeat: 3;
+    } else {
+        Apply SG2: FAIL;
+    }
+} else {
+    Apply SG2: FAIL;
 }

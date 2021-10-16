@@ -225,28 +225,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         return new Expression(name, varOrExpression1, varOrExpression2, mathOP, value1, value2);
     }
 
-    private MathOperation getMathOperator(String mathOperator) {
-        return switch (mathOperator.trim()) {
-            case "+" -> MathOperation.PLUS;
-            case "-" -> MathOperation.MINUS;
-            case "*" -> MathOperation.MULTIPLY;
-            case "/" -> MathOperation.DIVIDE;
-            case "^" -> MathOperation.POWER;
-            default -> throw new RuntimeException("Unrecognized time unit");
-        };
-    }
-
-    private TimeUnit getTimeShiftUnit(String timeShiftUnit) {
-        return switch (timeShiftUnit.trim()) {
-            case "HOURS" -> TimeUnit.HOURS;
-            case "DAYS" -> TimeUnit.DAYS;
-            case "WEEKS" -> TimeUnit.WEEKS;
-            case "MONTHS" -> TimeUnit.MONTHS;
-            case "YEARS" -> TimeUnit.YEARS;
-            default -> throw new RuntimeException("Unrecognized time unit");
-        };
-    }
-
     @Override
     public Merge visitMerge(SchedulerParser.MergeContext ctx) {
         String name = ctx.name(0).getText();
@@ -298,6 +276,28 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         String shiftGroupOrMergeGroupName1 = ctx.name(0).getText();
         String shiftGroupOrMergeGroupName2 = ctx.name(1).getText();
         return new Cond(setOperator, shiftGroupOrMergeGroupName1, shiftGroupOrMergeGroupName2);
+    }
+
+    private MathOperation getMathOperator(String mathOperator) {
+        return switch (mathOperator.trim()) {
+            case "+" -> MathOperation.PLUS;
+            case "-" -> MathOperation.MINUS;
+            case "*" -> MathOperation.MULTIPLY;
+            case "/" -> MathOperation.DIVIDE;
+            case "^" -> MathOperation.POWER;
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
+    }
+
+    private TimeUnit getTimeShiftUnit(String timeShiftUnit) {
+        return switch (timeShiftUnit.trim()) {
+            case "HOURS" -> TimeUnit.HOURS;
+            case "DAYS" -> TimeUnit.DAYS;
+            case "WEEKS" -> TimeUnit.WEEKS;
+            case "MONTHS" -> TimeUnit.MONTHS;
+            case "YEARS" -> TimeUnit.YEARS;
+            default -> throw new RuntimeException("Unrecognized time unit");
+        };
     }
 
     private OffsetOperator getOffsetOperator(String operator) {
