@@ -1,0 +1,39 @@
+Entity SeniorCook1;
+Entity SeniorCook2;
+Entity JuniorCook1;
+Entity JuniorCook2;
+Entity Trainee1;
+Entity Trainee2;
+
+EntityGroup SeniorCooks: SeniorCook1, SeniorCook2;
+EntityGroup JuniorCooks: JuniorCook1, JuniorCook2;
+EntityGroup Trainees: Trainee1, Trainee2;
+
+Shift Fri1 is 10/01/2021 08:00 - 10/01/2021 12:00;
+Shift Fri2 is 10/01/2021 12:00 - 10/01/2021 16:00;
+Shift Fri3 is 10/01/2021 16:00 - 10/01/2021 20:00;
+Shift Sat1 is 10/01/2021 08:00 - 10/02/2021 12:00;
+Shift Sat2 is 10/02/2021 12:00 - 10/02/2021 16:00;
+Shift Sat3 is 10/02/2021 16:00 - 10/02/2021 20:00;
+Shift Sun1 is 10/03/2021 08:00 - 10/03/2021 12:00;
+Shift Sun2 is 10/03/2021 12:00 - 10/03/2021 16:00;
+Shift Sun3 is 10/03/2021 16:00 - 10/03/2021 20:00;
+
+Shift Group SGFri: Fri1, Fri2, Fri3;
+Shift Group SGSat: Sat1, Sat2, Sat3;
+Shift Group SGSun: Sun1, Sun2, Sun3;
+Shift Group SGAfternoonEvening: Fri2, Sat2, Sun2, Fri3, Sat3, Sun3;
+Shift Group SGMorning: Fri1, Sat1, Sun1;
+
+Apply SGMorning: JuniorCooks;
+
+Loop SGAfternoonEvening: SeniorCooks | Offset: >> 7 DAYS | Repeat: 2;
+
+Merge merge1: SGFri AND SGAfternoonEvening;
+Merge merge2: SGSun AND SGAfternoonEvening;
+Merge merge3: merge1 OR merge2;
+
+Loop merge3: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
+
+Merge merge4: SGAfternoonEvening XOR merge3;
+Loop merge4: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;

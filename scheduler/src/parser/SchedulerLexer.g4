@@ -17,7 +17,6 @@ WEEKS_SHIFT: 'WEEKS';
 MONTHS_SHIFT: 'MONTHS';
 YEARS_SHIFT: 'YEARS';
 
-
 SHIFT_RIGHT: '>>' WS* -> mode(FUNC_MODE);
 SHIFT_LEFT: '<<' WS* -> mode(FUNC_MODE);
 
@@ -27,8 +26,6 @@ LOOP_START: 'Loop' WS* -> mode(TEXT_MODE);
 OFFSET: 'Offset:' WS*;
 REPEAT: 'Repeat:' WS* -> mode(NUM_MODE);
 
-
-TO: 'to' WS* -> mode(TEXT_MODE);
 IS: 'is' WS* -> mode(DATE_MODE);
 TIME_SEPERATOR: '-' WS* -> mode(DATE_MODE);
 COMMA: ',' WS* -> mode(TEXT_MODE);
@@ -43,8 +40,6 @@ OPEN_BRACE: '{' -> mode(COND_MODE);
 CLOSE_BRACE: '}';
 OPEN_QUOTE: '"' -> mode(TEXT_BLOCK_MODE);
 LOOP_SEPERATOR: '|' WS*;
-// Line breaks are ignored during tokenization in DEFAULT_MODE
-
 
 VAR_START: 'Var' WS* -> mode(TEXT_MODE);
 EXPRESSION_START: 'Expression' WS* -> mode(TEXT_MODE);
