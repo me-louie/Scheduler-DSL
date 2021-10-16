@@ -7,6 +7,12 @@ logic for conditional scheduling, a XOR set operator, and the ability to add cus
 receiving additional feedback from our TA, we also added a small feature which allows users to add descriptions 
 to their events.
 
+### Planned Timeline for Remaining Days
+The team plans to complete the video presentation on Friday, October 15th. Over the weekend, we will continue to 
+refactor our code for readability and complete additional testing in preparation for the final project submission. We
+will create a README file which will describe how to use our DSL and prepare several example inputs demonstrating our
+range of features.  
+
 ### Results of Final User Studies
 There was a big improvement in usability from the first user study, because we pared the grammar down from many simple,
 unintuitive rules to a few useful but complex rules. They thought it was cool that it actually outputted a file that 
@@ -33,12 +39,6 @@ User 4 wanted to do merges on entity groups as well as shift groups, which is a 
 would be a good next feature to implement if we continued with this project. She also wanted the ability to create and 
 assign entities to a shift group on the same line and/or create multiple entities on the same line. Both of these would
 be good features to implement if we continued with this project.  
-
-### Planned Timeline for Remaining Days
-The team plans to complete the video presentation on Friday, October 15th. Over the weekend, we will continue to 
-refactor our code for readability and complete additional testing in preparation for the final project submission. We
-will create a README file which will describe how to use our DSL and prepare several example inputs demonstrating our
-range of features.  
 
 ### User Studies
 
