@@ -29,7 +29,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         p.shiftGroupMap.values().forEach(sg -> sg.accept(this));
         p.variableMap.values().forEach(v -> v.accept(this));
         p.expressionMap.values().forEach(f -> f.accept(this));
-        // hack to make this work: since transformationMap makes no guarantees about the order transformations will be visited in
+        // hack to make this work: since transformationMap makes no guarantees about the order transformations will
+        // be visited in
         // we need to have merges done ahead of time to avoid NameNotFoundExceptions
         p.transformationMap.get(Transformation.MERGE).forEach(m -> m.accept(this));
         p.transformationMap.values().forEach(tl -> tl.forEach(t -> t.accept(this)));
@@ -74,13 +75,16 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         boolean isShift = program.shiftMap.containsKey(shiftOrShiftGroupName);
         OffsetOperator offsetOperator = a.getOffsetOperator();
         TimeUnit timeUnit = a.getTimeUnit();
-        Integer offsetAmount = a.getVarOrExpression() != null ? getVarOrExpressionFinalValue(a.getVarOrExpression()) : a.getOffsetAmount();
+        Integer offsetAmount = a.getVarOrExpression() != null ? getVarOrExpressionFinalValue(a.getVarOrExpression())
+                : a.getOffsetAmount();
 
         if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator, offsetAmount, timeUnit);
+            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator,
+                    offsetAmount, timeUnit);
         } else if (isEntity && !isShift) { // is an entity and a shift group
             for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator, offsetAmount, timeUnit);
+                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator,
+                        offsetAmount, timeUnit);
             }
         } else if (!isEntity && isShift) { // is an entity group and a shift
             Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
@@ -90,38 +94,12 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         } else { // is an entity group and a shift group
             for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
                 for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetAmount, timeUnit);
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetAmount,
+                            timeUnit);
                 }
             }
         }
         return null;
-    }
-
-    private void applyShiftToEntity(Shift shift, String entityName, OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
-        LocalDateTime start = shift.getBegin();
-        LocalDateTime end = shift.getEnd();
-        String name = shift.getName();
-        String description = shift.getDescription();
-        ScheduledEvent scheduledEvent = offsetOperator != null ?
-                getShiftedScheduledEvent(name, start, end, description, offsetOperator, offsetAmount, timeUnit) :
-                new ScheduledEvent(shift.getBegin(), shift.getEnd(), shift.getName(), shift.getDescription());
-
-        if (!scheduleMap.containsKey(entityName)) {
-            scheduleMap.put(entityName, new HashSet<>());
-        }
-        scheduleMap.get(entityName).add(scheduledEvent);
-    }
-
-    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end, String description,
-                                                    OffsetOperator offsetOperator, Integer offsetAmount, TimeUnit timeUnit) {
-        offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
-        return switch (timeUnit) {
-            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title, description);
-            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title, description);
-            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title, description);
-            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title, description);
-            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title, description);
-        };
     }
 
     @Override
@@ -134,42 +112,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             program.shiftGroupMap.put(result.getName(), result);
         }
         return null;
-    }
-
-    private ShiftGroup mergeHelper(Merge m) {
-        String shiftGroupOrMergeGroupName1 = m.getShiftGroupOrMergeGroupName1();
-        String shiftGroupOrMergeGroupName2 = m.getShiftGroupOrMergeGroupName2();
-        List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName1);
-        List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName2);
-        SetOperator setOperator = m.getSetOperator();
-
-        Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
-        switch (setOperator) {
-            case AND -> resultSet.retainAll(sgomg2ShiftNames);
-            case OR -> resultSet.addAll(sgomg2ShiftNames);
-            case XOR -> {
-                Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
-                intersectionSet.retainAll(sgomg2ShiftNames); // intersection between sgomg1ShiftNames and sgomg2ShiftNames
-                resultSet.addAll(sgomg2ShiftNames);
-                resultSet.removeAll(intersectionSet);
-            }
-            case EXCEPT -> resultSet.removeAll(sgomg2ShiftNames);
-        }
-        if (resultSet.isEmpty()) {
-            throw new ResultNotFoundException("Merging " + shiftGroupOrMergeGroupName1 + " " + setOperator + " " + shiftGroupOrMergeGroupName2 + " resulted in an empty set.");
-        }
-        return new ShiftGroup(m.getName(), new ArrayList<>(resultSet));
-    }
-
-    private List<String> getShiftGroupOrMergeGroupShifts(String shiftGroupOrMergeGroup1Name) {
-        // the args of a merge can either be shiftgroups or other merges, determine which this is
-        if (!program.shiftGroupMap.containsKey(shiftGroupOrMergeGroup1Name)) {
-            Merge merge = (Merge) program.transformationMap.get(Transformation.MERGE)
-                    .stream().filter(mrg -> mrg.getName().equals(shiftGroupOrMergeGroup1Name)).findAny().get();
-            ShiftGroup mergeResult = mergeHelper(merge);
-            return mergeResult.getShifts();
-        }
-        return program.shiftGroupMap.get(shiftGroupOrMergeGroup1Name).getShifts();
     }
 
     @Override
@@ -206,7 +148,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             resultantShifts.addAll(shiftGroup2);
         } else if (setOperator == XOR) {
             resultantShifts.addAll(shiftGroup2);
-            shiftGroup1.retainAll(shiftGroup2);     // shiftGroup1 is now the intersection of shiftGroup1 and shiftGroup2
+            shiftGroup1.retainAll(shiftGroup2);     // shiftGroup1 is now the intersection of shiftGroup1 and
+            // shiftGroup2
             resultantShifts.removeAll(shiftGroup1);
         } else if (setOperator == EXCEPT) {
             resultantShifts.removeAll(shiftGroup2);
@@ -228,33 +171,6 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         MathOperation mathOperation = e.mathOperation;
         e.setFinalValue(calculateExpressionFinalValue(num1, num2, mathOperation));
         return null;
-    }
-
-    // todo: this feels like it belongs in the Expression class, same for the method below
-    // determines whether the arg to an expression is a number, variable, or another expression and returns its value
-    private Integer getExpressionValue(Expression e, boolean isFirstArg) {
-        String variableOrExpressionName = isFirstArg ? e.getVariableOrExpressionName1() : e.getVariableOrExpressionName2();
-        if (program.variableMap.containsKey(variableOrExpressionName)) { // arg to e is a variable
-            Variable variable = program.variableMap.get(variableOrExpressionName);
-            visit(variable);
-            return variable.getFinalValue();
-        } else if (program.expressionMap.containsKey(variableOrExpressionName)) { // arg to e is an expression
-            Expression expression = program.expressionMap.get(variableOrExpressionName);
-            visit(expression);
-            return expression.getFinalValue();
-        } else { // arg to e is a number
-            return isFirstArg ? e.getValue1() : e.getValue2();
-        }
-    }
-
-    private Integer calculateExpressionFinalValue(Integer num1, Integer num2, MathOperation mathOP) {
-        return switch (mathOP) {
-            case PLUS -> num1 + num2;
-            case MINUS -> num1 - num2;
-            case MULTIPLY -> num1 * num2;
-            case DIVIDE -> num1 / num2;
-            case POWER -> (int) Math.pow(num1, num2);
-        };
     }
 
     @Override
@@ -292,7 +208,8 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
         TimeUnit timeUnit = l.timeUnit;
-        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() : getVarOrExpressionFinalValue(l.getVarOrExpression());
+        Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() :
+                getVarOrExpressionFinalValue(l.getVarOrExpression());
 
         for (int i = 0; i < l.getRepeatAmount(); i++) {
             for (String e : entities) {
@@ -309,6 +226,78 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         return null;
     }
 
+    private ShiftGroup mergeHelper(Merge m) {
+        String shiftGroupOrMergeGroupName1 = m.getShiftGroupOrMergeGroupName1();
+        String shiftGroupOrMergeGroupName2 = m.getShiftGroupOrMergeGroupName2();
+        List<String> sgomg1ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName1);
+        List<String> sgomg2ShiftNames = getShiftGroupOrMergeGroupShifts(shiftGroupOrMergeGroupName2);
+        SetOperator setOperator = m.getSetOperator();
+
+        Set<String> resultSet = new HashSet<>(sgomg1ShiftNames);
+        switch (setOperator) {
+            case AND -> resultSet.retainAll(sgomg2ShiftNames);
+            case OR -> resultSet.addAll(sgomg2ShiftNames);
+            case XOR -> {
+                Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
+                intersectionSet.retainAll(sgomg2ShiftNames); // intersection between sgomg1ShiftNames and
+                // sgomg2ShiftNames
+                resultSet.addAll(sgomg2ShiftNames);
+                resultSet.removeAll(intersectionSet);
+            }
+            case EXCEPT -> resultSet.removeAll(sgomg2ShiftNames);
+        }
+        if (resultSet.isEmpty()) {
+            throw new ResultNotFoundException("Merging " + shiftGroupOrMergeGroupName1 + " " + setOperator + " " + shiftGroupOrMergeGroupName2 + " resulted in an empty set.");
+        }
+        return new ShiftGroup(m.getName(), new ArrayList<>(resultSet));
+    }
+
+    private List<String> getShiftGroupOrMergeGroupShifts(String shiftGroupOrMergeGroup1Name) {
+        // the args of a merge can either be shiftgroups or other merges, determine which this is
+        if (!program.shiftGroupMap.containsKey(shiftGroupOrMergeGroup1Name)) {
+            Merge merge = (Merge) program.transformationMap.get(Transformation.MERGE)
+                    .stream().filter(mrg -> mrg.getName().equals(shiftGroupOrMergeGroup1Name)).findAny().get();
+            ShiftGroup mergeResult = mergeHelper(merge);
+            return mergeResult.getShifts();
+        }
+        return program.shiftGroupMap.get(shiftGroupOrMergeGroup1Name).getShifts();
+    }
+
+    private void applyShiftToEntity(Shift shift, String entityName, OffsetOperator offsetOperator,
+                                    Integer offsetAmount, TimeUnit timeUnit) {
+        LocalDateTime start = shift.getBegin();
+        LocalDateTime end = shift.getEnd();
+        String name = shift.getName();
+        String description = shift.getDescription();
+        ScheduledEvent scheduledEvent = offsetOperator != null ?
+                getShiftedScheduledEvent(name, start, end, description, offsetOperator, offsetAmount, timeUnit) :
+                new ScheduledEvent(shift.getBegin(), shift.getEnd(), shift.getName(), shift.getDescription());
+
+        if (!scheduleMap.containsKey(entityName)) {
+            scheduleMap.put(entityName, new HashSet<>());
+        }
+        scheduleMap.get(entityName).add(scheduledEvent);
+    }
+
+    private ScheduledEvent getShiftedScheduledEvent(String title, LocalDateTime begin, LocalDateTime end,
+                                                    String description,
+                                                    OffsetOperator offsetOperator, Integer offsetAmount,
+                                                    TimeUnit timeUnit) {
+        offsetAmount = offsetOperator == OffsetOperator.LEFTSHIFT ? offsetAmount * -1 : offsetAmount;
+        return switch (timeUnit) {
+            case HOURS -> new ScheduledEvent(begin.plusHours(offsetAmount), end.plusHours(offsetAmount), title,
+                    description);
+            case DAYS -> new ScheduledEvent(begin.plusDays(offsetAmount), end.plusDays(offsetAmount), title,
+                    description);
+            case WEEKS -> new ScheduledEvent(begin.plusWeeks(offsetAmount), end.plusWeeks(offsetAmount), title,
+                    description);
+            case MONTHS -> new ScheduledEvent(begin.plusMonths(offsetAmount), end.plusMonths(offsetAmount), title,
+                    description);
+            case YEARS -> new ScheduledEvent(begin.plusYears(offsetAmount), end.plusYears(offsetAmount), title,
+                    description);
+        };
+    }
+
     // todo: this feels like it belongs in the Loop class, although to make it work
     //       will probably be more work than we bargained for
     private Integer getVarOrExpressionFinalValue(String name) {
@@ -319,5 +308,33 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             Expression expression = program.expressionMap.get(name);
             return expression.getFinalValue();
         }
+    }
+
+    // todo: this feels like it belongs in the Expression class, same for the method below
+    // determines whether the arg to an expression is a number, variable, or another expression and returns its value
+    private Integer getExpressionValue(Expression e, boolean isFirstArg) {
+        String variableOrExpressionName = isFirstArg ? e.getVariableOrExpressionName1() :
+                e.getVariableOrExpressionName2();
+        if (program.variableMap.containsKey(variableOrExpressionName)) { // arg to e is a variable
+            Variable variable = program.variableMap.get(variableOrExpressionName);
+            visit(variable);
+            return variable.getFinalValue();
+        } else if (program.expressionMap.containsKey(variableOrExpressionName)) { // arg to e is an expression
+            Expression expression = program.expressionMap.get(variableOrExpressionName);
+            visit(expression);
+            return expression.getFinalValue();
+        } else { // arg to e is a number
+            return isFirstArg ? e.getValue1() : e.getValue2();
+        }
+    }
+
+    private Integer calculateExpressionFinalValue(Integer num1, Integer num2, MathOperation mathOP) {
+        return switch (mathOP) {
+            case PLUS -> num1 + num2;
+            case MINUS -> num1 - num2;
+            case MULTIPLY -> num1 * num2;
+            case DIVIDE -> num1 / num2;
+            case POWER -> (int) Math.pow(num1, num2);
+        };
     }
 }
