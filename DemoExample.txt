@@ -25,15 +25,15 @@ Shift Group Sun: Sun1, Sun2, Sun3;
 Shift Group AfternoonEvening: Fri2, Sat2, Sun2, Fri3, Sat3, Sun3;
 Shift Group Morning: Fri1, Sat1, Sun1;
 
-Apply SGMorning: JuniorCooks;
+Apply Morning: JuniorCooks;
 
-Loop SGAfternoonEvening: SeniorCooks | Offset: >> 7 DAYS | Repeat: 2;
+Loop AfternoonEvening: SeniorCooks | Offset: >> 7 DAYS | Repeat: 2;
 
-Merge merge1: Fri AND AfternoonEvening;
-Merge merge2: Sun AND AfternoonEvening;
-Merge merge3: merge1 OR merge2;
+Merge FriPM: Fri AND AfternoonEvening;
+Merge SunPM: Sun AND AfternoonEvening;
+Merge FriSunPM: FriPM OR SunPM;
 
-Loop merge3: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
+Loop FriSunPM: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
 
-Merge merge4: AfternoonEvening XOR merge3;
-Loop merge4: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;
+Merge SatPM: AfternoonEvening XOR FriSunPM;
+Loop SatPM: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;
