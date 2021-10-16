@@ -14,7 +14,7 @@ Shift Fri2 is 10/01/2021 12:00 - 10/01/2021 16:00 "Lunch Special: Soup & Sandwic
 Shift Fri3 is 10/01/2021 16:00 - 10/01/2021 20:00 "Dinner Special: Beef Wellington";
 Shift Sat1 is 10/01/2021 08:00 - 10/02/2021 12:00 "Brunch Buffet";
 Shift Sat2 is 10/02/2021 12:00 - 10/02/2021 16:00 "Brunch Buffet";
-Shift Sat3 is 10/02/2021 16:00 - 10/02/2021 20:00 "Dinner Special: Shepard's Pie";
+Shift Sat3 is 10/02/2021 16:00 - 10/02/2021 20:00 "Dinner Special: Shepherd's Pie";
 Shift Sun1 is 10/03/2021 08:00 - 10/03/2021 12:00 "Brunch Buffet";
 Shift Sun2 is 10/03/2021 12:00 - 10/03/2021 16:00 "Brunch Buffet";
 Shift Sun3 is 10/03/2021 16:00 - 10/03/2021 20:00 "Dinner Special: Mussels & Fries";
