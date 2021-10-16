@@ -7,9 +7,9 @@ create user defined time functions. The DSL input is simply a .txt file. The DSL
 // TODO Add grammar once it is finalized.
 
 ## Getting Started
-External jar dependencies are located within the scheduler/lib folder.  
+External jar dependencies are located within the `scheduler/lib folder`.  
 
-Example input files are located within the scheduler/ExampleInputs directory. You can load one of these example files or create your own. Run the program to generate the .ics file.
+Example input files are located within the `scheduler/ExampleInputs` directory. You can load one of these example files or create your own. Run the program to generate the .ics file.
 
 ### Importing .ics to [Google Calendar](https://calendar.google.com/) 
 0. (Optional) Create a new Google Calendar by pressing the **+ > Create new calendar** on the left-hand panel.
