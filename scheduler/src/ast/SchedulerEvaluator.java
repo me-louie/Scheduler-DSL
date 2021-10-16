@@ -177,7 +177,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             if (x instanceof ArithmeticException){
                 //found this online think it handles what we want well
                 x.printStackTrace();
-                System.out.println("We are just printing the stack trace.\n"+ "ArithmeticException is handled. But take care of the variable \"c\"");
+                System.out.println("We are just printing the stack trace.\n"+ "ArithmeticException was caught.");
             }
         }
         e.setFinalValue(calculateExpressionFinalValue(num1, num2, mathOperation));
