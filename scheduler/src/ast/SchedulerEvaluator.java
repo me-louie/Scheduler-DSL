@@ -208,7 +208,9 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             resultantShifts.addAll(shiftGroup2);
             shiftGroup1.retainAll(shiftGroup2);     // shiftGroup1 is now the intersection of shiftGroup1 and shiftGroup2
             resultantShifts.removeAll(shiftGroup1);
-        } // todo: this doesn't take in EXCEPT, is this by design?
+        } else if (setOperator == EXCEPT) {
+            resultantShifts.removeAll(shiftGroup2);
+        }
         cond.setState(!resultantShifts.isEmpty());
         return null;
     }
