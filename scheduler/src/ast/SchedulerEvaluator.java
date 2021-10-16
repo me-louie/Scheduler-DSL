@@ -174,6 +174,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         try{
             result = calculateExpressionFinalValue(num1, num2, mathOperation);
         } catch (Exception x){
+            System.out.println("Error at :" + e.getName());
            throw x;
         }
         e.setFinalValue(result);
