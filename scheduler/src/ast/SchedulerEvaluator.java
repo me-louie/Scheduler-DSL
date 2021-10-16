@@ -5,9 +5,7 @@ import ast.math.MathOperation;
 import ast.math.Variable;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
-import validate.ProgramValidationException;
-import validate.ResultNotFoundException;
-import validate.Validator;
+import validate.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -169,6 +167,19 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Integer num1 = getExpressionValue(e, true);
         Integer num2 = getExpressionValue(e, false);
         MathOperation mathOperation = e.mathOperation;
+        if (num2 == 0 && mathOperation == MathOperation.DIVIDE){
+            throw new DivideByZero("Can't divide by zero");
+        }
+        Integer result = null;
+        try{
+            result = calculateExpressionFinalValue(num1, num2, mathOperation);
+        } catch (Exception x){
+            if (x instanceof ArithmeticException){
+                //found this online think it handles what we want well
+                x.printStackTrace();
+                System.out.println("We are just printing the stack trace.\n"+ "ArithmeticException is handled. But take care of the variable \"c\"");
+            }
+        }
         e.setFinalValue(calculateExpressionFinalValue(num1, num2, mathOperation));
         return null;
     }
@@ -330,9 +341,9 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     private Integer calculateExpressionFinalValue(Integer num1, Integer num2, MathOperation mathOP) {
         return switch (mathOP) {
-            case PLUS -> num1 + num2;
-            case MINUS -> num1 - num2;
-            case MULTIPLY -> num1 * num2;
+            case PLUS -> Math.addExact(num1 , num2);
+            case MINUS -> Math.subtractExact(num1, num2);
+            case MULTIPLY -> Math.multiplyExact(num1, num2);
             case DIVIDE -> num1 / num2;
             case POWER -> (int) Math.pow(num1, num2);
         };
