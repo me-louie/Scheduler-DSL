@@ -3,14 +3,13 @@ This DSL provides the user a flexible and powerful way of defining schedules for
 or group of schedule with operators, and apply schedules to entities in interesting ways. Our DSL supports conditional control flow, looping constructs, and the ability to
 create user defined time functions. The DSL input is simply a .txt file. The DSL outputs an .ics file which can be imported into any major calendar software.
 
-Example inputs are located: // TODO add path
 ## Grammar
 // TODO Add grammar once it is finalized.
 
 ## Getting Started
-Dependency are located within the scheduler/lib folder.  
-Write your scheduling program in the Input.txt file.  
-Run the program to generate the .ics file.  
+External jar dependencies are located within the scheduler/lib folder.  
+
+Example input files are located within the scheduler/ExampleInputs directory. You can load one of these example files or create your own. Run the program to generate the .ics file.
 
 ### Importing .ics to [Google Calendar](https://calendar.google.com/) 
 0. (Optional) Create a new Google Calendar by pressing the **+ > Create new calendar** on the left-hand panel.
