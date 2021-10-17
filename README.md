@@ -63,27 +63,27 @@ DESCRIPTION: ~["]+;
 ### Grammar Documentation
 #### Entity
 An entity to be scheduled (e.g. employee, person, course). Entities may be referenced by their given name anywhere that ENTITY_NAME is present in other non-terminals.
-```aidl
+```
 Entity e1;  // defines an entity named e1
 Entity e2;  // defines an entity named e2
 ```
 #### Entity Group
 A group of one or more entities.
-```aidl
+```
 Entity Group eg1: e1;      // defines an entity group named eg1 with 1 member: e1
 Entity Group eg2: e1, e2;  // defines an entity group named eg2 with 2 members: e1 and e2
 ```
 #### Shift
 A date/time range for which an entity may be scheduled. The start date/time must be before or the same as the end date/time. Shifts may optionally include a description after the end date.
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 Shift S2 is 10/12/2021 09:00 - 10/12/2021 17:00 "Second day of work.. less exciting";
 ```
 #### Shift Group
 A group of one or more shifts.
 
-```aidl
+```
 Shift Group SG1: S1;
 Shift Group SG2: S1, S2, S3;
 ```
@@ -102,6 +102,10 @@ A shorthand reference for a simple mathematical expression Expressions take two 
 Var x = 1;
 Expression e1 = 1 + x    // e1 = 2
 Expression e2 = e1 * 2   // e2 = 4
+Then we can put expression names or variable names or integers as offsets in apply or loop transformation:
+Apply SG1: Person4 | Offset: >> f1 MONTHS;
+Apply SG2: Person5 | Offset: >> x days;
+See ExampleMath.txt for use cases. 
 ```
 #### Set Operators
 Operators used to perform set operations between two shift groups.
@@ -110,7 +114,7 @@ Operators used to perform set operations between two shift groups.
 * EXCEPT - takes the difference between the first and second shift groups
 * XOR - takes the difference between the first and second shift groups as well as the difference between the second and first
 
-```aidl
+```
 Shift Group SG1: S1, S4;
 Shift Group SG2: S1, S2, S3;
 
@@ -124,7 +128,7 @@ Operators used to offset shifts by some amount of time. A time unit and offset a
 * << - offset backwards in time
 * \>\> - offset forwards in time
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 
 S1 << 1 DAYS  // returns a shift from 10/10/2021 09:00 - 10/10/2021 17:00
@@ -132,7 +136,7 @@ S1 >> 3 HOURS // returns a shift from 10/11/2021 12:00 - 10/11/2021 20:00
 ```
 #### Apply
 The basic operation for scheduling entities/entity groups. First argument can either be an entity or entity group. Second argument can either be a shift or shift group. Any combination of these 4 types is valid. An Offset and Repeat argument can optionally be specified. If specified the shift/shift group will be applied as is, then offset and re-applied NUM times. NUM must be a positive integer. The offset amount may be any integer, variable, or expression.
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;
@@ -151,7 +155,7 @@ Apply SG1: eg1 | Offset: << 2 DAYS | Repeat: 3; // schedules e1, e2 for S1, S2, 
 #### Merge
 Operator for creating a new shift group by performing set operations on two existing shift groups. Assigns the newly created shift group to the name provided in MERGE_NAME, which can then be referenced in any operation that takes a shift group, including other merges.
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 Shift S2 is 10/12/2021 09:00 - 10/12/2021 17:00
 Shift S3 is 10/13/2021 09:00 - 10/13/2021 17:00
@@ -171,7 +175,7 @@ See ExampleMerge.txt for a working example of various cases.
 #### Loop
 Operator for scheduling members of entity groups using a loop. Takes in as first argument an entity group, individual entities are invalid. Takes in as second argument either a shift or shift group. Takes as third argument an Offset followed by an optional Repeat argument. Iterates through the entity group and applies shifts with offset. Each person in the entity group will receive the same shifts with an increasing offset (i.e. first entity gets all the shifts with no offset, second entity gets all shifts + offset, third entity gets all shifts + (2*offset), etc). If the Repeat argument is provided once the entire entity group has been iterated through we loop back to the first entity and continue applying the offset shifts. The entire entity group list will be iterated through NUM times. NUM must be a positive integer.
 
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;
@@ -207,28 +211,4 @@ if (SG1 AND SG2) {   // SG1 AND SG2 = S2, evaluates to true
 } else {
     Apply S2: e1;    // will not be executed
 }
-```
-
-
-#### Variables/Expressions:
-// User can only type in Integers. These are basically for normal math functions. So that you can insert a variable or expression as an offset instead of a direct number.
-```
-   * So Variables can be defined as numbers or other variables that were defined previously and the same variable can't be defined again like in Java:
-      *So we can do Var x = 10;
-        or we can do: Var y = 10; Var x = y;
-         or we can do: Var x;(this sets var x to zero)
-     *But we can't do Var x =10; Var y = 20; Var x=y;
-    * The expressions are just so we can do mathematical operations(plus,minus,multiply,divide,power) between variables or integers or other expressions.
-   *So we can do: Var x = 3; Var y = 10; Expression f1 = x + y;
-       or we can do: Expression f1 = 3 + y; or Expression f1 = x + 10;
-      or we can : Expression f1 = 3 + 10;
-      We can also do something like:    
-        Var y = 10;            
-        Expression f1 = 3 + f2;
-       Expression f3 = f1 * f2;
-      Expression f2 = y / 5;
-     * Then we can put expression names or variable names or integers as offsets in apply or loop transformation:
-           Apply SG1: Person4 | Offset: >> f1 MONTHS;
-           Apply SG2: Person5 | Offset: >> x days;
-    See ExampleMath for use cases. 
 ```
