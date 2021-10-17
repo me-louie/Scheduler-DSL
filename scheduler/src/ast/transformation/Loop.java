@@ -5,7 +5,7 @@ import ast.SchedulerVisitor;
 public class Loop extends Transformation {
 
     private final String shiftOrShiftGroupOrMergeGroupName;
-    private final String entityOrEntityGroupName;
+    private final String entityGroupName;
     private final OffsetOperator offsetOperator;
     private final Integer offsetAmount;
     private final Integer repeatAmount;
@@ -15,7 +15,7 @@ public class Loop extends Transformation {
     public Loop(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, OffsetOperator offsetOperator, Integer offsetAmount, Integer repeatAmount, String varOrExpression,
                 TimeUnit timeUnit) {
         this.shiftOrShiftGroupOrMergeGroupName = shiftOrShiftGroupOrMergeGroupName;
-        this.entityOrEntityGroupName = entityOrEntityGroupName;
+        this.entityGroupName = entityOrEntityGroupName;
         this.offsetOperator = offsetOperator;
         this.offsetAmount = offsetAmount;
         this.repeatAmount = repeatAmount;
@@ -27,8 +27,8 @@ public class Loop extends Transformation {
         return shiftOrShiftGroupOrMergeGroupName;
     }
 
-    public String getEntityOrEntityGroupName() {
-        return entityOrEntityGroupName;
+    public String getEntityGroupName() {
+        return entityGroupName;
     }
 
     public OffsetOperator getOffsetOperator() {

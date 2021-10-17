@@ -209,13 +209,13 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         List<Shift> shifts;
         List<String> shiftList;
 
-        boolean isEntity = program.entityMap.containsKey(l.getEntityOrEntityGroupName());
+        boolean isEntity = program.entityMap.containsKey(l.getEntityGroupName());
         boolean isShift = program.shiftMap.containsKey(l.getShiftOrShiftGroupOrMergeGroupName());
 
         if (isEntity) {
-            entities = List.of(program.entityMap.get(l.getEntityOrEntityGroupName()).getName());
+            entities = List.of(program.entityMap.get(l.getEntityGroupName()).getName());
         } else {
-            entities = program.entityGroupMap.get(l.getEntityOrEntityGroupName()).getEntities();
+            entities = program.entityGroupMap.get(l.getEntityGroupName()).getEntities();
         }
 
         if (isShift) {
