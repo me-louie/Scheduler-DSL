@@ -179,6 +179,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         Integer offsetAmount = null;
         String varOrExpressionName = null;
         TimeUnit timeUnit = null;
+        Integer repeatAmount = 1;
         if (ctx.VARORNUM() != null) {
             if (isInt(ctx.VARORNUM().getText())) {
                 offsetAmount = Integer.parseInt(ctx.VARORNUM().getText());
@@ -193,7 +194,11 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         if (ctx.timeShiftUnits() != null) {
             timeUnit = getTimeShiftUnit(ctx.timeShiftUnits().getText());
         }
-        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, offsetAmount, offsetOperator, timeUnit, varOrExpressionName);
+        if (ctx.NUM() != null) {
+            repeatAmount = Integer.parseInt(ctx.NUM().getText());
+        }
+        return new Apply(shiftOrShiftGroupOrMergeName, entityOrEntityGroupName, offsetAmount, offsetOperator,
+                timeUnit, varOrExpressionName, repeatAmount);
     }
 
     @Override

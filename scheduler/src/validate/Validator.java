@@ -89,9 +89,9 @@ public class Validator {
 
     public static void validate(Loop loop) throws ProgramValidationException {
         String shiftGroupName = loop.getShiftOrShiftGroupOrMergeGroupName();
-        String entityGroupName = loop.getEntityOrEntityGroupName();
-        if (!shiftGroupExists(shiftGroupName)) {
-            throw new NameNotFoundException("There is no shift group named " + shiftGroupName);
+        String entityGroupName = loop.getEntityGroupName();
+        if (!shiftExists(shiftGroupName) && !shiftGroupExists(shiftGroupName)) {
+            throw new NameNotFoundException("There is no shift/shift group named " + shiftGroupName);
         } else if (!isUniqueShiftShiftGroupMergeName(shiftGroupName)) {
             throw new DuplicateNameException("2 or more shift/shift group/merge groups share the name " + shiftGroupName);
         } else if (!entityGroupExists(entityGroupName)) {

@@ -17,9 +17,9 @@ expression      : 'Expression' EXPRESSION_NAME '=' (VARIABLE_NAME | EXPRESSION_N
 transformation  : ((apply | merge | loop | expression | variable) ';') |  ifthenelse;
 timeShiftUnits  : 'HOURS' | 'DAYS' | 'WEEKS' | 'MONTHS' | 'YEARS';
 cond_transformations: transformation*;
-apply           : 'Apply' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' (ENTITY_NAME | ENTITY_GROUP_NAME) ('| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits)?;
+apply           : 'Apply' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' (ENTITY_NAME | ENTITY_GROUP_NAME) ('| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits '| Repeat:' NUM)?;
 merge           : 'Merge' MERGE_GROUP_NAME ':' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) set_operator (SHIFT_GROUP_NAME | MERGE_GROUP_NAME);
-loop            : 'Loop' (SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' ENTITY_GROUP_NAME '| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits ('| Repeat:' NUM)?;
+loop            : 'Loop' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' ENTITY_GROUP_NAME '| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits ('| Repeat:' NUM)?;
 ifthenelse      : 'if' cond '{'
                         cond_transformations
                    '} else {'

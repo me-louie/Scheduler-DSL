@@ -1,0 +1,16 @@
+Entity SeniorCook1;
+Entity SeniorCook2;
+Entity JuniorCook1;
+Entity JuniorCook2;
+
+EntityGroup SeniorCooks: SeniorCook1, SeniorCook2;
+EntityGroup JuniorCooks: JuniorCook1, JuniorCook2;
+EntityGroup Trainees: Trainee1, Trainee2;
+
+EntityGroup Server3And4: Server3, Server4;
+
+Shift S1 is 10/01/2021 08:00 - 10/01/2021 12:00 "Breakfast Special: Strawberry Waffles";
+Shift S2 is 10/01/2021 08:00 - 10/01/2021 10:00 "Alternate 2 hr training shifts";
+
+Loop S1: SeniorCooks | Offset: >> 1 DAYS | Repeat: 2;
+Loop S2: JuniorCooks | Offset: >> 2 HOURS | Repeat: 2;
