@@ -25,7 +25,6 @@ Apply merge1: Person3;
 
 Var x = -33;
 Var y = -55;
-Var 1 = 1;
 Var w;
 
 Expression f1 = 1 + 0;

@@ -4,7 +4,6 @@ Entity Person3;
 Entity Person4;
 Entity Person5;
 Entity Person6;
-Entity Person7;
 EntityGroup GROUPA: Person4, Person5, Person6;
 Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
 Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
@@ -13,7 +12,6 @@ Shift S4 is 10/14/2021 12:00 - 10/14/2021 13:00;
 Shift S5 is 10/15/2021 12:00 - 10/15/2021 13:00;
 Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S2, S4, S5;
-Shift Group SG3: S1, S3, S5;
 
 Apply SG1: Person1 | Offset: >> x DAYS;
 Apply SG2: Person2;
