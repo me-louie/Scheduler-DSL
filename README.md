@@ -212,7 +212,7 @@ if (SG1 AND SG2) {   // SG1 AND SG2 = S2, evaluates to true
 
 ####Variables/Expressions:**
 // User can only type in Integers. These are basically for normal math functions. So that you can insert a variable or expression as an offset instead of a direct number.
-```aidl
+```
    * So Variables can be defined as numbers or other variables that were defined previously and the same variable can't be defined again like in Java:
       *So we can do Var x = 10;
         or we can do: Var y = 10; Var x = y;
