@@ -191,7 +191,7 @@ Loop S1: eg1 | Offset: >> 1 DAYS | Repeat: 2;  // schedules e1 for S1
 #### IfThenElse
 Conditional logic that can be used to wrap transformations. Will lead to either the 'if' or 'else' block of transformations being executed depending on the provided cond argument. The provided cond must be a set operation between two existing shift groups (including those created as the result of a merge). The cond with evaluate to true if the result of the set operation is a non-empty set, false otherwise. Both if and else blocks may be empty.
 
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;
@@ -210,7 +210,7 @@ if (SG1 AND SG2) {   // SG1 AND SG2 = S2, evaluates to true
 ```
 
 
-####Variables/Expressions:**
+#### Variables/Expressions:
 // User can only type in Integers. These are basically for normal math functions. So that you can insert a variable or expression as an offset instead of a direct number.
 ```
    * So Variables can be defined as numbers or other variables that were defined previously and the same variable can't be defined again like in Java:
