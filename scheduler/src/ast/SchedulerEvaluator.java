@@ -78,24 +78,27 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Integer offsetAmount = a.getVarOrExpression() != null ? getVarOrExpressionFinalValue(a.getVarOrExpression())
                 : a.getOffsetAmount();
 
-        if (isEntity && isShift) { // is an entity and a shift
-            applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator,
-                    offsetAmount, timeUnit);
-        } else if (isEntity && !isShift) { // is an entity and a shift group
-            for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator,
-                        offsetAmount, timeUnit);
-            }
-        } else if (!isEntity && isShift) { // is an entity group and a shift
-            Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
-            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
-                applyShiftToEntity(shift, entityName, offsetOperator, offsetAmount, timeUnit);
-            }
-        } else { // is an entity group and a shift group
-            for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+        for (int i = 0; i < a.getRepeatAmount(); i++) {
+            if (isEntity && isShift) { // is an entity and a shift
+                applyShiftToEntity(program.shiftMap.get(shiftOrShiftGroupName), entityOrEntityGroupName, offsetOperator,
+                        i * offsetAmount, timeUnit);
+            } else if (isEntity && !isShift) { // is an entity and a shift group
                 for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
-                    applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator, offsetAmount,
-                            timeUnit);
+                    applyShiftToEntity(program.shiftMap.get(shiftName), entityOrEntityGroupName, offsetOperator,
+                            i * offsetAmount, timeUnit);
+                }
+            } else if (!isEntity && isShift) { // is an entity group and a shift
+                Shift shift = program.shiftMap.get(shiftOrShiftGroupName);
+                for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                    applyShiftToEntity(shift, entityName, offsetOperator, i * offsetAmount, timeUnit);
+                }
+            } else { // is an entity group and a shift group
+                for (String entityName : program.entityGroupMap.get(entityOrEntityGroupName).getEntities()) {
+                    for (String shiftName : program.shiftGroupMap.get(shiftOrShiftGroupName).getShifts()) {
+                        applyShiftToEntity(program.shiftMap.get(shiftName), entityName, offsetOperator,
+                                i * offsetAmount,
+                                timeUnit);
+                    }
                 }
             }
         }
@@ -227,16 +230,20 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() :
                 getVarOrExpressionFinalValue(l.getVarOrExpression());
 
+        List<String> entitiesForRepeatedScheduling = new ArrayList<>();
+        // Create a new list of entities to make repeated scheduling by offset easier
         for (int i = 0; i < l.getRepeatAmount(); i++) {
-            for (String e : entities) {
-                for (Shift s : shifts) {
-                    ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getBegin(), s.getEnd(),
-                            s.getDescription(), l.getOffsetOperator(), i * offsetAmount, timeUnit);
-                    if (!scheduleMap.containsKey(e)) {
-                        scheduleMap.put(e, new HashSet<>());
-                    }
-                    scheduleMap.get(e).add(scheduledEvent);
+            entitiesForRepeatedScheduling.addAll(entities);
+        }
+
+        for (int i = 0; i < entitiesForRepeatedScheduling.size(); i++) {
+            for (Shift s : shifts) {
+                ScheduledEvent scheduledEvent = getShiftedScheduledEvent(s.getName(), s.getBegin(), s.getEnd(),
+                        s.getDescription(), l.getOffsetOperator(), i * offsetAmount, timeUnit);
+                if (!scheduleMap.containsKey(entitiesForRepeatedScheduling.get(i))) {
+                    scheduleMap.put(entitiesForRepeatedScheduling.get(i), new HashSet<>());
                 }
+                scheduleMap.get(entitiesForRepeatedScheduling.get(i)).add(scheduledEvent);
             }
         }
         return null;

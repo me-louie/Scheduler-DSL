@@ -35,22 +35,22 @@ Shift Group AfternoonEvening: Fri2, Sat2, Sun2, Fri3, Sat3, Sun3;
 Shift Group Server1Shifts: Fri1, Fri2, Sat1, Sat2, Sun1, Sun2;
 Shift Group Server2Shifts: Fri2, Fri3, Sat2, Sat3, Sun2, Sun3;
 
-Loop AfternoonEvening: SeniorCooks | Offset: >> 7 DAYS | Repeat: 2;
+Apply AfternoonEvening: SeniorCooks | Offset: >> 7 DAYS | Repeat: 2;
 
 Merge FriPM: Fri AND AfternoonEvening;
 Merge SunPM: Sun AND AfternoonEvening;
 Merge FriSunPM: FriPM OR SunPM;
 
-Loop FriSunPM: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
+Apply FriSunPM: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
 
 Merge Mornings: All EXCEPT AfternoonEvening;
-Loop Mornings: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;
+Apply Mornings: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;
 
-Loop Server1Shifts: Server1 | Offset: >> 7 DAYS | Repeat: 2;
-Loop Server2Shifts: Server2 | Offset: >> 7 DAYS | Repeat: 2;
+Apply Server1Shifts: Server1 | Offset: >> 7 DAYS | Repeat: 2;
+Apply Server2Shifts: Server2 | Offset: >> 7 DAYS | Repeat: 2;
 
 if (Server1Shifts AND Server2Shifts) {
     Merge OverlappingShifts: Server1Shifts AND Server2Shifts;
-    Loop OverlappingShifts: Server3And4 | Offset: >>  7 DAYS | Repeat: 2;
+    Apply OverlappingShifts: Server3And4 | Offset: >>  7 DAYS | Repeat: 2;
 } else {
 }

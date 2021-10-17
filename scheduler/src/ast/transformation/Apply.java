@@ -10,14 +10,17 @@ public class Apply extends Transformation {
     private final OffsetOperator offsetOperator;
     private final TimeUnit timeUnit;
     private final String varOrExpression;
+    private final Integer repeatAmount;
 
-    public Apply(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, Integer offsetAmount, OffsetOperator offsetOperator, TimeUnit timeUnit, String varOrExpression) {
+    public Apply(String shiftOrShiftGroupOrMergeGroupName, String entityOrEntityGroupName, Integer offsetAmount,
+                 OffsetOperator offsetOperator, TimeUnit timeUnit, String varOrExpression, Integer repeatAmount) {
         this.shiftOrShiftGroupOrMergeGroupName = shiftOrShiftGroupOrMergeGroupName;
         this.entityOrEntityGroupName = entityOrEntityGroupName;
         this.offsetAmount = offsetAmount;
         this.offsetOperator = offsetOperator;
         this.timeUnit = timeUnit;
         this.varOrExpression = varOrExpression;
+        this.repeatAmount = repeatAmount;
     }
 
     public Integer getOffsetAmount() {
@@ -42,6 +45,10 @@ public class Apply extends Transformation {
 
     public String getVarOrExpression() {
         return varOrExpression;
+    }
+
+    public Integer getRepeatAmount() {
+        return repeatAmount;
     }
 
     @Override
