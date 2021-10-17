@@ -46,11 +46,8 @@ Loop FriSunPM: Trainees | Offset: >> 7 DAYS |  Repeat: 2;
 Merge Mornings: All EXCEPT AfternoonEvening;
 Loop Mornings: JuniorCooks | Offset: >> 7 DAYS | Repeat: 2;
 
-Apply Server1Shifts: Server1;
-Apply Server1Shifts: Server1 | Offset: >> 7 DAYS;
-
-Apply Server2Shifts: Server2;
-Apply Server2Shifts: Server2 | Offset: >> 7 DAYS;
+Loop Server1Shifts: Server1 | Offset: >> 7 DAYS | Repeat: 2;
+Loop Server2Shifts: Server2 | Offset: >> 7 DAYS | Repeat: 2;
 
 if (Server1Shifts AND Server2Shifts) {
     Merge OverlappingShifts: Server1Shifts AND Server2Shifts;

@@ -202,11 +202,27 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Loop l) throws ProgramValidationException {
         Validator.validate(l);
 
-        List<String> entities = program.entityGroupMap.get(l.getEntityOrEntityGroupName()).getEntities();
-        List<String> shiftList = program.shiftGroupMap.get(l.getShiftOrShiftGroupOrMergeGroupName()).getShifts();
-        List<Shift> shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+        List<String> entities;
+        List<Shift> shifts;
+        List<String> shiftList;
+
+        boolean isEntity = program.entityMap.containsKey(l.getEntityOrEntityGroupName());
+        boolean isShift = program.shiftMap.containsKey(l.getShiftOrShiftGroupOrMergeGroupName());
+
+        if (isEntity) {
+            entities = List.of(program.entityMap.get(l.getEntityOrEntityGroupName()).getName());
+        } else {
+            entities = program.entityGroupMap.get(l.getEntityOrEntityGroupName()).getEntities();
+        }
+
+        if (isShift) {
+            shifts = List.of(program.shiftMap.get(l.getShiftOrShiftGroupOrMergeGroupName()));
+        } else {
+            shiftList = program.shiftGroupMap.get(l.getShiftOrShiftGroupOrMergeGroupName()).getShifts();
+            shifts = program.shiftMap.entrySet().stream().filter(e -> shiftList.contains(e.getKey()))
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
+        }
         TimeUnit timeUnit = l.timeUnit;
         Integer offsetAmount = l.getVarOrExpression() == null ? l.getOffsetAmount() :
                 getVarOrExpressionFinalValue(l.getVarOrExpression());
