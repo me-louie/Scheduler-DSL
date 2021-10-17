@@ -205,18 +205,10 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
     public Void visit(Loop l) throws ProgramValidationException {
         Validator.validate(l);
 
-        List<String> entities;
         List<Shift> shifts;
         List<String> shiftList;
-
-        boolean isEntity = program.entityMap.containsKey(l.getEntityGroupName());
+        List<String> entities = program.entityGroupMap.get(l.getEntityGroupName()).getEntities();
         boolean isShift = program.shiftMap.containsKey(l.getShiftOrShiftGroupOrMergeGroupName());
-
-        if (isEntity) {
-            entities = List.of(program.entityMap.get(l.getEntityGroupName()).getName());
-        } else {
-            entities = program.entityGroupMap.get(l.getEntityGroupName()).getEntities();
-        }
 
         if (isShift) {
             shifts = List.of(program.shiftMap.get(l.getShiftOrShiftGroupOrMergeGroupName()));
