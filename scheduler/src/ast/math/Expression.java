@@ -53,7 +53,6 @@ public class Expression extends Node {
         if (this.finalValue != null) {
             throw new RedefinitionException("The final value of expression " + name + " was attempted to be altered after it was originally set.");
         }
-        System.out.println(finalValue);
         this.finalValue = finalValue;
     }
 

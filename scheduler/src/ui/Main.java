@@ -14,7 +14,7 @@ import validate.ProgramValidationException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProgramValidationException {
-        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("DemoExample.txt"));
+        SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("ExampleMath.txt"));
 
         for (Token token : lexer.getAllTokens()) {
             System.out.println(token);
@@ -23,12 +23,9 @@ public class Main {
         TokenStream tokens = new CommonTokenStream(lexer);
         System.out.println("Done tokenizing");
         SchedulerParser parser = new SchedulerParser(tokens);
-        System.out.println("Done parser1");
         ParseToASTVisitor visitor = new ParseToASTVisitor();
-        System.out.println("Done parser2");
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
-
         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
         parsedProgram.accept(schedulerEvaluator);
         System.out.println("Done scheduling");
