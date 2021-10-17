@@ -5,7 +5,6 @@ Entity Person4;
 Entity Person5;
 Entity Person6;
 Entity Person7;
-EntityGroup GROUPA: Person4, Person5, Person6;
 
 Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
 Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
