@@ -23,12 +23,13 @@ Apply SG2: Person2;
 Merge merge1: SG1 OR SG2;
 Apply merge1: Person3;
 
-Var x = 33;
-Var y = 55;
-Expression f1 = x + 2;
-Expression f2 = 2 + 2;
+Var x = -33;
+Var y = -55;
+Expression f1 = 1 / 0;
+Expression f2 = f3 + f3;
+Expression f3 = x + f1;
 
-Merge merge2: SG1 AND SG2;
-Apply merge2: Person4 | Offset: >> 10 DAYS;
+Merge merge2: merge1 AND SG2;
+Apply merge2: Person4 | Offset: >> -10 DAYS;
 
 Loop SG1: GROUPA | Offset: >> 2 DAYS;

@@ -5,9 +5,7 @@ import ast.math.MathOperation;
 import ast.math.Variable;
 import ast.transformation.*;
 import evaluate.ScheduledEvent;
-import validate.ProgramValidationException;
-import validate.ResultNotFoundException;
-import validate.Validator;
+import validate.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -169,7 +167,17 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         Integer num1 = getExpressionValue(e, true);
         Integer num2 = getExpressionValue(e, false);
         MathOperation mathOperation = e.mathOperation;
-        e.setFinalValue(calculateExpressionFinalValue(num1, num2, mathOperation));
+        if (num2 == 0 && mathOperation == MathOperation.DIVIDE){
+            throw new DivideByZero(e.getName() +" Can't divide by zero");
+        }
+        Integer result = null;
+        try{
+            result = calculateExpressionFinalValue(num1, num2, mathOperation);
+        } catch (Exception x){
+            System.out.println("Arithmetic error associated with : " + e.getName());
+           throw x;
+        }
+        e.setFinalValue(result);
         return null;
     }
 
@@ -240,7 +248,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             case XOR -> {
                 Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
                 intersectionSet.retainAll(sgomg2ShiftNames); // intersection between sgomg1ShiftNames and
-                // sgomg2ShiftNames
+                // some2ShiftNames
                 resultSet.addAll(sgomg2ShiftNames);
                 resultSet.removeAll(intersectionSet);
             }
@@ -330,9 +338,9 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
 
     private Integer calculateExpressionFinalValue(Integer num1, Integer num2, MathOperation mathOP) {
         return switch (mathOP) {
-            case PLUS -> num1 + num2;
-            case MINUS -> num1 - num2;
-            case MULTIPLY -> num1 * num2;
+            case PLUS -> Math.addExact(num1 , num2);
+            case MINUS -> Math.subtractExact(num1, num2);
+            case MULTIPLY -> Math.multiplyExact(num1, num2);
             case DIVIDE -> num1 / num2;
             case POWER -> (int) Math.pow(num1, num2);
         };
