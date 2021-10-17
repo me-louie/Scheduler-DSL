@@ -18,7 +18,7 @@ expression      : EXPRESSION_START name EQUALSIGN VARORNUM MATH VARORNUM;
 transformation  : ((apply | merge | loop | expression | variable) ENDLINE) |  ifthenelse;
 timeShiftUnits  : HOURS_SHIFT | DAYS_SHIFT | WEEKS_SHIFT | MONTHS_SHIFT | YEARS_SHIFT;
 cond_transformations: transformation*;
-apply           : APPLY_START name COLON name (LOOP_SEPERATOR OFFSET offset_operator (VARORNUM) timeShiftUnits)? (LOOP_SEPERATOR REPEAT NUM)?;
+apply           : APPLY_START name COLON name (LOOP_SEPERATOR OFFSET offset_operator (VARORNUM) timeShiftUnits LOOP_SEPERATOR REPEAT NUM)?;
 merge           : MERGE_START name COLON name set_operator name;
 loop            : LOOP_START name COLON name LOOP_SEPERATOR OFFSET offset_operator VARORNUM timeShiftUnits (LOOP_SEPERATOR REPEAT NUM)?;
 ifthenelse      : IF cond COND_OPEN_BRACE COND_NEWLINE
