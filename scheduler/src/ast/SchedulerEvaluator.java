@@ -174,7 +174,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
         try{
             result = calculateExpressionFinalValue(num1, num2, mathOperation);
         } catch (Exception x){
-            System.out.println("Error at :" + e.getName());
+            System.out.println("Arithmetic error associated with : " + e.getName());
            throw x;
         }
         e.setFinalValue(result);
@@ -248,7 +248,7 @@ public class SchedulerEvaluator implements SchedulerVisitor<Void> {
             case XOR -> {
                 Set<String> intersectionSet = new HashSet<>(sgomg1ShiftNames);
                 intersectionSet.retainAll(sgomg2ShiftNames); // intersection between sgomg1ShiftNames and
-                // sgomg2ShiftNames
+                // some2ShiftNames
                 resultSet.addAll(sgomg2ShiftNames);
                 resultSet.removeAll(intersectionSet);
             }
