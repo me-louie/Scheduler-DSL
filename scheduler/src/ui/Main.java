@@ -14,8 +14,8 @@ import validate.ProgramValidationException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProgramValidationException {
+        // Path for example input files: "scheduler/ExampleInputs/BasicExample.txt"
         SchedulerLexer lexer = new SchedulerLexer(CharStreams.fromFileName("DemoExample.txt"));
-
         for (Token token : lexer.getAllTokens()) {
             System.out.println(token);
         }

@@ -1,10 +1,6 @@
 Entity Person1;
 Entity Person2;
 Entity Person3;
-Entity Person4;
-Entity Person5;
-Entity Person6;
-Entity Person7;
 
 Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
 Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
@@ -24,3 +20,4 @@ Merge merge5: SG1 XOR SG2;
 Merge merge4: merge2 EXCEPT merge3;
 
 Apply merge4: Person1;
+Apply merge5: Person3;
