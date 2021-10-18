@@ -19,13 +19,13 @@ Example input files are located within the `scheduler/ExampleInputs` directory. 
 
 ## Grammar
 ```
-program         : entity+ entity_group* shift+ shift_group* transformation*;
+program         : entity+ entity_group* shift+ transformation*;
 entity          : 'Entity' ENTITY_NAME ';'
 entity_group    : 'Entity Group' ENTITY_GROUP_NAME ':' ENTITY_NAME (',' ENTITY_NAME)* ';';
 name            : TEXT;
 
 shift           : 'Shift' SHIFT_NAME 'is' DATE TIME '-' DATE TIME ('"' DESCRIPTION '"')? ';';
-shift_group     : 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (',' SHIFT_NAME)* ';';
+shift_group     : 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (',' SHIFT_NAME)* ;
 
 set_operator    : 'AND' | 'OR' | 'XOR' | 'EXCEPT';
 offset_operator : '<<' | '>>';
@@ -33,7 +33,7 @@ offset_operator : '<<' | '>>';
 variable        : 'Var' VARIABLE_NAME ('=' (VARIABLE_NAME | NUM))? ';'?;
 expression      : 'Expression' EXPRESSION_NAME '=' (VARIABLE_NAME | EXPRESSION_NAME | NUM) MATH (VARIABLE_NAME | EXPRESSION_NAME | NUM) ';'?;
 
-transformation  : ((apply | merge | loop | expression | variable) ';') |  ifthenelse;
+transformation  : ((shift_group | apply | merge | loop | expression | variable) ';') |  ifthenelse;
 timeShiftUnits  : 'HOURS' | 'DAYS' | 'WEEKS' | 'MONTHS' | 'YEARS';
 cond_transformations: transformation*;
 apply           : 'Apply' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' (ENTITY_NAME | ENTITY_GROUP_NAME) ('| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits '| Repeat:' NUM)?;
@@ -63,27 +63,27 @@ DESCRIPTION: ~["]+;
 ### Grammar Documentation
 #### Entity
 An entity to be scheduled (e.g. employee, person, course). Entities may be referenced by their given name anywhere that ENTITY_NAME is present in other non-terminals.
-```aidl
+```
 Entity e1;  // defines an entity named e1
 Entity e2;  // defines an entity named e2
 ```
 #### Entity Group
 A group of one or more entities.
-```aidl
+```
 Entity Group eg1: e1;      // defines an entity group named eg1 with 1 member: e1
 Entity Group eg2: e1, e2;  // defines an entity group named eg2 with 2 members: e1 and e2
 ```
 #### Shift
 A date/time range for which an entity may be scheduled. The start date/time must be before or the same as the end date/time. Shifts may optionally include a description after the end date.
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 Shift S2 is 10/12/2021 09:00 - 10/12/2021 17:00 "Second day of work.. less exciting";
 ```
 #### Shift Group
 A group of one or more shifts.
 
-```aidl
+```
 Shift Group SG1: S1;
 Shift Group SG2: S1, S2, S3;
 ```
@@ -102,6 +102,10 @@ A shorthand reference for a simple mathematical expression Expressions take two 
 Var x = 1;
 Expression e1 = 1 + x    // e1 = 2
 Expression e2 = e1 * 2   // e2 = 4
+Then we can put expression names or variable names or integers as offsets in apply or loop transformation:
+Apply SG1: Person4 | Offset: >> f1 MONTHS;
+Apply SG2: Person5 | Offset: >> x days;
+See ExampleMath.txt for use cases. 
 ```
 #### Set Operators
 Operators used to perform set operations between two shift groups.
@@ -110,7 +114,7 @@ Operators used to perform set operations between two shift groups.
 * EXCEPT - takes the difference between the first and second shift groups
 * XOR - takes the difference between the first and second shift groups as well as the difference between the second and first
 
-```aidl
+```
 Shift Group SG1: S1, S4;
 Shift Group SG2: S1, S2, S3;
 
@@ -124,7 +128,7 @@ Operators used to offset shifts by some amount of time. A time unit and offset a
 * << - offset backwards in time
 * \>\> - offset forwards in time
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 
 S1 << 1 DAYS  // returns a shift from 10/10/2021 09:00 - 10/10/2021 17:00
@@ -132,7 +136,7 @@ S1 >> 3 HOURS // returns a shift from 10/11/2021 12:00 - 10/11/2021 20:00
 ```
 #### Apply
 The basic operation for scheduling entities/entity groups. First argument can either be an entity or entity group. Second argument can either be a shift or shift group. Any combination of these 4 types is valid. An Offset and Repeat argument can optionally be specified. If specified the shift/shift group will be applied as is, then offset and re-applied NUM times. NUM must be a positive integer. The offset amount may be any integer, variable, or expression.
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;
@@ -151,7 +155,7 @@ Apply SG1: eg1 | Offset: << 2 DAYS | Repeat: 3; // schedules e1, e2 for S1, S2, 
 #### Merge
 Operator for creating a new shift group by performing set operations on two existing shift groups. Assigns the newly created shift group to the name provided in MERGE_NAME, which can then be referenced in any operation that takes a shift group, including other merges.
 
-```aidl
+```
 Shift S1 is 10/11/2021 09:00 - 10/11/2021 17:00
 Shift S2 is 10/12/2021 09:00 - 10/12/2021 17:00
 Shift S3 is 10/13/2021 09:00 - 10/13/2021 17:00
@@ -164,12 +168,14 @@ Merge m2: SG1 OR SG2       // creates a new shift group named m2 composed of S1,
 Merge m3: SG1 EXCEPT SG2   // creates a new shift group named m3 composed of S1
 Merge m4: m1 XOR SG2       // creates a new shift group named m4 composed of S3
 Merge m5: m2 EXCEPT m4     // creates a new shift group named m5 composed of S1, S2
+
+See ExampleMerge.txt for a working example of various cases. 
 ```
 
 #### Loop
 Operator for scheduling members of entity groups using a loop. Takes in as first argument an entity group, individual entities are invalid. Takes in as second argument either a shift or shift group. Takes as third argument an Offset followed by an optional Repeat argument. Iterates through the entity group and applies shifts with offset. Each person in the entity group will receive the same shifts with an increasing offset (i.e. first entity gets all the shifts with no offset, second entity gets all shifts + offset, third entity gets all shifts + (2*offset), etc). If the Repeat argument is provided once the entire entity group has been iterated through we loop back to the first entity and continue applying the offset shifts. The entire entity group list will be iterated through NUM times. NUM must be a positive integer.
 
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;
@@ -189,7 +195,7 @@ Loop S1: eg1 | Offset: >> 1 DAYS | Repeat: 2;  // schedules e1 for S1
 #### IfThenElse
 Conditional logic that can be used to wrap transformations. Will lead to either the 'if' or 'else' block of transformations being executed depending on the provided cond argument. The provided cond must be a set operation between two existing shift groups (including those created as the result of a merge). The cond with evaluate to true if the result of the set operation is a non-empty set, false otherwise. Both if and else blocks may be empty.
 
-```aidl
+```
 Entity e1;
 Entity e2;
 Entity Group eg1: e1, e2;

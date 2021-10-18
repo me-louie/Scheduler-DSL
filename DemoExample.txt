@@ -30,6 +30,7 @@ Shift Group All: Fri1, Fri2, Fri3, Sat1, Sat2, Sat3, Sun1, Sun2, Sun3;
 Shift Group Fri: Fri1, Fri2, Fri3;
 Shift Group Sat: Sat1, Sat2, Sat3;
 Shift Group Sun: Sun1, Sun2, Sun3;
+
 Shift Group AfternoonEvening: Fri2, Sat2, Sun2, Fri3, Sat3, Sun3;
 
 Shift Group Server1Shifts: Fri1, Fri2, Sat1, Sat2, Sun1, Sun2;

@@ -25,11 +25,13 @@ Apply merge1: Person3;
 
 Var x = -33;
 Var y = -55;
-Expression f1 = 1 / 0;
+Var w;
+
+Expression f1 = 1 + 0;
 Expression f2 = f3 + f3;
-Expression f3 = x + f1;
+Expression f3 = 1 + f1;
 
 Merge merge2: merge1 AND SG2;
-Apply merge2: Person4 | Offset: >> -10 DAYS;
+Apply merge2: Person4 | Offset: >> f3 DAYS;
 
 Loop SG1: GROUPA | Offset: >> 2 DAYS;

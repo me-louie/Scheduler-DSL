@@ -23,12 +23,9 @@ public class Main {
         TokenStream tokens = new CommonTokenStream(lexer);
         System.out.println("Done tokenizing");
         SchedulerParser parser = new SchedulerParser(tokens);
-        System.out.println("Done parser1");
         ParseToASTVisitor visitor = new ParseToASTVisitor();
-        System.out.println("Done parser2");
         Program parsedProgram = visitor.visitProgram(parser.program());
         System.out.println("Done parsing");
-
         SchedulerEvaluator schedulerEvaluator = new SchedulerEvaluator();
         parsedProgram.accept(schedulerEvaluator);
         System.out.println("Done scheduling");

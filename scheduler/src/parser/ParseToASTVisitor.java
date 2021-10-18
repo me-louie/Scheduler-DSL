@@ -14,13 +14,13 @@ import java.util.Map;
 public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements SchedulerParserVisitor<Node> {
     @Override
     public Program visitProgram(SchedulerParser.ProgramContext ctx) {
-        Map<String, Variable> variableMap = new SchedulerMap();
-        Map<String, Expression> expressionMap = new SchedulerMap();
-        Map<String, Entity> entityMap = new SchedulerMap();
-        Map<String, EntityGroup> entityGroupMap = new SchedulerMap();
-        Map<String, Shift> shiftMap = new SchedulerMap();
-        Map<String, ShiftGroup> shiftGroupMap = new SchedulerMap();
-        Map<String, List<Transformation>> transformationMap = new SchedulerMap() {{
+        Map<String, Variable> variableMap = new SchedulerMap<>();
+        Map<String, Expression> expressionMap = new SchedulerMap<>();
+        Map<String, Entity> entityMap = new SchedulerMap<>();
+        Map<String, EntityGroup> entityGroupMap = new SchedulerMap<>();
+        Map<String, Shift> shiftMap = new SchedulerMap<>();
+        Map<String, ShiftGroup> shiftGroupMap = new SchedulerMap<>();
+        Map<String, List<Transformation>> transformationMap = new SchedulerMap<>() {{
             put(Transformation.APPLY, new ArrayList<>());
             put(Transformation.MERGE, new ArrayList<>());
             put(Transformation.LOOP, new ArrayList<>());
@@ -42,12 +42,13 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
             shiftMap.put(shift.getName(), shift);
         }
 
-        for (SchedulerParser.Shift_groupContext e : ctx.shift_group()) {
-            ShiftGroup shiftGroup = this.visitShift_group(e);
-            shiftGroupMap.put(shiftGroup.getName(), shiftGroup);
-        }
+
 
         for (SchedulerParser.TransformationContext e : ctx.transformation()) {
+            if(e.shift_group() != null){
+                ShiftGroup shiftGroup = this.visitShift_group(e.shift_group());
+                shiftGroupMap.put(shiftGroup.getName(), shiftGroup);
+            }
             if (e.apply() != null) {
                 Apply apply = this.visitApply(e.apply());
                 transformationMap.get(Transformation.APPLY).add(apply);
@@ -138,10 +139,11 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Variable visitVariable(SchedulerParser.VariableContext ctx) {
         String varName = ctx.name().getText();
+        if (isInt(varName)) {
+           throw new RuntimeException("Variable name \"" + varName + "\" must have a letter");
+        }
         String varName2 = null;
-        System.out.println(varName);
-        System.out.println(varName2);
-        Integer num = 0;
+        int num = 0;
         try {
             if (isInt(ctx.VARORNUM().getText())) {
                 num = Integer.parseInt(ctx.VARORNUM().getText());
@@ -154,16 +156,23 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
         } catch (NullPointerException e) {
             // if user declares but doesn't assign a value this will null pointer, in that case we automatically assign the value of 0
         }
-        System.out.println(num);
         return new Variable(varName, num, varName2);
     }
 
     public boolean isInt(String str) {
+
+
         try {
             Integer.parseInt(str);
             return true;  // String is an Integer
         } catch (NumberFormatException e) {
-            return false; // String is not an Integer
+            if (str.matches("[0-9]*[a-zA-Z]+")) {
+                return false; // String is not an Integer
+            }else if(str.matches("-?[0-9]+")){
+                throw e;
+            }else{
+                return false;
+            }
         }
     }
 
@@ -176,10 +185,10 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     public Apply visitApply(SchedulerParser.ApplyContext ctx) {
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
-        Integer offsetAmount = null;
+        int offsetAmount = 0;
         String varOrExpressionName = null;
         TimeUnit timeUnit = null;
-        Integer repeatAmount = 1;
+        int repeatAmount = 1;
         if (ctx.VARORNUM() != null) {
             if (isInt(ctx.VARORNUM().getText())) {
                 offsetAmount = Integer.parseInt(ctx.VARORNUM().getText());
@@ -243,9 +252,9 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     public Loop visitLoop(SchedulerParser.LoopContext ctx) {
         String shiftOrShiftGroupOrMergeName = ctx.name(0).getText();
         String entityOrEntityGroupName = ctx.name(1).getText();
-        Integer offsetAmount = 0;
+        int offsetAmount = 0;
         String varOrExpression = null;
-        Integer repeatAmount = 1;
+        int repeatAmount = 1;
         if (isInt(ctx.VARORNUM().getText())) {
             offsetAmount = Integer.parseInt(ctx.VARORNUM().getText());
         } else {
@@ -306,7 +315,6 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     }
 
     private OffsetOperator getOffsetOperator(String operator) {
-        System.out.println(operator + "OP");
         return switch (operator.trim()) {
             case "<<" -> OffsetOperator.LEFTSHIFT;
             case ">>" -> OffsetOperator.RIGHTSHIFT;

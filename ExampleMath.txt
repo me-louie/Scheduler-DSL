@@ -4,18 +4,14 @@ Entity Person3;
 Entity Person4;
 Entity Person5;
 Entity Person6;
-Entity Person7;
 EntityGroup GROUPA: Person4, Person5, Person6;
-
 Shift S1 is 10/11/2021 12:00 - 10/11/2021 13:00;
 Shift S2 is 10/12/2021 12:00 - 10/12/2021 13:00;
 Shift S3 is 10/13/2021 12:00 - 10/13/2021 13:00;
 Shift S4 is 10/14/2021 12:00 - 10/14/2021 13:00;
 Shift S5 is 10/15/2021 12:00 - 10/15/2021 13:00;
-
 Shift Group SG1: S1, S2, S3;
 Shift Group SG2: S2, S4, S5;
-Shift Group SG3: S1, S3, S5;
 
 Apply SG1: Person1 | Offset: >> x DAYS;
 Apply SG2: Person2;
@@ -24,14 +20,13 @@ Merge merge1: SG1 OR SG2;
 Apply merge1: Person3;
 
 Var x = 33;
-Var y = 55;
-
-Expression f2 = x + z;
-Expression f1 = y + f2;
-Expression f3 = f1 + f2;
+Var y = 10;
+Expression f1 = 3 + f2;
+Expression f3 = f1 * f2;
+Expression f2 = y / 5;
 
 Var z = 3;
 Merge merge2: SG1 AND SG2;
-Apply merge2: Person4 | Offset: >> x MONTHS;
+Apply merge2: Person4 | Offset: >> f3 MONTHS;
 
-Loop SG1: GROUPA | Offset: >> f3 DAYS;
+Loop SG1: GROUPA | Offset: >> f2 DAYS;

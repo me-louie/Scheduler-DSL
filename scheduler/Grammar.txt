@@ -1,12 +1,12 @@
 Source of truth for our grammar:
 
-program         : entity+ entity_group* shift+ shift_group* transformation*;
+program         : entity+ entity_group* shift+ transformation*;
 entity          : 'Entity' ENTITY_NAME ';'
 entity_group    : 'Entity Group' ENTITY_GROUP_NAME ':' ENTITY_NAME (',' ENTITY_NAME)* ';';
 name            : TEXT;
 
 shift           : 'Shift' SHIFT_NAME DATE TIME '-' DATE TIME ('"' DESCRIPTION '"')? ';';
-shift_group     : 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (',' SHIFT_NAME)* ';';
+shift_group     : 'Shift Group' SHIFT_GROUP_NAME ':' SHIFT_NAME (',' SHIFT_NAME)*;
 
 set_operator    : 'AND' | 'OR' | 'XOR' | 'EXCEPT';
 offset_operator : '<<' | '>>';
@@ -14,7 +14,7 @@ offset_operator : '<<' | '>>';
 variable        : 'Var' VARIABLE_NAME ('=' (VARIABLE_NAME | NUM))? ';'?;
 expression      : 'Expression' EXPRESSION_NAME '=' (VARIABLE_NAME | EXPRESSION_NAME | NUM) MATH (VARIABLE_NAME | EXPRESSION_NAME | NUM) ';'?;
 
-transformation  : ((apply | merge | loop | expression | variable) ';') |  ifthenelse;
+transformation  : ((shift_group| apply | merge | loop | expression | variable) ';') |  ifthenelse;
 timeShiftUnits  : 'HOURS' | 'DAYS' | 'WEEKS' | 'MONTHS' | 'YEARS';
 cond_transformations: transformation*;
 apply           : 'Apply' (SHIFT_NAME | SHIFT_GROUP_NAME | MERGE_GROUP_NAME) ':' (ENTITY_NAME | ENTITY_GROUP_NAME) ('| Offset:' offset_operator (VARIABLE_NAME | EXPRESSION_NAME | NUM) timeShiftUnits '| Repeat:' NUM)?;
