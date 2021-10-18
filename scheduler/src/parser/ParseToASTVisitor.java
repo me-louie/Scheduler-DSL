@@ -139,7 +139,7 @@ public class ParseToASTVisitor extends AbstractParseTreeVisitor<Node> implements
     @Override
     public Variable visitVariable(SchedulerParser.VariableContext ctx) {
         String varName = ctx.name().getText();
-        if(isInt(varName)){
+        if (isInt(varName)) {
            throw new RuntimeException("Variable name \"" + varName + "\" must have a letter");
         }
         String varName2 = null;
